@@ -78,8 +78,12 @@ export function AppSidebar() {
     <Sidebar className="border-r border-purple-100">
       <SidebarHeader className="border-b border-purple-100 p-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">sa</span>
+          <div className="w-8 h-8 bg-gradient-to-br flex items-center justify-center">
+            <img
+              src="/saturasa-min.png"
+              alt="saturasa logo"
+              className="h-8 w-8 object-contain"
+            />
           </div>
           <span className="font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             saturasa
