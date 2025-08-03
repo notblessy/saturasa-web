@@ -43,11 +43,15 @@ export default function LoginPage() {
 
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">sa</span>
+            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center">
+              <img
+                src="/saturasa-min.png"
+                alt="saturasa logo"
+                className="h-12 w-12 object-contain"
+              />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Welcome Back
+              Welcome to saturasa
             </CardTitle>
             <CardDescription className="text-gray-600">
               Sign in to your saturasa dashboard

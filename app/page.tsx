@@ -19,6 +19,7 @@ import {
   Star,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function LandingPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -132,7 +133,7 @@ export default function LandingPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">sa</span>
+                <Image alt="saturasa logo" src="/saturasa-bg-min.png" width={120} height={40} className="h-8" />
               </div>
               <span className="font-bold text-xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 saturasa

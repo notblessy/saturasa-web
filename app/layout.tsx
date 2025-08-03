@@ -5,8 +5,18 @@ import "./globals.css"
 import { Providers } from "@/lib/providers"
 
 export const metadata: Metadata = {
-  title: "saturasa - Warehouse Management",
-  description: "Complete warehouse production management solution",
+  title: "saturasa - Simplified ERP for FnB Business",
+  description: "saturasa is an ERP for FnB business that simplifies operations and enhances efficiency.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "saturasa - Simplified ERP for FnB Business",
+    description: "saturasa is an ERP for FnB business that simplifies operations and enhances efficiency.",
+    url: "https://saturasa.id",
+    siteName: "saturasa",
+  }
 }
 
 export default function RootLayout({
