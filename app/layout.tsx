@@ -16,6 +16,14 @@ export const metadata: Metadata = {
     description: "saturasa is an ERP for FnB business that simplifies operations and enhances efficiency.",
     url: "https://saturasa.id",
     siteName: "saturasa",
+    images: [
+      {
+        url: "https://saturasa.id/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "saturasa - Simplified ERP for FnB Business",
+      },
+    ],
   }
 }
 
