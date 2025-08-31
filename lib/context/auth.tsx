@@ -14,6 +14,26 @@ import api from "@/lib/utils/api";
 import useToast from "./toast";
 import { useRouter } from "next/navigation";
 
+// Helper function to decode JWT token
+function decodeJWT(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Error decoding JWT:', error);
+    return null;
+  }
+}
+
 interface User {
   id: string;
   email: string;
@@ -72,8 +92,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             maxAge: expiredAt.getTime(),
           });
 
+          // Decode JWT token to check user type
+          const decodedToken = decodeJWT(res.data.token);
+          
           setTimeout(() => {
-            router.push("/dashboard");
+            // Check if user is superadmin (no company_id)
+            if (decodedToken && (!decodedToken.company_id || decodedToken.company_id === "")) {
+              router.push("/superadmin");
+            } else {
+              router.push("/dashboard");
+            }
           }, 500);
         } else if (res.success && !res.data) {
           toast({
