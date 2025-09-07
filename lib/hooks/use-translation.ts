@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { translations, type Locale, type TranslationKeys } from '../translations';
 
 export function useTranslation() {
-  const [locale, setLocale] = useState<Locale>('en');
+  const [locale, setLocale] = useState<Locale>('id');
   
   useEffect(() => {
     // Get locale from localStorage or default to 'en'

@@ -4,7 +4,7 @@ const nextConfig = {
     suppressHydrationWarning: true,
   },
   i18n: {
-    locales: ['en', 'id'],
+    locales: ['id', 'en'],
     defaultLocale: 'id',
     localeDetection: false,
   },

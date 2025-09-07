@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { BreadcrumbNav } from "@/components/breadcrumb-nav"
 import { Plus, Edit, Trash2, Search } from "lucide-react"
+import { useTranslation } from "@/lib/hooks/use-translation"
 
 interface BOM {
   id: string
@@ -49,6 +50,7 @@ const mockProductSpecs = [
 ]
 
 export default function BOMPage() {
+  const { t } = useTranslation()
   const [boms, setBOMs] = useState<BOM[]>(mockBOMs)
   const [searchTerm, setSearchTerm] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
@@ -115,29 +117,29 @@ export default function BOMPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <BreadcrumbNav items={[{ label: "Inventories", href: "/dashboard" }, { label: "BOM/Recipes" }]} />
+      <BreadcrumbNav items={[{ label: t.common.inventories, href: "/dashboard" }, { label: t.bom.title }]} />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">BOM/Recipes</h1>
-          <p className="text-gray-600 mt-2">Manage bill of materials and recipes</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t.bom.title}</h1>
+          <p className="text-gray-600 mt-2">{t.bom.subtitle}</p>
         </div>
         <Button
           onClick={handleAddBOM}
           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add BOM/Recipe
+          {t.bom.addBomRecipe}
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">BOM/Recipe List</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t.bom.bomRecipeList}</h2>
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search BOM/Recipes..."
+              placeholder={t.bom.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -149,11 +151,11 @@ export default function BOMPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Linked Product</TableHead>
-                <TableHead>Total Cost</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t.bom.name}</TableHead>
+                <TableHead>{t.bom.type}</TableHead>
+                <TableHead>{t.bom.linkedProduct}</TableHead>
+                <TableHead>{t.bom.totalCost}</TableHead>
+                <TableHead className="text-right">{t.bom.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -166,7 +168,7 @@ export default function BOMPage() {
                         bom.type === "assembly" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
                       }`}
                     >
-                      {bom.type}
+                      {bom.type === 'assembly' ? t.bom.assembly : t.bom.menu}
                     </span>
                   </TableCell>
                   <TableCell>{bom.linkedProductSpec}</TableCell>
@@ -196,45 +198,45 @@ export default function BOMPage() {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="w-[400px] sm:w-[540px]">
           <SheetHeader>
-            <SheetTitle>{editingBOM ? "Edit BOM/Recipe" : "Add New BOM/Recipe"}</SheetTitle>
+            <SheetTitle>{editingBOM ? t.bom.editBomRecipe : t.bom.addNewBomRecipe}</SheetTitle>
             <SheetDescription>
-              {editingBOM ? "Update BOM/Recipe information" : "Create a new BOM/Recipe entry"}
+              {editingBOM ? t.bom.updateBomRecipeInfo : t.bom.createNewBomRecipe}
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t.bom.name}</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter BOM/Recipe name"
+                placeholder={t.bom.enterBomRecipeName}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">{t.bom.type}</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value as "assembly" | "menu" })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t.bom.selectType} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="assembly">Assembly</SelectItem>
-                  <SelectItem value="menu">Menu</SelectItem>
+                  <SelectItem value="assembly">{t.bom.assembly}</SelectItem>
+                  <SelectItem value="menu">{t.bom.menu}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="linkedProductSpec">Linked Product Specification</Label>
+              <Label htmlFor="linkedProductSpec">{t.bom.linkedProductSpec}</Label>
               <Select
                 value={formData.linkedProductSpec}
                 onValueChange={(value) => setFormData({ ...formData, linkedProductSpec: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select product specification" />
+                  <SelectValue placeholder={t.bom.selectProductSpec} />
                 </SelectTrigger>
                 <SelectContent>
                   {mockProductSpecs.map((spec) => (
@@ -246,7 +248,7 @@ export default function BOMPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="totalCost">Total Cost</Label>
+              <Label htmlFor="totalCost">{t.bom.totalCost}</Label>
               <Input
                 id="totalCost"
                 type="number"
@@ -258,19 +260,19 @@ export default function BOMPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">{t.bom.notes}</Label>
               <Textarea
                 id="notes"
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Enter additional notes"
+                placeholder={t.bom.enterAdditionalNotes}
               />
             </div>
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             >
-              {editingBOM ? "Update BOM/Recipe" : "Add BOM/Recipe"}
+              {editingBOM ? t.bom.updateBomRecipe : t.bom.createBomRecipe}
             </Button>
           </form>
         </SheetContent>

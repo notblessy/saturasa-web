@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Label } from "@/components/ui/label"
 import { BreadcrumbNav } from "@/components/breadcrumb-nav"
 import { Plus, Edit, Trash2, Search } from "lucide-react"
+import { useTranslation } from "@/lib/hooks/use-translation"
 
 interface Category {
   id: string
@@ -24,6 +25,7 @@ const mockCategories: Category[] = [
 ]
 
 export default function CategoriesPage() {
+  const { t } = useTranslation()
   const [categories, setCategories] = useState<Category[]>(mockCategories)
   const [searchTerm, setSearchTerm] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
@@ -69,33 +71,33 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <BreadcrumbNav
         items={[
-          { label: "Inventories", href: "/dashboard" },
+          { label: t.common.inventories, href: "/dashboard" },
           { label: "Product Settings", href: "/dashboard" },
-          { label: "Categories" },
+          { label: t.categories.title },
         ]}
       />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
-          <p className="text-gray-600 mt-2">Manage product categories</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t.categories.title}</h1>
+          <p className="text-gray-600 mt-2">{t.categories.subtitle}</p>
         </div>
         <Button
           onClick={handleAddCategory}
           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Category
+          {t.categories.addCategory}
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Category List</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t.categories.categoryList}</h2>
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search categories..."
+              placeholder={t.categories.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -107,8 +109,8 @@ export default function CategoriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t.categories.name}</TableHead>
+                <TableHead className="text-right">{t.categories.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -140,19 +142,19 @@ export default function CategoriesPage() {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{editingCategory ? "Edit Category" : "Add New Category"}</SheetTitle>
+            <SheetTitle>{editingCategory ? t.categories.editCategory : t.categories.addNewCategory}</SheetTitle>
             <SheetDescription>
-              {editingCategory ? "Update category information" : "Create a new category"}
+              {editingCategory ? t.categories.updateCategoryInfo : t.categories.createNewCategory}
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Category Name</Label>
+              <Label htmlFor="name">{t.categories.categoryName}</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter category name"
+                placeholder={t.categories.enterCategoryName}
                 required
               />
             </div>
@@ -160,7 +162,7 @@ export default function CategoriesPage() {
               type="submit"
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             >
-              {editingCategory ? "Update Category" : "Add Category"}
+              {editingCategory ? t.categories.updateCategory : t.categories.addCategory}
             </Button>
           </form>
         </SheetContent>

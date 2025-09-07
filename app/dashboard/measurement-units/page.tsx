@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Label } from "@/components/ui/label"
 import { BreadcrumbNav } from "@/components/breadcrumb-nav"
 import { Plus, Edit, Trash2, Search } from "lucide-react"
+import { useTranslation } from "@/lib/hooks/use-translation"
 
 interface MeasurementUnit {
   id: string
@@ -26,6 +27,7 @@ const mockUnits: MeasurementUnit[] = [
 ]
 
 export default function MeasurementUnitsPage() {
+  const { t } = useTranslation()
   const [units, setUnits] = useState<MeasurementUnit[]>(mockUnits)
   const [searchTerm, setSearchTerm] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
@@ -73,33 +75,33 @@ export default function MeasurementUnitsPage() {
     <div className="space-y-6">
       <BreadcrumbNav
         items={[
-          { label: "Inventories", href: "/dashboard" },
+          { label: t.common.inventories, href: "/dashboard" },
           { label: "Product Settings", href: "/dashboard" },
-          { label: "Measurement Units" },
+          { label: t.measurementUnits.title },
         ]}
       />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Measurement Units</h1>
-          <p className="text-gray-600 mt-2">Manage measurement units for products</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t.measurementUnits.title}</h1>
+          <p className="text-gray-600 mt-2">{t.measurementUnits.subtitle}</p>
         </div>
         <Button
           onClick={handleAddUnit}
           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Unit
+          {t.measurementUnits.addUnit}
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Measurement Units List</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t.measurementUnits.measurementUnitsList}</h2>
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search units..."
+              placeholder={t.measurementUnits.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -111,9 +113,9 @@ export default function MeasurementUnitsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Label</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t.measurementUnits.name}</TableHead>
+                <TableHead>{t.measurementUnits.label}</TableHead>
+                <TableHead className="text-right">{t.measurementUnits.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -146,29 +148,29 @@ export default function MeasurementUnitsPage() {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{editingUnit ? "Edit Measurement Unit" : "Add New Measurement Unit"}</SheetTitle>
+            <SheetTitle>{editingUnit ? t.measurementUnits.editMeasurementUnit : t.measurementUnits.addNewMeasurementUnit}</SheetTitle>
             <SheetDescription>
-              {editingUnit ? "Update measurement unit information" : "Create a new measurement unit"}
+              {editingUnit ? t.measurementUnits.updateMeasurementUnitInfo : t.measurementUnits.createNewMeasurementUnit}
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Unit Name</Label>
+              <Label htmlFor="name">{t.measurementUnits.unitName}</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter unit name (e.g., kilogram)"
+                placeholder={t.measurementUnits.enterUnitName}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="label">Unit Label</Label>
+              <Label htmlFor="label">{t.measurementUnits.unitLabel}</Label>
               <Input
                 id="label"
                 value={formData.label}
                 onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                placeholder="Enter unit label (e.g., kg)"
+                placeholder={t.measurementUnits.enterUnitLabel}
                 required
               />
             </div>
@@ -176,7 +178,7 @@ export default function MeasurementUnitsPage() {
               type="submit"
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             >
-              {editingUnit ? "Update Unit" : "Add Unit"}
+              {editingUnit ? t.measurementUnits.updateUnit : t.measurementUnits.addUnit}
             </Button>
           </form>
         </SheetContent>
