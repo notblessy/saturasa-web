@@ -182,6 +182,14 @@ export const en = {
     create: 'Create',
     update: 'Update',
   },
+  metadata: {
+    title: "saturasa - Simplified ERP for FnB Business",
+    description: "saturasa is an ERP for FnB business that simplifies operations and enhances efficiency.",
+    openGraph: {
+      title: "saturasa - Simplified ERP for FnB Business",
+      description: "saturasa is an ERP for FnB business that simplifies operations and enhances efficiency.",
+    },
+  },
 };
 
 export type TranslationKeys = typeof en;

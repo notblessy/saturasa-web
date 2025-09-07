@@ -182,6 +182,14 @@ export const id = {
     create: 'Buat',
     update: 'Perbarui',
   },
+  metadata: {
+    title: "saturasa - ERP Sederhana untuk Bisnis FnB",
+    description: "saturasa adalah ERP untuk bisnis FnB yang menyederhanakan operasi dan meningkatkan efisiensi.",
+    openGraph: {
+      title: "saturasa - ERP Sederhana untuk Bisnis FnB",
+      description: "saturasa adalah ERP untuk bisnis FnB yang menyederhanakan operasi dan meningkatkan efisiensi.",
+    },
+  },
 };
 
 export type TranslationKeys = typeof id;
