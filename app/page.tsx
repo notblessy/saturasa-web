@@ -20,8 +20,11 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { useTranslation } from "@/lib/hooks/use-translation"
+import LanguageSelector from "@/components/language-selector"
 
 export default function LandingPage() {
+  const { t } = useTranslation()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
 
@@ -45,64 +48,64 @@ export default function LandingPage() {
   const features = [
     {
       icon: Package,
-      title: "Inventory & Stock Management",
-      description: "Track products, categories, and stock levels with real-time updates and automated alerts.",
+      title: t.landing.features.inventory.title,
+      description: t.landing.features.inventory.description,
     },
     {
       icon: Factory,
-      title: "Production & BOM/Recipes",
-      description: "Manage bill of materials, recipes, and production workflows with detailed cost tracking.",
+      title: t.landing.features.production.title,
+      description: t.landing.features.production.description,
     },
     {
       icon: Users,
-      title: "Supplier & Purchase Tracking",
-      description: "Maintain supplier relationships and track all purchase orders from request to delivery.",
+      title: t.landing.features.supplier.title,
+      description: t.landing.features.supplier.description,
     },
     {
       icon: Shield,
-      title: "Role-Based Access Control",
-      description: "Secure your data with customizable user roles and permissions for team collaboration.",
+      title: t.landing.features.access.title,
+      description: t.landing.features.access.description,
     },
   ]
 
   const steps = [
     {
       icon: CheckCircle,
-      title: "Create Your Company Account",
-      description: "Set up your warehouse profile and configure basic settings in minutes.",
+      title: t.landing.howItWorks.step1.title,
+      description: t.landing.howItWorks.step1.description,
     },
     {
       icon: Package,
-      title: "Set Up Products & Recipes",
-      description: "Add your inventory, create BOMs, and define your production processes.",
+      title: t.landing.howItWorks.step2.title,
+      description: t.landing.howItWorks.step2.description,
     },
     {
       icon: BarChart3,
-      title: "Track and Manage Everything",
-      description: "Monitor real-time data, generate reports, and optimize your operations.",
+      title: t.landing.howItWorks.step3.title,
+      description: t.landing.howItWorks.step3.description,
     },
   ]
 
   const benefits = [
     {
       icon: Clock,
-      title: "Save Time on Manual Tasks",
-      description: "Automate repetitive processes and reduce administrative overhead.",
+      title: t.landing.benefits.saveTime.title,
+      description: t.landing.benefits.saveTime.description,
     },
     {
       icon: Target,
-      title: "Prevent Inventory Mistakes",
-      description: "Real-time tracking and alerts help avoid stockouts and overstock situations.",
+      title: t.landing.benefits.preventMistakes.title,
+      description: t.landing.benefits.preventMistakes.description,
     },
     {
       icon: CheckCircle,
-      title: "Track Every Purchase Accurately",
-      description: "Complete audit trail from purchase request to final delivery and payment.",
+      title: t.landing.benefits.trackPurchases.title,
+      description: t.landing.benefits.trackPurchases.description,
     },
     {
       icon: Zap,
-      title: "Scalable for Any Business",
-      description: "Perfect for manufacturers, distributors, and growing businesses of all sizes.",
+      title: t.landing.benefits.scalable.title,
+      description: t.landing.benefits.scalable.description,
     },
   ]
 
@@ -141,28 +144,29 @@ export default function LandingPage() {
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <Link href="#features" className="text-gray-600 hover:text-purple-600 transition-colors">
-                Features
+                {t.nav.features}
               </Link>
               <Link href="#how-it-works" className="text-gray-600 hover:text-purple-600 transition-colors">
-                How It Works
+                {t.nav.howItWorks}
               </Link>
               <Link href="#benefits" className="text-gray-600 hover:text-purple-600 transition-colors">
-                Benefits
+                {t.nav.benefits}
               </Link>
             </div>
             <div className="flex items-center gap-4">
+              <LanguageSelector />
               <Button
                 variant="outline"
                 onClick={handleTryDemo}
                 className="border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent"
               >
-                Try Demo
+                {t.nav.tryDemo}
               </Button>
               <Button
                 onClick={handleGetStarted}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
               >
-                {isAuthenticated ? "Dashboard" : "Get Started"}
+                {isAuthenticated ? t.nav.dashboard : t.nav.getStarted}
               </Button>
             </div>
           </div>
@@ -179,7 +183,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              Streamline Your Warehouse Production
+              {t.landing.hero.title}
             </motion.h1>
             <motion.p
               className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto"
@@ -187,8 +191,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              saturasa helps you manage inventories, suppliers, production, and purchasing in one clean dashboard.
-              Perfect for manufacturers and distributors who want to scale efficiently.
+              {t.landing.hero.subtitle}
             </motion.p>
             <motion.div
               className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -201,7 +204,7 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-3"
               >
-                {isAuthenticated ? "Go to Dashboard" : "Get Started"}
+                {isAuthenticated ? t.landing.hero.goToDashboard : t.landing.hero.getStarted}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button
@@ -210,7 +213,7 @@ export default function LandingPage() {
                 onClick={handleTryDemo}
                 className="border-purple-200 text-purple-600 hover:bg-purple-50 text-lg px-8 py-3 bg-transparent"
               >
-                Try Demo
+                {t.landing.hero.tryDemo}
               </Button>
             </motion.div>
           </div>
@@ -222,10 +225,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Manage Your Warehouse
+              {t.landing.features.title}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Comprehensive tools designed for modern manufacturing and distribution businesses
+              {t.landing.features.subtitle}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -258,9 +261,9 @@ export default function LandingPage() {
       <section id="how-it-works" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t.landing.howItWorks.title}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Get started in three simple steps and transform your warehouse operations
+              {t.landing.howItWorks.subtitle}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -293,9 +296,9 @@ export default function LandingPage() {
       <section id="benefits" className="py-20 bg-white/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose saturasa?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t.landing.benefits.title}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Built for businesses that want to grow without the operational headaches
+              {t.landing.benefits.subtitle}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -325,9 +328,9 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t.landing.testimonials.title}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join hundreds of businesses that trust saturasa for their warehouse management
+              {t.landing.testimonials.subtitle}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -376,9 +379,9 @@ export default function LandingPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Transform Your Warehouse?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{t.landing.cta.title}</h2>
             <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of businesses using saturasa to streamline their operations and boost productivity.
+              {t.landing.cta.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
@@ -386,7 +389,7 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-3"
               >
-                {isAuthenticated ? "Go to Dashboard" : "Get Started Now"}
+                {isAuthenticated ? t.landing.hero.goToDashboard : t.landing.cta.getStartedNow}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button
@@ -395,7 +398,7 @@ export default function LandingPage() {
                 onClick={handleTryDemo}
                 className="border-white text-white hover:bg-white/10 text-lg px-8 py-3 bg-transparent"
               >
-                Try Demo
+                {t.landing.cta.tryDemo}
               </Button>
             </div>
           </motion.div>
@@ -414,64 +417,63 @@ export default function LandingPage() {
                 <span className="font-bold text-xl">saturasa</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-md">
-                The complete warehouse production management solution for modern businesses. Streamline your operations
-                and scale with confidence.
+                {t.landing.footer.description}
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Product</h3>
+              <h3 className="font-semibold mb-4">{t.landing.footer.product}</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <Link href="#features" className="hover:text-white transition-colors">
-                    Features
+                    {t.nav.features}
                   </Link>
                 </li>
                 <li>
                   <Link href="#how-it-works" className="hover:text-white transition-colors">
-                    How It Works
+                    {t.nav.howItWorks}
                   </Link>
                 </li>
                 <li>
                   <Link href="#benefits" className="hover:text-white transition-colors">
-                    Benefits
+                    {t.nav.benefits}
                   </Link>
                 </li>
                 <li>
                   <Link href="/login" className="hover:text-white transition-colors">
-                    Login
+                    {t.landing.footer.login}
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Company</h3>
+              <h3 className="font-semibold mb-4">{t.landing.footer.company}</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    About
+                    {t.landing.footer.about}
                   </Link>
                 </li>
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    Contact
+                    {t.landing.footer.contact}
                   </Link>
                 </li>
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    Documentation
+                    {t.landing.footer.documentation}
                   </Link>
                 </li>
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    Support
+                    {t.landing.footer.support}
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 saturasa. All rights reserved.</p>
-          </div>
+          <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+              <p>{t.landing.footer.copyright}</p>
+            </div>
         </div>
       </footer>
     </div>

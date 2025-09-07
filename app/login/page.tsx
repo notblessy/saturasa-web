@@ -16,12 +16,15 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/lib/context/auth";
 import Link from "next/link";
+import { useTranslation } from "@/lib/hooks/use-translation";
+import LanguageSelector from "@/components/language-selector";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { onLogin, loading } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,14 +34,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
           <Link
             href="/"
             className="inline-flex items-center text-purple-600 hover:text-purple-700 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
+            {t.login.backToHome}
           </Link>
+          <LanguageSelector />
         </div>
 
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
@@ -51,20 +55,20 @@ export default function LoginPage() {
               />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Welcome to saturasa
+              {t.login.title}
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Sign in to your saturasa dashboard
+              {t.login.subtitle}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">{t.login.username}</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Enter your username"
+                  placeholder={t.login.usernamePlaceholder}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -72,12 +76,12 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t.login.password}</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder={t.login.passwordPlaceholder}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -101,7 +105,7 @@ export default function LoginPage() {
                 className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                 disabled={loading}
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? t.login.signingIn : t.login.signIn}
               </Button>
             </form>
           </CardContent>
