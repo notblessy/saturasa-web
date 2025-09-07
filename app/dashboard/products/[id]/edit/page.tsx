@@ -86,17 +86,18 @@ export default function EditProductPage() {
   });
 
   useEffect(() => {
-    if (!product || !product.id) return;
-    form.reset({
-      id: product.id,
-      name: product.name,
-      category_id: product.category_id,
-      purchasable: product.purchasable ?? true,
-      salesable: product.salesable ?? true,
-      notes: product.notes,
-      specifications: product.specifications || [],
-    });
-  }, [product, form]);
+    if (product?.id) {
+      form.reset({
+        id: product.id,
+        name: product.name,
+        category_id: product.category_id,
+        purchasable: product.purchasable,
+        salesable: product.salesable,
+        notes: product.notes,
+        specifications: product.specifications || [],
+      });
+    }
+  }, [product?.id]);
 
   const handleSubmit = async (values: FormValues) => {
     const productData: Product = {
@@ -197,9 +198,12 @@ export default function EditProductPage() {
                     <Label htmlFor="category">Category *</Label>
                     <Select
                       value={form.watch("category_id")}
-                      onValueChange={(value) =>
-                        form.setValue("category_id", value)
-                      }
+                      onValueChange={(value) => {
+                        if (value) {
+                          form.setValue("category_id", value);
+                          return;
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
