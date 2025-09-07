@@ -8,17 +8,10 @@ export interface MeasurementUnit {
   id: string;
   company_id: string;
   name: string;
-  label: string;
+  symbol: string;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
-}
-
-interface MeasurementUnitsResponse {
-  records: MeasurementUnit[];
-  total: number;
-  page: number;
-  size: number;
 }
 
 export const useMeasurementUnits = () => {
@@ -36,7 +29,7 @@ export const useMeasurementUnits = () => {
 
   const pathKey = `v1/measurement-units?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}`;
   const { data, error, isValidating } =
-    useSWR<MeasurementUnitsResponse>(pathKey);
+    useSWR<ApiResponse<WithPagingResponse<MeasurementUnit>>>(pathKey);
 
   const onAdd = useCallback(
     async (data: Partial<MeasurementUnit>) => {
@@ -160,7 +153,7 @@ export const useMeasurementUnits = () => {
   );
 
   return {
-    data,
+    data: data?.data ? data?.data : ({} as WithPagingResponse<MeasurementUnit>),
     error,
     isValidating,
     loading,
@@ -174,12 +167,12 @@ export const useMeasurementUnits = () => {
 };
 
 export const useMeasurementUnitOptions = () => {
-  const { data, error, isValidating } = useSWR<MeasurementUnit[]>(
+  const { data, error, isValidating } = useSWR<ApiResponse<MeasurementUnit[]>>(
     `v1/measurement-units/options`
   );
 
   return {
-    data: data ? data : [],
+    data: data?.data ? data?.data : [],
     loading: (!error && !data) || isValidating,
   };
 };

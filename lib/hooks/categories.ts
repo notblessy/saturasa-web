@@ -17,13 +17,6 @@ interface Category {
   children?: Category[];
 }
 
-interface CategoriesResponse {
-  records: Category[];
-  total: number;
-  page: number;
-  size: number;
-}
-
 export const useCategories = () => {
   const { user } = useAuth();
   const toast = useToast();
@@ -38,7 +31,8 @@ export const useCategories = () => {
   const [keyword, setKeyword] = useState("");
 
   const pathKey = `v1/categories?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&name=${keyword}`;
-  const { data, error, isValidating } = useSWR<CategoriesResponse>(pathKey);
+  const { data, error, isValidating } =
+    useSWR<ApiResponse<WithPagingResponse<Category>>>(pathKey);
 
   const onAdd = useCallback(
     async (data: Partial<Category>) => {
@@ -162,7 +156,7 @@ export const useCategories = () => {
   );
 
   return {
-    data,
+    data: data?.data ? data?.data : { records: [], total: 0, page: 1, size: 5 },
     error,
     isValidating,
     loading,
@@ -176,12 +170,12 @@ export const useCategories = () => {
 };
 
 export const useCategoryOptions = () => {
-  const { data, error, isValidating } = useSWR<Category[]>(
+  const { data, error, isValidating } = useSWR<ApiResponse<Category[]>>(
     `v1/categories/options`
   );
 
   return {
-    data: data ? data : [],
+    data: data?.data ? data?.data : null,
     loading: (!error && !data) || isValidating,
   };
 };

@@ -3,6 +3,8 @@ import useSWR, { mutate } from "swr";
 import useToast from "../context/toast";
 import api from "@/lib/utils/api";
 import { useAuth } from "../context/auth";
+import { fetcher } from "@/lib/utils/api";
+import { useRouter } from "next/navigation";
 
 export interface ProductSpecification {
   id?: string;
@@ -47,8 +49,10 @@ export interface Product {
 }
 
 export const useProducts = () => {
-  const { user } = useAuth();
+  const router = useRouter();
   const toast = useToast();
+
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -60,8 +64,9 @@ export const useProducts = () => {
   const [keyword, setKeyword] = useState("");
 
   const pathKey = `v1/products?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}`;
-  const { data, error, isValidating } =
-    useSWR<WithPagingResponse<Product>>(pathKey);
+  const { data, error, isValidating } = useSWR<
+    ApiResponse<WithPagingResponse<Product>>
+  >(pathKey, fetcher, {});
 
   const onAdd = useCallback(
     async (data: Partial<Product>) => {
@@ -77,6 +82,8 @@ export const useProducts = () => {
             message: "Success add product",
             color: "orange",
           });
+
+          router.push("/dashboard/products");
         } else {
           toast({
             title: "Error",
@@ -115,7 +122,7 @@ export const useProducts = () => {
   );
 
   const onEdit = useCallback(
-    async (product: Product) => {
+    async (product: Partial<Product>) => {
       try {
         setEditLoading(true);
 
@@ -132,6 +139,14 @@ export const useProducts = () => {
             title: "Success",
             message: "Success update product",
             color: "orange",
+          });
+
+          router.push("/dashboard/products");
+        } else {
+          toast({
+            title: "Error",
+            message: res.message,
+            color: "red",
           });
         }
       } catch (error) {
@@ -185,7 +200,7 @@ export const useProducts = () => {
   );
 
   return {
-    data,
+    data: data?.data || { records: [], total: 0, page: 1, size: 5 },
     error,
     isValidating,
     loading,
@@ -195,5 +210,33 @@ export const useProducts = () => {
     onQuery,
     onEdit,
     onDelete,
+  };
+};
+
+// Hook for fetching a single product by ID
+export const useProduct = (productId: string | null) => {
+  const { user } = useAuth();
+
+  const {
+    data,
+    error,
+    isValidating,
+    mutate: mutateProduct,
+  } = useSWR<ApiResponse<Product>>(
+    productId && user?.company_id
+      ? `v1/products/${productId}?company_id=${user.company_id}`
+      : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
+    }
+  );
+
+  return {
+    product: data?.data || null,
+    isLoading: isValidating && !error && !data,
+    error,
+    mutateProduct,
   };
 };

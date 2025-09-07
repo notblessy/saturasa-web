@@ -40,19 +40,19 @@ export default function MeasurementUnitsComponent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<MeasurementUnit | null>(null);
-  const [formData, setFormData] = useState({ name: "", label: "" }); // Changed from 'symbol' to 'label'
+  const [formData, setFormData] = useState({ name: "", symbol: "" }); // Changed from 'symbol' to 'label'
 
   const units = unitsData?.records || [];
 
   const handleAddUnit = () => {
     setEditingUnit(null);
-    setFormData({ name: "", label: "" }); // Changed from 'symbol' to 'label'
+    setFormData({ name: "", symbol: "" }); // Changed from 'symbol' to 'symbol'
     setIsSheetOpen(true);
   };
 
   const handleEditUnit = (unit: MeasurementUnit) => {
     setEditingUnit(unit);
-    setFormData({ name: unit.name, label: unit.label }); // Changed from 'symbol' to 'label'
+    setFormData({ name: unit.name, symbol: unit.symbol }); // Changed from 'symbol' to 'label'
     setIsSheetOpen(true);
   };
 
@@ -70,13 +70,13 @@ export default function MeasurementUnitsComponent() {
       await onEdit({
         ...editingUnit,
         name: formData.name,
-        label: formData.label,
-      }); // Changed from 'symbol' to 'label'
+        symbol: formData.symbol,
+      }); // Changed from 'symbol' to 'symbol'
     } else {
-      await onAdd({ name: formData.name, label: formData.label }); // Changed from 'symbol' to 'label'
+      await onAdd({ name: formData.name, symbol: formData.symbol }); // Changed from 'symbol' to 'symbol'
     }
     setIsSheetOpen(false);
-    setFormData({ name: "", label: "" }); // Changed from 'symbol' to 'label'
+    setFormData({ name: "", symbol: "" }); // Changed from 'symbol' to 'symbol'
   };
 
   const handleSearch = (value: string) => {
@@ -118,9 +118,7 @@ export default function MeasurementUnitsComponent() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Label</TableHead>{" "}
-              {/* Changed from 'Symbol' to 'Label' */}
-              <TableHead>Created At</TableHead>
+              <TableHead>Symbol</TableHead> <TableHead>Created At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -141,10 +139,10 @@ export default function MeasurementUnitsComponent() {
                 </TableCell>
               </TableRow>
             ) : (
-              units.slice(0, 5).map((unit) => (
+              units?.slice(0, 5).map((unit) => (
                 <TableRow key={unit.id}>
                   <TableCell className="font-medium">{unit.name}</TableCell>
-                  <TableCell>{unit.label}</TableCell>{" "}
+                  <TableCell>{unit.symbol}</TableCell>{" "}
                   {/* Changed from unit.symbol to unit.label */}
                   <TableCell>
                     {new Date(unit.created_at).toLocaleDateString()}
@@ -209,15 +207,15 @@ export default function MeasurementUnitsComponent() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="label">Label</Label>{" "}
+              <Label htmlFor="label">Symbol</Label>{" "}
               {/* Changed from 'Symbol' to 'Label' */}
               <Input
-                id="label" // Changed from 'symbol' to 'label'
-                value={formData.label} // Changed from formData.symbol to formData.label
+                id="symbol" // Changed from 'symbol' to 'label'
+                value={formData.symbol} // Changed from formData.symbol to formData.symbol
                 onChange={(e) =>
-                  setFormData({ ...formData, label: e.target.value })
-                } // Changed from 'symbol' to 'label'
-                placeholder="Enter label (e.g., kg)" // Changed from 'symbol' to 'label'
+                  setFormData({ ...formData, symbol: e.target.value })
+                } // Changed from 'symbol' to 'symbol'
+                placeholder="Enter symbol (e.g., kg)" // Changed from 'symbol' to 'symbol'
                 required
               />
             </div>

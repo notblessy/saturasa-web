@@ -55,12 +55,12 @@ export default function ProductsPage() {
   };
 
   const getCategoryName = (categoryId: string) => {
-    const category = categories.find((c) => c.id === categoryId);
+    const category = categories?.find((c) => c.id === categoryId);
     return category?.name || t.common.unknown;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <BreadcrumbNav
         items={[
           { label: t.common.inventories, href: "/dashboard" },
@@ -106,8 +106,9 @@ export default function ProductsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t.products.name}</TableHead>
+                <TableHead>Slug</TableHead>
+                <TableHead>BOM</TableHead>
                 <TableHead>{t.products.category}</TableHead>
-                <TableHead>Specifications</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -115,7 +116,7 @@ export default function ProductsPage() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                     <p className="mt-2 text-gray-500">
                       {t.products.loadingProducts}
@@ -124,7 +125,7 @@ export default function ProductsPage() {
                 </TableRow>
               ) : products.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     <p className="text-gray-500">
                       {t.products.noProductsFound}
                     </p>
@@ -136,12 +137,11 @@ export default function ProductsPage() {
                     <TableCell className="font-medium">
                       {product.name}
                     </TableCell>
+                    <TableCell>{product.slug || "-"}</TableCell>
+                    <TableCell>{/* BOM column, currently empty */}</TableCell>
                     <TableCell>
                       {product.category?.name ||
                         getCategoryName(product.category_id)}
-                    </TableCell>
-                    <TableCell>
-                      {product.specifications?.length || 0} units
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">

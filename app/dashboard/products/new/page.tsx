@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/use-translation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -31,15 +32,14 @@ export default function NewProductPage() {
   const [formData, setFormData] = useState({
     name: "",
     category_id: "",
-    purchasable: true,
-    salesable: true,
+    purchasable: false,
+    salesable: false,
     notes: "",
     specifications: [] as {
       measurement_unit_id: string;
       base_price: string;
       conversion_factor: string;
       notes: string;
-      // is_default: boolean; (removed)
       is_base_unit: boolean;
       is_stock_unit: boolean;
       is_purchase_unit: boolean;
@@ -60,7 +60,6 @@ export default function NewProductPage() {
         base_price: parseFloat(spec.base_price) || 0,
         conversion_factor: parseFloat(spec.conversion_factor) || 1,
         notes: spec.notes,
-        // is_default: spec.is_default, (removed)
         is_base_unit: spec.is_base_unit,
         is_stock_unit: spec.is_stock_unit,
         is_purchase_unit: spec.is_purchase_unit,
@@ -68,13 +67,7 @@ export default function NewProductPage() {
       })),
     };
 
-    try {
-      await onAdd(productData);
-      router.push("/dashboard/products");
-    } catch (error) {
-      // Error handling is done in the hook
-      console.error("Error creating product:", error);
-    }
+    await onAdd(productData);
   };
 
   const addSpecification = () => {
@@ -173,7 +166,7 @@ export default function NewProductPage() {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((category) => (
+                      {categories?.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
@@ -197,27 +190,30 @@ export default function NewProductPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
+                  <Switch
                     id="purchasable"
                     checked={formData.purchasable}
-                    onChange={(e) =>
+                    onCheckedChange={(checked) =>
                       setFormData({
                         ...formData,
-                        purchasable: e.target.checked,
+                        purchasable: checked as boolean,
                       })
                     }
+                    className="data-[state=checked]:bg-[#14B8A6]"
                   />
                   <Label htmlFor="purchasable">Purchasable</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
+                  <Switch
                     id="salesable"
                     checked={formData.salesable}
-                    onChange={(e) =>
-                      setFormData({ ...formData, salesable: e.target.checked })
+                    onCheckedChange={(checked) =>
+                      setFormData({
+                        ...formData,
+                        salesable: checked as boolean,
+                      })
                     }
+                    className="data-[state=checked]:bg-[#14B8A6]"
                   />
                   <Label htmlFor="salesable">Salesable</Label>
                 </div>
@@ -291,7 +287,7 @@ export default function NewProductPage() {
                         <SelectContent>
                           {measurementUnits.map((unit) => (
                             <SelectItem key={unit.id} value={unit.id}>
-                              {unit.name} ({unit.label})
+                              {unit.name} ({unit.symbol})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -349,17 +345,17 @@ export default function NewProductPage() {
                     <Label className="text-sm font-medium">Unit Types</Label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
+                        <Switch
                           id={`is_base_unit_${index}`}
                           checked={spec.is_base_unit}
-                          onChange={(e) =>
+                          onCheckedChange={(checked) =>
                             updateSpecification(
                               index,
                               "is_base_unit",
-                              e.target.checked
+                              checked as boolean
                             )
                           }
+                          className="data-[state=checked]:bg-[#14B8A6]"
                         />
                         <Label
                           htmlFor={`is_base_unit_${index}`}
@@ -369,17 +365,17 @@ export default function NewProductPage() {
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
+                        <Switch
                           id={`is_stock_unit_${index}`}
                           checked={spec.is_stock_unit}
-                          onChange={(e) =>
+                          onCheckedChange={(checked) =>
                             updateSpecification(
                               index,
                               "is_stock_unit",
-                              e.target.checked
+                              checked as boolean
                             )
                           }
+                          className="data-[state=checked]:bg-[#14B8A6]"
                         />
                         <Label
                           htmlFor={`is_stock_unit_${index}`}
@@ -389,17 +385,17 @@ export default function NewProductPage() {
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
+                        <Switch
                           id={`is_purchase_unit_${index}`}
                           checked={spec.is_purchase_unit}
-                          onChange={(e) =>
+                          onCheckedChange={(checked) =>
                             updateSpecification(
                               index,
                               "is_purchase_unit",
-                              e.target.checked
+                              checked as boolean
                             )
                           }
+                          className="data-[state=checked]:bg-[#14B8A6]"
                         />
                         <Label
                           htmlFor={`is_purchase_unit_${index}`}
@@ -409,17 +405,17 @@ export default function NewProductPage() {
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
+                        <Switch
                           id={`is_sales_unit_${index}`}
                           checked={spec.is_sales_unit}
-                          onChange={(e) =>
+                          onCheckedChange={(checked) =>
                             updateSpecification(
                               index,
                               "is_sales_unit",
-                              e.target.checked
+                              checked as boolean
                             )
                           }
+                          className="data-[state=checked]:bg-[#14B8A6]"
                         />
                         <Label
                           htmlFor={`is_sales_unit_${index}`}

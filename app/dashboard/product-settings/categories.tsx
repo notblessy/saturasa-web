@@ -221,18 +221,22 @@ export default function CategoriesComponent() {
             <div className="space-y-2">
               <Label htmlFor="parent">Parent Category (Optional)</Label>
               <Select
-                value={formData.parent_id}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, parent_id: value })
-                }
+                value={formData?.parent_id}
+                onValueChange={(value) => {
+                  if (value === "no_parent") {
+                    setFormData({ ...formData, parent_id: "" });
+                  } else {
+                    setFormData({ ...formData, parent_id: value });
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select parent category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Parent</SelectItem>
+                  <SelectItem value="no_parent">No Parent</SelectItem>
                   {categoryOptions
-                    ?.filter((cat) => cat.id !== editingCategory?.id) // Prevent selecting self as parent
+                    ?.filter((cat) => cat.id !== editingCategory?.id)
                     ?.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}

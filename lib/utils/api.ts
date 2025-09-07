@@ -30,9 +30,7 @@ instance.interceptors.request.use(
 
 export const fetcher = async (url: string) => {
   return await instance.get(url).then((res) => {
-    const r = res.data;
-
-    return r.data;
+    return res?.data as ApiResponse<any>;
   });
 };
 

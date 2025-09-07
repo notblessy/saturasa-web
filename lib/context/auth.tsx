@@ -17,19 +17,19 @@ import { useRouter } from "next/navigation";
 // Helper function to decode JWT token
 function decodeJWT(token: string) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
+        .split("")
         .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
         })
-        .join('')
+        .join("")
     );
     return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error('Error decoding JWT:', error);
+    console.error("Error decoding JWT:", error);
     return null;
   }
 }
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     data: user,
     isLoading,
     isValidating,
-  } = useSWR<User>(() => (accessToken ? "/v1/users" : null));
+  } = useSWR<ApiResponse<User>>(() => (accessToken ? "/v1/users" : null));
 
   useEffect(() => {
     setAccessToken(cookies.accessToken);
@@ -94,10 +94,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           // Decode JWT token to check user type
           const decodedToken = decodeJWT(res.data.token);
-          
+
           setTimeout(() => {
             // Check if user is superadmin (no company_id)
-            if (decodedToken && (!decodedToken.company_id || decodedToken.company_id === "")) {
+            if (
+              decodedToken &&
+              (!decodedToken.company_id || decodedToken.company_id === "")
+            ) {
               router.push("/superadmin");
             } else {
               router.push("/dashboard");
@@ -139,7 +142,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthCtx.Provider
       value={{
         loading: loading || isLoading || isValidating,
-        user: user ? user : null,
+        user: user?.data ? user?.data : null,
         onLogin,
         onLogout,
       }}
