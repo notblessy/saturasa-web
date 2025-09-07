@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
+import { useTranslation } from "@/lib/hooks/use-translation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,7 @@ export default function CreateCompanyModal({
   onClose,
   onSuccess,
 }: CreateCompanyModalProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -71,8 +73,8 @@ export default function CreateCompanyModal({
 
       if (response.data.success) {
         toast({
-          title: "Success",
-          description: "Company created successfully!",
+          title: t.common.success,
+          description: t.createCompany.successMessage,
         });
 
         // Reset form
@@ -93,16 +95,16 @@ export default function CreateCompanyModal({
         onClose();
       } else {
         toast({
-          title: "Error",
-          description: response.data.message || "Failed to create company",
+          title: t.common.error,
+          description: response.data.message || t.createCompany.failedMessage,
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Error creating company:", error);
       toast({
-        title: "Error",
-        description: "An error occurred while creating the company",
+        title: t.common.error,
+        description: t.createCompany.errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -122,24 +124,24 @@ export default function CreateCompanyModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building className="h-5 w-5" />
-            Create New Company
+            {t.createCompany.title}
           </DialogTitle>
           <DialogDescription>
-            Fill in the details below to create a new company and its admin user.
+            {t.createCompany.description}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleCreateCompany} className="space-y-6">
           {/* Company Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Company Information</h3>
+            <h3 className="text-lg font-medium">{t.createCompany.companyInformation}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Company Name *</Label>
+                <Label htmlFor="name">{t.createCompany.companyName} *</Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Enter company name"
+                  placeholder={t.createCompany.enterCompanyName}
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   required
@@ -147,7 +149,7 @@ export default function CreateCompanyModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="website">{t.createCompany.website}</Label>
                 <Input
                   id="website"
                   type="url"
@@ -159,7 +161,7 @@ export default function CreateCompanyModal({
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="logo">Logo URL</Label>
+              <Label htmlFor="logo">{t.createCompany.logoUrl}</Label>
               <Input
                 id="logo"
                 type="url"
@@ -173,14 +175,14 @@ export default function CreateCompanyModal({
 
           {/* Admin User Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Admin User Information</h3>
+            <h3 className="text-lg font-medium">{t.createCompany.adminUserInformation}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="admin_name">Admin Name *</Label>
+                <Label htmlFor="admin_name">{t.createCompany.adminName} *</Label>
                 <Input
                   id="admin_name"
                   type="text"
-                  placeholder="Enter admin name"
+                  placeholder={t.createCompany.enterAdminName}
                   value={formData.admin.name}
                   onChange={(e) => handleInputChange("admin.name", e.target.value)}
                   required
@@ -188,7 +190,7 @@ export default function CreateCompanyModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="admin_email">Admin Email *</Label>
+                <Label htmlFor="admin_email">{t.createCompany.adminEmail} *</Label>
                 <Input
                   id="admin_email"
                   type="email"
@@ -202,11 +204,11 @@ export default function CreateCompanyModal({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="admin_username">Admin Username *</Label>
+                <Label htmlFor="admin_username">{t.createCompany.adminUsername} *</Label>
                 <Input
                   id="admin_username"
                   type="text"
-                  placeholder="Enter username"
+                  placeholder={t.createCompany.enterUsername}
                   value={formData.admin.username}
                   onChange={(e) => handleInputChange("admin.username", e.target.value)}
                   required
@@ -214,12 +216,12 @@ export default function CreateCompanyModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="admin_password">Admin Password *</Label>
+                <Label htmlFor="admin_password">{t.createCompany.adminPassword} *</Label>
                 <div className="relative">
                   <Input
                     id="admin_password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter password"
+                    placeholder={t.createCompany.enterPassword}
                     value={formData.admin.password}
                     onChange={(e) => handleInputChange("admin.password", e.target.value)}
                     required
@@ -244,7 +246,7 @@ export default function CreateCompanyModal({
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="admin_avatar">Admin Avatar URL</Label>
+              <Label htmlFor="admin_avatar">{t.createCompany.adminAvatarUrl}</Label>
               <Input
                 id="admin_avatar"
                 type="url"
@@ -263,10 +265,10 @@ export default function CreateCompanyModal({
               onClick={handleClose}
               disabled={loading}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Company"}
+              {loading ? t.createCompany.creating : t.createCompany.createCompany}
             </Button>
           </DialogFooter>
         </form>
