@@ -3,21 +3,10 @@ import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import "./globals.css"
 import { Providers } from "@/lib/providers"
+import { generateMetadata } from "@/lib/metadata"
+import { DynamicMetadata } from "@/components/dynamic-metadata"
 
-export const metadata: Metadata = {
-  title: "saturasa - Simplified ERP for FnB Business",
-  description: "saturasa is an ERP for FnB business that simplifies operations and enhances efficiency.",
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
-  openGraph: {
-    title: "saturasa - Simplified ERP for FnB Business",
-    description: "saturasa is an ERP for FnB business that simplifies operations and enhances efficiency.",
-    url: "https://saturasa.id",
-    siteName: "saturasa",
-  }
-}
+export const metadata: Metadata = generateMetadata('en')
 
 export default function RootLayout({
   children,
@@ -28,6 +17,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className} suppressHydrationWarning>
         <Providers>
+          <DynamicMetadata />
           {children}
         </Providers>
       </body>

@@ -25,6 +25,8 @@ import api from "@/lib/utils/api";
 import useToast from "@/lib/context/toast";
 import { Building, Plus, RefreshCw } from "lucide-react";
 import CreateCompanyModal from "@/components/create-company-modal";
+import { useTranslation } from "@/lib/hooks/use-translation";
+import LanguageSelector from "@/components/language-selector";
 
 interface Company {
   id: string;
@@ -38,6 +40,7 @@ interface Company {
 export default function SuperAdminPage() {
   const { user, onLogout } = useAuth();
   const toast = useToast();
+  const { t } = useTranslation();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,16 +53,16 @@ export default function SuperAdminPage() {
         setCompanies(response.data.data || []);
       } else {
         toast({
-          title: "Error",
-          message: "Failed to fetch companies",
+          title: t.common.error,
+          message: t.superAdmin.errors.fetchCompanies,
           color: "red",
         });
       }
     } catch (error) {
       console.error("Error fetching companies:", error);
       toast({
-        title: "Error",
-        message: "Error fetching companies",
+        title: t.common.error,
+        message: t.superAdmin.errors.errorFetchingCompanies,
         color: "red",
       });
     } finally {
@@ -86,18 +89,21 @@ export default function SuperAdminPage() {
             </div>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Super Admin Dashboard
+                {t.superAdmin.title}
               </h1>
-              <p className="text-gray-600">Welcome back, {user?.name}</p>
+              <p className="text-gray-600">{t.superAdmin.welcomeBack}, {user?.name}</p>
             </div>
           </div>
-          <Button
-            onClick={onLogout}
-            variant="outline"
-            className="border-purple-200 text-purple-600 hover:bg-purple-50"
-          >
-            Logout
-          </Button>
+          <div className="flex items-center gap-4">
+            <LanguageSelector />
+            <Button
+              onClick={onLogout}
+              variant="outline"
+              className="border-purple-200 text-purple-600 hover:bg-purple-50"
+            >
+              {t.superAdmin.logout}
+            </Button>
+          </div>
         </div>
 
         {/* Create Company Button */}
@@ -105,10 +111,10 @@ export default function SuperAdminPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="h-5 w-5" />
-              Company Management
+              {t.superAdmin.companyManagement.title}
             </CardTitle>
             <CardDescription>
-              Manage companies and create new ones
+              {t.superAdmin.companyManagement.description}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -117,7 +123,7 @@ export default function SuperAdminPage() {
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create New Company
+              {t.superAdmin.companyManagement.createNew}
             </Button>
           </CardContent>
         </Card>
@@ -136,10 +142,10 @@ export default function SuperAdminPage() {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Building className="h-5 w-5" />
-                  All Companies
+                  {t.superAdmin.allCompanies.title}
                 </CardTitle>
                 <CardDescription>
-                  View and manage all created companies
+                  {t.superAdmin.allCompanies.description}
                 </CardDescription>
               </div>
               <Button
@@ -149,7 +155,7 @@ export default function SuperAdminPage() {
                 size="sm"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${loadingCompanies ? 'animate-spin' : ''}`} />
-                Refresh
+                {t.superAdmin.allCompanies.refresh}
               </Button>
             </div>
           </CardHeader>
@@ -157,20 +163,20 @@ export default function SuperAdminPage() {
             {loadingCompanies ? (
               <div className="flex items-center justify-center py-8">
                 <RefreshCw className="h-6 w-6 animate-spin" />
-                <span className="ml-2">Loading companies...</span>
+                <span className="ml-2">{t.superAdmin.allCompanies.loading}</span>
               </div>
             ) : companies.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No companies found
+                {t.superAdmin.allCompanies.noCompanies}
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Company Name</TableHead>
-                    <TableHead>Website</TableHead>
-                    <TableHead>Created At</TableHead>
-                    <TableHead>Updated At</TableHead>
+                    <TableHead>{t.superAdmin.allCompanies.companyName}</TableHead>
+                    <TableHead>{t.superAdmin.allCompanies.website}</TableHead>
+                    <TableHead>{t.superAdmin.allCompanies.createdAt}</TableHead>
+                    <TableHead>{t.superAdmin.allCompanies.updatedAt}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -199,7 +205,7 @@ export default function SuperAdminPage() {
                             {company.website}
                           </a>
                         ) : (
-                          <span className="text-gray-400">No website</span>
+                          <span className="text-gray-400">{t.superAdmin.allCompanies.noWebsite}</span>
                         )}
                       </TableCell>
                       <TableCell>

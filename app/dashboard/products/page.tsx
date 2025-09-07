@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
+import { useTranslation } from "@/lib/hooks/use-translation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -53,6 +54,7 @@ interface Product {
 }
 
 export default function ProductsPage() {
+  const { t } = useTranslation();
   const {
     data: productsData,
     loading,
@@ -151,27 +153,27 @@ export default function ProductsPage() {
 
   const getCategoryName = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
-    return category?.name || "Unknown";
+    return category?.name || t.common.unknown;
   };
 
   const getMeasurementUnitName = (unitId: string) => {
     const unit = measurementUnits.find((u) => u.id === unitId);
-    return unit ? `${unit.name} (${unit.label})` : "Unknown"; // Changed from unit.symbol to unit.label
+    return unit ? `${unit.name} (${unit.label})` : t.common.unknown; // Changed from unit.symbol to unit.label
   };
 
   return (
     <div className="space-y-6">
       <BreadcrumbNav
         items={[
-          { label: "Inventories", href: "/dashboard" },
-          { label: "Products" },
+          { label: t.common.inventories, href: "/dashboard" },
+          { label: t.products.title },
         ]}
       />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600 mt-2">Manage your product inventory</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t.products.title}</h1>
+          <p className="text-gray-600 mt-2">{t.products.subtitle}</p>
         </div>
         <Button
           onClick={handleAddProduct}
@@ -179,17 +181,17 @@ export default function ProductsPage() {
           disabled={loading}
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Product
+          {t.products.addProduct}
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Product List</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t.products.productList}</h2>
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search products..."
+              placeholder={t.products.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-10"
@@ -201,12 +203,12 @@ export default function ProductsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Unit</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
+                <TableHead>{t.products.name}</TableHead>
+                <TableHead>{t.products.sku}</TableHead>
+                <TableHead>{t.products.category}</TableHead>
+                <TableHead>{t.products.unit}</TableHead>
+                <TableHead>{t.products.price}</TableHead>
+                <TableHead>{t.products.stock}</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -215,13 +217,13 @@ export default function ProductsPage() {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    <p className="mt-2 text-gray-500">Loading products...</p>
+                    <p className="mt-2 text-gray-500">{t.products.loadingProducts}</p>
                   </TableCell>
                 </TableRow>
               ) : products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                    <p className="text-gray-500">No products found</p>
+                    <p className="text-gray-500">{t.products.noProductsFound}</p>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -278,57 +280,57 @@ export default function ProductsPage() {
         <SheetContent className="w-[600px] sm:max-w-[600px]">
           <SheetHeader>
             <SheetTitle>
-              {editingProduct ? "Edit Product" : "Add New Product"}
+              {editingProduct ? t.products.editProduct : t.products.addNewProduct}
             </SheetTitle>
             <SheetDescription>
               {editingProduct
-                ? "Update product information"
-                : "Create a new product"}
+                ? t.products.updateProductInfo
+                : t.products.createNewProduct}
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Product Name</Label>
+                <Label htmlFor="name">{t.products.productName}</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="Enter product name"
+                  placeholder={t.products.enterProductName}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sku">SKU</Label>
+                <Label htmlFor="sku">{t.products.sku}</Label>
                 <Input
                   id="sku"
                   value={formData.sku}
                   onChange={(e) =>
                     setFormData({ ...formData, sku: e.target.value })
                   }
-                  placeholder="Enter SKU"
+                  placeholder={t.products.enterSku}
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t.products.description}</Label>
               <Input
                 id="description"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                placeholder="Enter product description"
+                placeholder={t.products.enterProductDescription}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">{t.products.category}</Label>
                 <Select
                   value={formData.category_id}
                   onValueChange={(value) =>
@@ -336,7 +338,7 @@ export default function ProductsPage() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder={t.products.selectCategory} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -348,7 +350,7 @@ export default function ProductsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="unit">Measurement Unit</Label>
+                <Label htmlFor="unit">{t.products.measurementUnit}</Label>
                 <Select
                   value={formData.measurement_unit_id}
                   onValueChange={(value) =>
@@ -356,7 +358,7 @@ export default function ProductsPage() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select unit" />
+                    <SelectValue placeholder={t.products.selectUnit} />
                   </SelectTrigger>
                   <SelectContent>
                     {measurementUnits.map((unit) => (
@@ -371,7 +373,7 @@ export default function ProductsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Price</Label>
+                <Label htmlFor="price">{t.products.price}</Label>
                 <Input
                   id="price"
                   type="number"
@@ -385,7 +387,7 @@ export default function ProductsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cost">Cost</Label>
+                <Label htmlFor="cost">{t.products.cost}</Label>
                 <Input
                   id="cost"
                   type="number"
@@ -402,7 +404,7 @@ export default function ProductsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="stock">Stock Quantity</Label>
+                <Label htmlFor="stock">{t.products.stockQuantity}</Label>
                 <Input
                   id="stock"
                   type="number"
@@ -415,7 +417,7 @@ export default function ProductsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="minStock">Min Stock Level</Label>
+                <Label htmlFor="minStock">{t.products.minStockLevel}</Label>
                 <Input
                   id="minStock"
                   type="number"
@@ -440,12 +442,12 @@ export default function ProductsPage() {
               {loading || editLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  {editingProduct ? "Updating..." : "Adding..."}
+                  {editingProduct ? t.products.updating : t.products.adding}
                 </>
               ) : editingProduct ? (
-                "Update Product"
+                t.products.updateProduct
               ) : (
-                "Add Product"
+                t.products.addProduct
               )}
             </Button>
           </form>

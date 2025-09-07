@@ -15,7 +15,7 @@ export default function SettingsPage() {
 
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-2">Manage your application settings</p>
+        <p className="text-gray-600 mt-2">Manage your account and application preferences</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -26,7 +26,7 @@ export default function SettingsPage() {
               <User className="h-5 w-5 text-purple-600" />
               User Settings
             </CardTitle>
-            <CardDescription>Manage your personal account settings</CardDescription>
+            <CardDescription>Update your personal information and preferences</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -60,28 +60,28 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Email Notifications</Label>
-                <p className="text-sm text-gray-600">Receive notifications via email</p>
+                <p className="text-sm text-gray-600">Receive email notifications for important updates</p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Production Alerts</Label>
-                <p className="text-sm text-gray-600">Get alerts for production updates</p>
+                <p className="text-sm text-gray-600">Get notified about production issues</p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Stock Warnings</Label>
-                <p className="text-sm text-gray-600">Notify when stock is low</p>
+                <p className="text-sm text-gray-600">Receive alerts when stock is low</p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>System Updates</Label>
-                <p className="text-sm text-gray-600">Receive system update notifications</p>
+                <p className="text-sm text-gray-600">Get notified about system updates</p>
               </div>
               <Switch />
             </div>
@@ -93,9 +93,9 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-purple-600" />
-              Security
+              Security Settings
             </CardTitle>
-            <CardDescription>Manage your security preferences</CardDescription>
+            <CardDescription>Manage your password and security preferences</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -107,7 +107,7 @@ export default function SettingsPage() {
               <Input id="newPassword" type="password" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input id="confirmPassword" type="password" />
             </div>
             <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
@@ -121,9 +121,9 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="h-5 w-5 text-purple-600" />
-              System
+              System Settings
             </CardTitle>
-            <CardDescription>Configure system-wide settings</CardDescription>
+            <CardDescription>Configure system-wide preferences</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
