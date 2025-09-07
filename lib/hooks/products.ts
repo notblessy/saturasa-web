@@ -4,22 +4,46 @@ import useToast from "../context/toast";
 import api from "@/lib/utils/api";
 import { useAuth } from "../context/auth";
 
+export interface ProductSpecification {
+  id?: string;
+  company_id?: string;
+  product_id?: string;
+  measurement_unit_id: string;
+  base_price: number;
+  conversion_factor: number;
+  notes: string;
+  is_base_unit: boolean;
+  is_stock_unit: boolean;
+  is_purchase_unit: boolean;
+  is_sales_unit: boolean;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+  measurement_unit?: {
+    id: string;
+    name: string;
+    label: string;
+  };
+}
+
 export interface Product {
   id: string;
   slug: string;
   company_id: string;
-  name: string;
-  description?: string;
-  sku: string;
   category_id: string;
-  measurement_unit_id: string;
-  price: number;
-  cost: number;
-  stock_quantity: number;
-  min_stock_level: number;
+  name: string;
+  image: string;
+  purchasable: boolean;
+  salesable: boolean;
+  notes: string;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  specifications?: ProductSpecification[];
+  category?: {
+    id: string;
+    name: string;
+  };
 }
 
 export const useProducts = () => {

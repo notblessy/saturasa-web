@@ -8,10 +8,13 @@ interface Category {
   id: string;
   slug: string;
   company_id: string;
+  parent_id?: string | null;
   name: string;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  parent?: Category | null;
+  children?: Category[];
 }
 
 interface CategoriesResponse {

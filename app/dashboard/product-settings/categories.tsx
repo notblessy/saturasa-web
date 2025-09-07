@@ -3,20 +3,43 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
-import { useCategories } from "@/lib/hooks/categories";
+import { useCategories, useCategoryOptions } from "@/lib/hooks/categories";
 
 interface Category {
   id: string;
   slug: string;
   company_id: string;
+  parent_id?: string | null;
   name: string;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  parent?: Category | null;
+  children?: Category[];
 }
 
 export default function CategoriesComponent() {
@@ -31,22 +54,24 @@ export default function CategoriesComponent() {
     onDelete,
   } = useCategories();
 
+  const { data: categoryOptions } = useCategoryOptions();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [formData, setFormData] = useState({ name: "" });
+  const [formData, setFormData] = useState({ name: "", parent_id: "" });
 
   const categories = categoriesData?.records || [];
 
   const handleAddCategory = () => {
     setEditingCategory(null);
-    setFormData({ name: "" });
+    setFormData({ name: "", parent_id: "" });
     setIsSheetOpen(true);
   };
 
   const handleEditCategory = (category: Category) => {
     setEditingCategory(category);
-    setFormData({ name: category.name });
+    setFormData({ name: category.name, parent_id: category.parent_id || "" });
     setIsSheetOpen(true);
   };
 
@@ -58,13 +83,18 @@ export default function CategoriesComponent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const categoryData = {
+      name: formData.name,
+      parent_id: formData.parent_id || null,
+    };
+
     if (editingCategory) {
-      await onEdit({ ...editingCategory, name: formData.name });
+      await onEdit({ ...editingCategory, ...categoryData });
     } else {
-      await onAdd({ name: formData.name });
+      await onAdd(categoryData);
     }
     setIsSheetOpen(false);
-    setFormData({ name: "" });
+    setFormData({ name: "", parent_id: "" });
   };
 
   const handleSearch = (value: string) => {
@@ -104,6 +134,7 @@ export default function CategoriesComponent() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Parent</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -111,14 +142,14 @@ export default function CategoriesComponent() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8">
+                <TableCell colSpan={4} className="text-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                   <p className="mt-2 text-gray-500">Loading categories...</p>
                 </TableCell>
               </TableRow>
             ) : categories.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8">
+                <TableCell colSpan={4} className="text-center py-8">
                   <p className="text-gray-500">No categories found</p>
                 </TableCell>
               </TableRow>
@@ -126,12 +157,15 @@ export default function CategoriesComponent() {
               categories.slice(0, 5).map((category) => (
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>{new Date(category.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>{category.parent?.name || "—"}</TableCell>
+                  <TableCell>
+                    {new Date(category.created_at).toLocaleDateString()}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleEditCategory(category)}
                         disabled={editLoading}
                       >
@@ -162,9 +196,13 @@ export default function CategoriesComponent() {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{editingCategory ? "Edit Category" : "Add New Category"}</SheetTitle>
+            <SheetTitle>
+              {editingCategory ? "Edit Category" : "Add New Category"}
+            </SheetTitle>
             <SheetDescription>
-              {editingCategory ? "Update category information" : "Create a new category"}
+              {editingCategory
+                ? "Update category information"
+                : "Create a new category"}
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
@@ -173,10 +211,35 @@ export default function CategoriesComponent() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Enter category name"
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="parent">Parent Category (Optional)</Label>
+              <Select
+                value={formData.parent_id}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parent_id: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select parent category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No Parent</SelectItem>
+                  {categoryOptions
+                    ?.filter((cat) => cat.id !== editingCategory?.id) // Prevent selecting self as parent
+                    ?.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
             <Button
               type="submit"
@@ -188,8 +251,10 @@ export default function CategoriesComponent() {
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   {editingCategory ? "Updating..." : "Adding..."}
                 </>
+              ) : editingCategory ? (
+                "Update Category"
               ) : (
-                editingCategory ? "Update Category" : "Add Category"
+                "Add Category"
               )}
             </Button>
           </form>
