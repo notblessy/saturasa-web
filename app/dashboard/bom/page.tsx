@@ -256,7 +256,7 @@ export default function BOMPage() {
                       </TableCell>
                       <TableCell>{product?.name || 'Unknown Product'}</TableCell>
                       <TableCell>{unit ? `${unit.name} (${unit.symbol})` : 'Unknown Unit'}</TableCell>
-                      <TableCell>${bom.additional_fixed_cost.toFixed(2)}</TableCell>
+                      <TableCell>${Number(bom.additional_fixed_cost || 0).toFixed(2)}</TableCell>
                       <TableCell>{bom.bom_details?.length || 0} items</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-2">
