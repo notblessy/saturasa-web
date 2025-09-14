@@ -15,6 +15,7 @@ import { Plus, Edit, Trash2, Search, Minus } from "lucide-react"
 import { useTranslation } from "@/lib/hooks/use-translation"
 import { useBOMs, type BOM, type BOMDetail, type BOMWithDetailsRequest } from "@/lib/hooks/bom"
 import { useProducts } from "@/lib/hooks/products"
+import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units"
 
 
 interface BOMFormData {
@@ -52,6 +53,7 @@ export default function BOMPage() {
   } = useBOMs()
   
   const { data: productsData } = useProducts()
+  const { data: measurementUnits } = useMeasurementUnitOptions()
   
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [editingBOM, setEditingBOM] = useState<BOM | null>(null)
@@ -230,7 +232,7 @@ export default function BOMPage() {
               ) : (
                 boms.map((bom: BOM) => {
                   const product = productsData?.records?.find(p => p.id === bom.product_id)
-                  const unit = product?.specifications?.find((spec: any) => spec.id === bom.unit_id)
+                  const unit = measurementUnits?.find(u => u.id === bom.unit_id)
                   
                   return (
                     <TableRow key={bom.id}>
@@ -245,7 +247,7 @@ export default function BOMPage() {
                         </span>
                       </TableCell>
                       <TableCell>{product?.name || 'Unknown Product'}</TableCell>
-                      <TableCell>{unit?.measurement_unit?.label || 'Unknown Unit'}</TableCell>
+                      <TableCell>{unit ? `${unit.name} (${unit.symbol})` : 'Unknown Unit'}</TableCell>
                       <TableCell>${bom.additional_fixed_cost.toFixed(2)}</TableCell>
                       <TableCell>{bom.bom_details?.length || 0} items</TableCell>
                       <TableCell className="text-right">
@@ -366,9 +368,9 @@ export default function BOMPage() {
                   <SelectValue placeholder="Select Unit" />
                 </SelectTrigger>
                 <SelectContent>
-                  {productsData?.records?.find(p => p.id === formData.product_id)?.specifications?.map((spec: any) => (
-                    <SelectItem key={spec.id} value={spec.id}>
-                      {spec.measurement_unit?.label}
+                  {measurementUnits?.map((unit) => (
+                    <SelectItem key={unit.id} value={unit.id}>
+                      {unit.name} ({unit.symbol})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -432,9 +434,9 @@ export default function BOMPage() {
                           <SelectValue placeholder="Select Unit" />
                         </SelectTrigger>
                         <SelectContent>
-                          {productsData?.records?.find(p => p.id === detail.product_id)?.specifications?.map((spec: any) => (
-                            <SelectItem key={spec.id} value={spec.id}>
-                              {spec.measurement_unit?.label}
+                          {measurementUnits?.map((unit) => (
+                            <SelectItem key={unit.id} value={unit.id}>
+                              {unit.name} ({unit.symbol})
                             </SelectItem>
                           ))}
                         </SelectContent>
