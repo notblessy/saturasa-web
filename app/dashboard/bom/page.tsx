@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -11,63 +11,73 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { BreadcrumbNav } from "@/components/breadcrumb-nav"
-import { Plus, Edit, Trash2, Search } from "lucide-react"
+import { Plus, Edit, Trash2, Search, Minus } from "lucide-react"
 import { useTranslation } from "@/lib/hooks/use-translation"
+import { useBOMs, type BOM, type BOMDetail, type BOMWithDetailsRequest } from "@/lib/hooks/bom"
+import { useProducts } from "@/lib/hooks/products"
 
-interface BOM {
-  id: string
+
+interface BOMFormData {
   name: string
-  type: "assembly" | "menu"
-  linkedProductSpec: string
-  totalCost: number
-  notes: string
+  type: string
+  product_id: string
+  unit_id: string
+  additional_fixed_cost: string
+  bom_details: {
+    product_id: string
+    unit_id: string
+    quantity: string
+    waste: string
+  }[]
 }
-
-const mockBOMs: BOM[] = [
-  {
-    id: "1",
-    name: "Premium Coffee Blend Recipe",
-    type: "menu",
-    linkedProductSpec: "Premium Coffee Beans - 1kg",
-    totalCost: 45.5,
-    notes: "Special blend for premium customers",
-  },
-  {
-    id: "2",
-    name: "Gift Box Assembly",
-    type: "assembly",
-    linkedProductSpec: "Gift Box Set - 1pcs",
-    totalCost: 25.99,
-    notes: "Includes packaging and ribbon",
-  },
-]
-
-const mockProductSpecs = [
-  "Premium Coffee Beans - 1kg",
-  "Organic Tea Leaves - 500g",
-  "Gift Box Set - 1pcs",
-  "Chocolate Bars - 100g",
-]
 
 export default function BOMPage() {
   const { t } = useTranslation()
-  const [boms, setBOMs] = useState<BOM[]>(mockBOMs)
-  const [searchTerm, setSearchTerm] = useState("")
+  const {
+    data: bomsData,
+    loading,
+    deleteLoading,
+    editLoading,
+    keyword,
+    setKeyword,
+    type: typeFilter,
+    setType: setTypeFilter,
+    page,
+    setPage,
+    size,
+    setSize,
+    onAdd,
+    onEdit,
+    onDelete,
+  } = useBOMs()
+  
+  const { data: productsData } = useProducts()
+  
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [editingBOM, setEditingBOM] = useState<BOM | null>(null)
-  const [formData, setFormData] = useState({
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState<BOMFormData>({
     name: "",
-    type: "" as "assembly" | "menu" | "",
-    linkedProductSpec: "",
-    totalCost: "",
-    notes: "",
+    type: "",
+    product_id: "",
+    unit_id: "",
+    additional_fixed_cost: "",
+    bom_details: [],
   })
 
-  const filteredBOMs = boms.filter((bom) => bom.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const boms = bomsData?.records || []
+  const totalRecords = bomsData?.page_meta?.total || 0
 
   const handleAddBOM = () => {
     setEditingBOM(null)
-    setFormData({ name: "", type: "", linkedProductSpec: "", totalCost: "", notes: "" })
+    setFormData({
+      name: "",
+      type: "",
+      product_id: "",
+      unit_id: "",
+      additional_fixed_cost: "",
+      bom_details: [],
+    })
     setIsSheetOpen(true)
   }
 
@@ -76,43 +86,84 @@ export default function BOMPage() {
     setFormData({
       name: bom.name,
       type: bom.type,
-      linkedProductSpec: bom.linkedProductSpec,
-      totalCost: bom.totalCost.toString(),
-      notes: bom.notes,
+      product_id: bom.product_id,
+      unit_id: bom.unit_id,
+      additional_fixed_cost: bom.additional_fixed_cost.toString(),
+      bom_details: bom.bom_details?.map(detail => ({
+        product_id: detail.product_id,
+        unit_id: detail.unit_id,
+        quantity: detail.quantity.toString(),
+        waste: detail.waste.toString(),
+      })) || [],
     })
     setIsSheetOpen(true)
   }
 
-  const handleDeleteBOM = (id: string) => {
-    setBOMs(boms.filter((b) => b.id !== id))
+  const handleDeleteBOM = async (id: string) => {
+    await onDelete(id)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (editingBOM) {
-      setBOMs(
-        boms.map((b) =>
-          b.id === editingBOM.id
-            ? {
-                ...b,
-                ...formData,
-                type: formData.type as "assembly" | "menu",
-                totalCost: Number.parseFloat(formData.totalCost),
-              }
-            : b,
-        ),
-      )
-    } else {
-      const newBOM: BOM = {
-        id: Date.now().toString(),
-        ...formData,
-        type: formData.type as "assembly" | "menu",
-        totalCost: Number.parseFloat(formData.totalCost),
+    setIsSubmitting(true)
+    
+    try {
+      const bomData: BOMWithDetailsRequest = {
+        company_id: "", // This will be set in the hook
+        name: formData.name,
+        type: formData.type,
+        product_id: formData.product_id,
+        unit_id: formData.unit_id,
+        additional_fixed_cost: Number.parseFloat(formData.additional_fixed_cost) || 0,
+        bom_details: formData.bom_details.map(detail => ({
+          product_id: detail.product_id,
+          unit_id: detail.unit_id,
+          quantity: Number.parseFloat(detail.quantity) || 0,
+          waste: Number.parseFloat(detail.waste) || 0,
+        })),
       }
-      setBOMs([...boms, newBOM])
+
+      if (editingBOM) {
+        await onEdit(editingBOM.id, bomData)
+      } else {
+        await onAdd(bomData)
+      }
+      
+      setIsSheetOpen(false)
+      setFormData({
+        name: "",
+        type: "",
+        product_id: "",
+        unit_id: "",
+        additional_fixed_cost: "",
+        bom_details: [],
+      })
+    } finally {
+      setIsSubmitting(false)
     }
-    setIsSheetOpen(false)
-    setFormData({ name: "", type: "", linkedProductSpec: "", totalCost: "", notes: "" })
+  }
+
+  const addBOMDetail = () => {
+    setFormData({
+      ...formData,
+      bom_details: [
+        ...formData.bom_details,
+        { product_id: "", unit_id: "", quantity: "", waste: "" },
+      ],
+    })
+  }
+
+  const removeBOMDetail = (index: number) => {
+    setFormData({
+      ...formData,
+      bom_details: formData.bom_details.filter((_, i) => i !== index),
+    })
+  }
+
+  const updateBOMDetail = (index: number, field: string, value: string) => {
+    const updatedDetails = [...formData.bom_details]
+    updatedDetails[index] = { ...updatedDetails[index], [field]: value }
+    setFormData({ ...formData, bom_details: updatedDetails })
   }
 
   return (
@@ -140,8 +191,8 @@ export default function BOMPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder={t.bom.searchPlaceholder}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -153,46 +204,104 @@ export default function BOMPage() {
               <TableRow>
                 <TableHead>{t.bom.name}</TableHead>
                 <TableHead>{t.bom.type}</TableHead>
-                <TableHead>{t.bom.linkedProduct}</TableHead>
-                <TableHead>{t.bom.totalCost}</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Unit</TableHead>
+                <TableHead>Additional Fixed Cost</TableHead>
+                <TableHead>Details Count</TableHead>
                 <TableHead className="text-right">{t.bom.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredBOMs.map((bom) => (
-                <TableRow key={bom.id}>
-                  <TableCell className="font-medium">{bom.name}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        bom.type === "assembly" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {bom.type === 'assembly' ? t.bom.assembly : t.bom.menu}
-                    </span>
-                  </TableCell>
-                  <TableCell>{bom.linkedProductSpec}</TableCell>
-                  <TableCell>${bom.totalCost.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditBOM(bom)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteBOM(bom.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <div className="flex justify-center items-center space-x-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                      <span>Loading BOMs...</span>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : boms.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    No BOMs found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                boms.map((bom: BOM) => {
+                  const product = productsData?.records?.find(p => p.id === bom.product_id)
+                  const unit = product?.specifications?.find((spec: any) => spec.id === bom.unit_id)
+                  
+                  return (
+                    <TableRow key={bom.id}>
+                      <TableCell className="font-medium">{bom.name}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            bom.type === "assembly" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {bom.type === 'assembly' ? t.bom.assembly : t.bom.menu}
+                        </span>
+                      </TableCell>
+                      <TableCell>{product?.name || 'Unknown Product'}</TableCell>
+                      <TableCell>{unit?.measurement_unit?.label || 'Unknown Unit'}</TableCell>
+                      <TableCell>${bom.additional_fixed_cost.toFixed(2)}</TableCell>
+                      <TableCell>{bom.bom_details?.length || 0} items</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleEditBOM(bom)}
+                            disabled={loading}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteBOM(bom.id)}
+                            className="text-red-600 hover:text-red-700"
+                            disabled={loading}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
             </TableBody>
           </Table>
         </div>
+        
+        {totalRecords > 0 && (
+          <div className="flex justify-center mt-4">
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm">
+                Page {page} of {Math.ceil(totalRecords / size)}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(Math.min(Math.ceil(totalRecords / size), page + 1))}
+                disabled={page === Math.ceil(totalRecords / size)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -230,49 +339,144 @@ export default function BOMPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="linkedProductSpec">{t.bom.linkedProductSpec}</Label>
+              <Label htmlFor="product_id">Product</Label>
               <Select
-                value={formData.linkedProductSpec}
-                onValueChange={(value) => setFormData({ ...formData, linkedProductSpec: value })}
+                value={formData.product_id}
+                onValueChange={(value) => setFormData({ ...formData, product_id: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t.bom.selectProductSpec} />
+                  <SelectValue placeholder="Select Product" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockProductSpecs.map((spec) => (
-                    <SelectItem key={spec} value={spec}>
-                      {spec}
+                  {productsData?.records?.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="totalCost">{t.bom.totalCost}</Label>
+              <Label htmlFor="unit_id">Unit</Label>
+              <Select
+                value={formData.unit_id}
+                onValueChange={(value) => setFormData({ ...formData, unit_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Unit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {productsData?.records?.find(p => p.id === formData.product_id)?.specifications?.map((spec: any) => (
+                    <SelectItem key={spec.id} value={spec.id}>
+                      {spec.measurement_unit?.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="additional_fixed_cost">Additional Fixed Cost</Label>
               <Input
-                id="totalCost"
+                id="additional_fixed_cost"
                 type="number"
                 step="0.01"
-                value={formData.totalCost}
-                onChange={(e) => setFormData({ ...formData, totalCost: e.target.value })}
+                value={formData.additional_fixed_cost}
+                onChange={(e) => setFormData({ ...formData, additional_fixed_cost: e.target.value })}
                 placeholder="0.00"
                 required
               />
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="notes">{t.bom.notes}</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder={t.bom.enterAdditionalNotes}
-              />
+              <div className="flex justify-between items-center">
+                <Label>BOM Details</Label>
+                <Button type="button" onClick={addBOMDetail} size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Detail
+                </Button>
+              </div>
+              {formData.bom_details.map((detail, index) => (
+                <div key={index} className="border p-3 rounded-md space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Detail {index + 1}</span>
+                    <Button type="button" onClick={() => removeBOMDetail(index)} size="sm" variant="outline">
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label>Product</Label>
+                      <Select
+                        value={detail.product_id}
+                        onValueChange={(value) => updateBOMDetail(index, 'product_id', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {productsData?.records?.map((product) => (
+                            <SelectItem key={product.id} value={product.id}>
+                              {product.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Unit</Label>
+                      <Select
+                        value={detail.unit_id}
+                        onValueChange={(value) => updateBOMDetail(index, 'unit_id', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Unit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {productsData?.records?.find(p => p.id === detail.product_id)?.specifications?.map((spec: any) => (
+                            <SelectItem key={spec.id} value={spec.id}>
+                              {spec.measurement_unit?.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Quantity</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={detail.quantity}
+                        onChange={(e) => updateBOMDetail(index, 'quantity', e.target.value)}
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div>
+                      <Label>Waste</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={detail.waste}
+                        onChange={(e) => updateBOMDetail(index, 'waste', e.target.value)}
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              disabled={isSubmitting}
             >
-              {editingBOM ? t.bom.updateBomRecipe : t.bom.createBomRecipe}
+              {isSubmitting ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>{editingBOM ? "Updating..." : "Creating..."}</span>
+                </div>
+              ) : (
+                editingBOM ? t.bom.updateBomRecipe : t.bom.createBomRecipe
+              )}
             </Button>
           </form>
         </SheetContent>
