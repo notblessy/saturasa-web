@@ -240,10 +240,18 @@ export default function BOMPage() {
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            bom.type === "assembly" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
+                            bom.type === "assembly" 
+                              ? "bg-blue-100 text-blue-800" 
+                              : bom.type === "disassembly"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
                           }`}
                         >
-                          {bom.type === 'assembly' ? t.bom.assembly : t.bom.menu}
+                          {bom.type === 'assembly' 
+                            ? t.bom.assembly 
+                            : bom.type === 'disassembly'
+                            ? t.bom.disassembly
+                            : t.bom.menu}
                         </span>
                       </TableCell>
                       <TableCell>{product?.name || 'Unknown Product'}</TableCell>
@@ -329,13 +337,14 @@ export default function BOMPage() {
               <Label htmlFor="type">{t.bom.type}</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value) => setFormData({ ...formData, type: value as "assembly" | "menu" })}
+                onValueChange={(value) => setFormData({ ...formData, type: value as "assembly" | "disassembly" | "menu" })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={t.bom.selectType} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="assembly">{t.bom.assembly}</SelectItem>
+                  <SelectItem value="disassembly">{t.bom.disassembly}</SelectItem>
                   <SelectItem value="menu">{t.bom.menu}</SelectItem>
                 </SelectContent>
               </Select>

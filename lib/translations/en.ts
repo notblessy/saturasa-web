@@ -183,6 +183,7 @@ export const en = {
     totalCost: 'Total Cost',
     actions: 'Actions',
     assembly: 'Assembly',
+    disassembly: 'Disassembly',
     menu: 'Menu',
     editBomRecipe: 'Edit BOM/Recipe',
     addNewBomRecipe: 'Add New BOM/Recipe',

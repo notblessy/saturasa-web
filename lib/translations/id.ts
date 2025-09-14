@@ -184,6 +184,7 @@ export const id = {
     totalCost: 'Total Biaya',
     actions: 'Aksi',
     assembly: 'Perakitan',
+    disassembly: 'Pembongkaran',
     menu: 'Menu',
     editBomRecipe: 'Edit BOM/Resep',
     addNewBomRecipe: 'Tambah BOM/Resep Baru',
