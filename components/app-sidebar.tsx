@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -16,9 +16,23 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { LayoutDashboard, Package, Users, Settings, ChevronDown, Factory, ClipboardList, Cog } from "lucide-react"
+} from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  Settings,
+  ChevronDown,
+  Factory,
+  ClipboardList,
+  Cog,
+  Database,
+} from "lucide-react";
 
 const menuItems = [
   {
@@ -27,8 +41,8 @@ const menuItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Inventories",
-    icon: Package,
+    title: "Master Data",
+    icon: Database,
     items: [
       {
         title: "Products",
@@ -41,14 +55,20 @@ const menuItems = [
         icon: ClipboardList,
       },
       {
-        title: "Productions",
-        url: "/dashboard/productions",
-        icon: Factory,
-      },
-      {
         title: "Product Settings",
         url: "/dashboard/product-settings",
         icon: Cog,
+      },
+    ],
+  },
+  {
+    title: "Inventories",
+    icon: Package,
+    items: [
+      {
+        title: "Productions",
+        url: "/dashboard/productions",
+        icon: Factory,
       },
     ],
   },
@@ -62,20 +82,24 @@ const menuItems = [
     url: "/dashboard/settings",
     icon: Settings,
   },
-]
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
-  const [openItems, setOpenItems] = useState<string[]>([]) // Default collapsed
+  const pathname = usePathname();
+  const [openItems, setOpenItems] = useState<string[]>([]); // Default collapsed
 
   const toggleItem = (title: string) => {
-    setOpenItems((prev) => (prev.includes(title) ? prev.filter((item) => item !== title) : [...prev, title]))
-  }
+    setOpenItems((prev) =>
+      prev.includes(title)
+        ? prev.filter((item) => item !== title)
+        : [...prev, title]
+    );
+  };
 
-  const isActive = (url: string) => pathname === url
+  const isActive = (url: string) => pathname === url;
 
   return (
-    <Sidebar className="border-r border-purple-100">
+    <Sidebar className="border-r border-purple-100 w-64">
       <SidebarHeader className="border-b border-purple-100 p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-br flex items-center justify-center">
@@ -98,7 +122,10 @@ export function AppSidebar() {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {item.items ? (
-                    <Collapsible open={openItems.includes(item.title)} onOpenChange={() => toggleItem(item.title)}>
+                    <Collapsible
+                      open={openItems.includes(item.title)}
+                      onOpenChange={() => toggleItem(item.title)}
+                    >
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton className="w-full justify-between">
                           <div className="flex items-center gap-2">
@@ -112,7 +139,10 @@ export function AppSidebar() {
                         <SidebarMenuSub>
                           {item.items.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
+                              >
                                 <Link href={subItem.url}>
                                   <subItem.icon className="h-4 w-4" />
                                   <span>{subItem.title}</span>
@@ -138,5 +168,5 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }
