@@ -1,24 +1,75 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { BreadcrumbNav } from "@/components/breadcrumb-nav"
-import { User, Bell, Shield, Database } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { BreadcrumbNav } from "@/components/breadcrumb-nav";
+import {
+  User,
+  Bell,
+  Shield,
+  Database,
+  DollarSign,
+  ArrowRight,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
+  const router = useRouter();
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <BreadcrumbNav items={[{ label: "Settings" }]} />
 
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-2">Manage your account and application preferences</p>
+        <p className="text-gray-600 mt-2">
+          Manage your account and application preferences
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart of Accounts */}
+        <Card
+          className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50 backdrop-blur-sm hover:shadow-xl transition-shadow cursor-pointer"
+          onClick={() => router.push("/dashboard/settings/chart-of-accounts")}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-purple-600" />
+                Chart of Accounts
+              </span>
+              <ArrowRight className="h-5 w-5 text-purple-600" />
+            </CardTitle>
+            <CardDescription>
+              Manage your company's financial accounts
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600">
+              Configure and organize your chart of accounts for better financial
+              management and reporting.
+            </p>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push("/dashboard/settings/chart-of-accounts");
+              }}
+              className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            >
+              Manage Accounts
+            </Button>
+          </CardContent>
+        </Card>
         {/* User Settings */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader>
@@ -26,7 +77,9 @@ export default function SettingsPage() {
               <User className="h-5 w-5 text-purple-600" />
               User Settings
             </CardTitle>
-            <CardDescription>Update your personal information and preferences</CardDescription>
+            <CardDescription>
+              Update your personal information and preferences
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -35,7 +88,11 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="john.doe@epicsales.com" />
+              <Input
+                id="email"
+                type="email"
+                defaultValue="john.doe@epicsales.com"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
@@ -54,34 +111,44 @@ export default function SettingsPage() {
               <Bell className="h-5 w-5 text-purple-600" />
               Notifications
             </CardTitle>
-            <CardDescription>Configure your notification preferences</CardDescription>
+            <CardDescription>
+              Configure your notification preferences
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Email Notifications</Label>
-                <p className="text-sm text-gray-600">Receive email notifications for important updates</p>
+                <p className="text-sm text-gray-600">
+                  Receive email notifications for important updates
+                </p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Production Alerts</Label>
-                <p className="text-sm text-gray-600">Get notified about production issues</p>
+                <p className="text-sm text-gray-600">
+                  Get notified about production issues
+                </p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Stock Warnings</Label>
-                <p className="text-sm text-gray-600">Receive alerts when stock is low</p>
+                <p className="text-sm text-gray-600">
+                  Receive alerts when stock is low
+                </p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>System Updates</Label>
-                <p className="text-sm text-gray-600">Get notified about system updates</p>
+                <p className="text-sm text-gray-600">
+                  Get notified about system updates
+                </p>
               </div>
               <Switch />
             </div>
@@ -95,7 +162,9 @@ export default function SettingsPage() {
               <Shield className="h-5 w-5 text-purple-600" />
               Security Settings
             </CardTitle>
-            <CardDescription>Manage your password and security preferences</CardDescription>
+            <CardDescription>
+              Manage your password and security preferences
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -152,5 +221,5 @@ export default function SettingsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

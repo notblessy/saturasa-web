@@ -32,6 +32,8 @@ import {
   ClipboardList,
   Cog,
   Database,
+  DollarSign,
+  Calculator,
 } from "lucide-react";
 
 const menuItems = [
@@ -79,8 +81,19 @@ const menuItems = [
   },
   {
     title: "Settings",
-    url: "/dashboard/settings",
     icon: Settings,
+    items: [
+      {
+        title: "General",
+        url: "/dashboard/settings",
+        icon: Settings,
+      },
+      {
+        title: "Chart of Accounts",
+        url: "/dashboard/settings/chart-of-accounts",
+        icon: Calculator,
+      },
+    ],
   },
 ];
 
