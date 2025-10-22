@@ -34,6 +34,8 @@ import {
   Database,
   DollarSign,
   Calculator,
+  Settings2,
+  FileText,
 } from "lucide-react";
 
 const menuItems = [
@@ -86,12 +88,17 @@ const menuItems = [
       {
         title: "General",
         url: "/dashboard/settings",
-        icon: Settings,
+        icon: Settings2,
       },
       {
         title: "Chart of Accounts",
         url: "/dashboard/settings/chart-of-accounts",
         icon: Calculator,
+      },
+      {
+        title: "Invoice Templates",
+        url: "/dashboard/settings/invoice-templates",
+        icon: FileText,
       },
     ],
   },

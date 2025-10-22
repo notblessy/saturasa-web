@@ -19,6 +19,7 @@ import {
   Database,
   DollarSign,
   ArrowRight,
+  FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -67,6 +68,40 @@ export default function SettingsPage() {
               className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             >
               Manage Accounts
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Invoice Templates */}
+        <Card
+          className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-sm hover:shadow-xl transition-shadow cursor-pointer"
+          onClick={() => router.push("/dashboard/settings/invoice-templates")}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                Invoice Templates
+              </span>
+              <ArrowRight className="h-5 w-5 text-blue-600" />
+            </CardTitle>
+            <CardDescription>
+              Configure document numbering templates
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600">
+              Set up and manage invoice numbering templates for automated
+              document generation with custom formats.
+            </p>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push("/dashboard/settings/invoice-templates");
+              }}
+              className="w-full mt-4 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+            >
+              Manage Templates
             </Button>
           </CardContent>
         </Card>
