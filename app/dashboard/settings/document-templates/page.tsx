@@ -47,8 +47,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  useInvoiceTemplates,
-  InvoiceTemplate,
+  useDocumentTemplates,
+  DocumentTemplate,
 } from "@/lib/hooks/invoice-templates";
 import { Badge } from "@/components/ui/badge";
 
@@ -87,7 +87,7 @@ const FORMAT_TOKENS = [
   { value: "{BRANCH}", label: "Branch Code", description: "Branch code" },
 ];
 
-export default function InvoiceTemplatesPage() {
+export default function DocumentTemplatesPage() {
   const {
     data: templatesData,
     loading,
@@ -99,13 +99,13 @@ export default function InvoiceTemplatesPage() {
     onDelete,
     onGeneratePreview,
     onResetSequence,
-  } = useInvoiceTemplates();
+  } = useDocumentTemplates();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] =
-    useState<InvoiceTemplate | null>(null);
+    useState<DocumentTemplate | null>(null);
   const [formData, setFormData] = useState({
     document_type: "",
     format: "",
@@ -115,7 +115,7 @@ export default function InvoiceTemplatesPage() {
 
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewTemplate, setPreviewTemplate] =
-    useState<InvoiceTemplate | null>(null);
+    useState<DocumentTemplate | null>(null);
   const [previewData, setPreviewData] = useState({
     company_code: "COMP",
     branch_code: "HQ",
@@ -164,7 +164,7 @@ export default function InvoiceTemplatesPage() {
     setIsSheetOpen(true);
   };
 
-  const handleEditTemplate = (template: InvoiceTemplate) => {
+  const handleEditTemplate = (template: DocumentTemplate) => {
     setEditingTemplate(template);
     setFormData({
       document_type: template.document_type,
@@ -209,13 +209,13 @@ export default function InvoiceTemplatesPage() {
     onQuery({ document_type: value === "all" ? "" : value, page: 1 });
   };
 
-  const handlePreview = (template: InvoiceTemplate) => {
+  const handlePreview = (template: DocumentTemplate) => {
     setPreviewTemplate(template);
     setPreviewDialogOpen(true);
     generatePreview(template);
   };
 
-  const generatePreview = async (template: InvoiceTemplate) => {
+  const generatePreview = async (template: DocumentTemplate) => {
     if (!template) return;
 
     const result = await onGeneratePreview(template.id, previewData);
@@ -249,14 +249,14 @@ export default function InvoiceTemplatesPage() {
       <BreadcrumbNav
         items={[
           { label: "Settings", href: "/dashboard/settings" },
-          { label: "Invoice Templates" },
+          { label: "Document Templates" },
         ]}
       />
 
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            Invoice Templates
+            Document Templates
           </h1>
           <p className="text-gray-600 mt-2">
             Manage document numbering templates for invoices and other documents
@@ -616,9 +616,9 @@ export default function InvoiceTemplatesPage() {
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Preview Invoice Number</DialogTitle>
+            <DialogTitle>Preview Document Number</DialogTitle>
             <DialogDescription>
-              Customize the preview parameters to see how the invoice number
+              Customize the preview parameters to see how the document number
               will look
             </DialogDescription>
           </DialogHeader>

@@ -96,8 +96,8 @@ const menuItems = [
         icon: Calculator,
       },
       {
-        title: "Invoice Templates",
-        url: "/dashboard/settings/invoice-templates",
+        title: "Document Templates",
+        url: "/dashboard/settings/document-templates",
         icon: FileText,
       },
     ],

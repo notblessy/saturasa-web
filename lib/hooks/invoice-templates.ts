@@ -5,7 +5,7 @@ import api from "@/lib/utils/api";
 import { useAuth } from "../context/auth";
 import { fetcher } from "@/lib/utils/api";
 
-export interface InvoiceTemplate {
+export interface DocumentTemplate {
   id: string;
   company_id: string;
   document_type: string;
@@ -17,18 +17,18 @@ export interface InvoiceTemplate {
   deleted_at?: string | null;
 }
 
-export interface GenerateInvoiceNumberRequest {
+export interface GenerateDocumentNumberRequest {
   company_code: string;
   branch_code: string;
   issued_date: string;
 }
 
-export interface GenerateInvoiceNumberResponse {
+export interface GenerateDocumentNumberResponse {
   invoice_number: string;
   next_sequence: number;
 }
 
-export const useInvoiceTemplates = () => {
+export const useDocumentTemplates = () => {
   const { user } = useAuth();
   const toast = useToast();
 
@@ -42,23 +42,23 @@ export const useInvoiceTemplates = () => {
   const [keyword, setKeyword] = useState("");
   const [documentType, setDocumentType] = useState("");
 
-  const pathKey = `v1/invoice-templates?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}&document_type=${documentType}`;
+  const pathKey = `v1/document-templates?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}&document_type=${documentType}`;
   const { data, error, isValidating } = useSWR<
-    ApiResponse<WithPagingResponse<InvoiceTemplate>>
+    ApiResponse<WithPagingResponse<DocumentTemplate>>
   >(pathKey, fetcher, {});
 
   const onAdd = useCallback(
-    async (data: Partial<InvoiceTemplate>) => {
+    async (data: Partial<DocumentTemplate>) => {
       setLoading(true);
       try {
         data.company_id = user?.company_id;
-        const { data: res } = await api.post("v1/invoice-templates", data);
+        const { data: res } = await api.post("v1/document-templates", data);
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Invoice template added successfully",
+            message: "Document Template added successfully",
             color: "orange",
           });
           return true;
@@ -104,14 +104,14 @@ export const useInvoiceTemplates = () => {
   );
 
   const onEdit = useCallback(
-    async (template: Partial<InvoiceTemplate>) => {
+    async (template: Partial<DocumentTemplate>) => {
       try {
         setEditLoading(true);
 
         template.company_id = user?.company_id as string;
 
         const { data: res } = await api.put(
-          "v1/invoice-templates/" + template.id,
+          "v1/document-templates/" + template.id,
           template
         );
 
@@ -119,7 +119,7 @@ export const useInvoiceTemplates = () => {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Invoice template updated successfully",
+            message: "Document Template updated successfully",
             color: "orange",
           });
           return true;
@@ -152,14 +152,14 @@ export const useInvoiceTemplates = () => {
         setDeleteLoading(true);
 
         const { data: res } = await api.delete(
-          `/v1/invoice-templates/${id}?company_id=${user?.company_id}`
+          `/v1/document-templates/${id}?company_id=${user?.company_id}`
         );
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Invoice template deleted successfully",
+            message: "Document Template deleted successfully",
             color: "orange",
           });
         } else {
@@ -183,10 +183,10 @@ export const useInvoiceTemplates = () => {
   );
 
   const onGeneratePreview = useCallback(
-    async (id: string, request: GenerateInvoiceNumberRequest) => {
+    async (id: string, request: GenerateDocumentNumberRequest) => {
       try {
         const { data: res } = await api.post(
-          `v1/invoice-templates/${id}/generate`,
+          `v1/document-templates/${id}/generate`,
           request
         );
 
@@ -216,7 +216,7 @@ export const useInvoiceTemplates = () => {
     async (id: string) => {
       try {
         const { data: res } = await api.post(
-          `v1/invoice-templates/${id}/increment`,
+          `v1/document-templates/${id}/increment`,
           {}
         );
 
@@ -252,7 +252,7 @@ export const useInvoiceTemplates = () => {
     async (id: string) => {
       try {
         const { data: res } = await api.post(
-          `v1/invoice-templates/${id}/reset`,
+          `v1/document-templates/${id}/reset`,
           {}
         );
 
@@ -304,9 +304,9 @@ export const useInvoiceTemplates = () => {
   };
 };
 
-export const useInvoiceTemplateOptions = () => {
-  const { data, error, isValidating } = useSWR<ApiResponse<InvoiceTemplate[]>>(
-    `v1/invoice-templates/options`,
+export const useDocumentTemplateOptions = () => {
+  const { data, error, isValidating } = useSWR<ApiResponse<DocumentTemplate[]>>(
+    `v1/document-templates/options`,
     fetcher
   );
 
