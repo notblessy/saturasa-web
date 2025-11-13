@@ -3,6 +3,7 @@ import useSWR, { mutate } from "swr";
 import useToast from "../context/toast";
 import api from "@/lib/utils/api";
 import { useAuth } from "../context/auth";
+import { fetcher } from "@/lib/utils/api";
 
 interface Supplier {
   id: string;
@@ -173,5 +174,20 @@ export const useSuppliers = () => {
     onQuery,
     onEdit,
     onDelete,
+  };
+};
+
+export const useSupplierOptions = () => {
+  const { user } = useAuth();
+  const { data, error, isValidating } = useSWR<ApiResponse<SuppliersResponse>>(
+    user?.company_id
+      ? `v1/suppliers?company_id=${user.company_id}&size=1000`
+      : null,
+    fetcher
+  );
+
+  return {
+    data: data?.data?.records || [],
+    loading: (!error && !data) || isValidating,
   };
 };

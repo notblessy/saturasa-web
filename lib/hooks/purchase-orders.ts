@@ -6,53 +6,91 @@ import { useAuth } from "../context/auth";
 import { fetcher } from "@/lib/utils/api";
 import { useRouter } from "next/navigation";
 
-export interface ProductSpecification {
-  id?: string;
-  company_id?: string;
-  product_id?: string;
-  measurement_unit_id: string;
-  base_price: number;
-  conversion_factor: number;
-  notes: string;
-  is_base_unit: boolean;
-  is_stock_unit: boolean;
-  is_purchase_unit: boolean;
-  is_sales_unit: boolean;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string | null;
-  measurement_unit?: {
-    id: string;
-    name: string;
-    label: string;
-    symbol?: string;
-  };
-}
-
-export interface Product {
+// Types matching backend Purchase model exactly
+export interface PurchaseItem {
   id: string;
-  slug: string;
   company_id: string;
-  category_id: string;
-  name: string;
-  image: string;
-  purchasable: boolean;
-  salesable: boolean;
-  notes: string;
+  purchase_id: string;
+  product_id: string;
+  measurement_unit_id: string;
+  quantity: number;
+  price: number;
+  sub_total: number;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
-  specifications?: ProductSpecification[];
-  category?: {
+  product?: {
     id: string;
     name: string;
+    slug?: string;
+    category?: {
+      id: string;
+      name: string;
+    };
+  };
+  measurement_unit?: {
+    id: string;
+    name: string;
+    symbol: string;
   };
 }
 
-export const useProducts = () => {
+export interface Purchase {
+  id: string;
+  branch_id: string;
+  supplier_id: string;
+  invoice_number: string;
+  invoice_date: string;
+  delivery_date: string;
+  status: string;
+  grand_total: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
+  supplier?: {
+    id: string;
+    name: string;
+  };
+  branch?: {
+    id: string;
+    name: string;
+  };
+  purchase_items?: PurchaseItem[];
+}
+
+// Request types for creating/updating purchases
+export interface PurchaseRequest {
+  branch_id: string;
+  supplier_id: string;
+  invoice_number?: string;
+  invoice_date?: string | null;
+  delivery_date?: string | null;
+  items: PurchaseItemRequest[];
+}
+
+export interface PurchaseItemRequest {
+  product_id: string;
+  unit_id?: string | null;
+  quantity: number;
+  price: number;
+  description?: string;
+  discount: number;
+  tax: number;
+}
+
+interface PurchasesResponse {
+  records: Purchase[];
+  page_summary: {
+    total: number;
+    page: number;
+    size: number;
+    hasNext: boolean;
+  };
+}
+
+export const usePurchaseOrders = () => {
   const router = useRouter();
   const toast = useToast();
-
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
@@ -60,31 +98,34 @@ export const useProducts = () => {
   const [editLoading, setEditLoading] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(5);
+  const [size, setSize] = useState(10);
   const [sort, setSort] = useState("-created_at");
   const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState("");
 
-  const pathKey = `v1/products?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}`;
-  const { data, error, isValidating } = useSWR<
-    ApiResponse<WithPagingResponse<Product>>
-  >(pathKey, fetcher, {});
+  const pathKey = user?.company_id
+    ? `v1/purchases?page=${page}&size=${size}&sort=${sort}&keyword=${keyword}&status=${status}`
+    : null;
+  const { data, error, isValidating } = useSWR<ApiResponse<PurchasesResponse>>(
+    pathKey,
+    fetcher,
+    {}
+  );
 
   const onAdd = useCallback(
-    async (data: Partial<Product>) => {
+    async (data: PurchaseRequest) => {
       setLoading(true);
       try {
-        data.company_id = user?.company_id as string;
-        const { data: res } = await api.post("v1/products", data);
+        const { data: res } = await api.post("v1/purchases", data);
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Success add product",
+            message: "Purchase order created successfully",
             color: "orange",
           });
-
-          router.push("/dashboard/products");
+          router.push("/dashboard/purchase-orders");
         } else {
           toast({
             title: "Error",
@@ -92,17 +133,17 @@ export const useProducts = () => {
             color: "red",
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         toast({
           title: "Error",
-          message: "Something went wrong",
+          message: error?.response?.data?.message || "Something went wrong",
           color: "red",
         });
       } finally {
         setLoading(false);
       }
     },
-    [pathKey, toast]
+    [pathKey, toast, router, user?.company_id]
   );
 
   const onQuery = useCallback(
@@ -116,33 +157,28 @@ export const useProducts = () => {
           setSort(value);
         } else if (key === "keyword") {
           setKeyword(value);
+        } else if (key === "status") {
+          setStatus(value);
         }
       }
     },
-    [setPage, setSize, setSort, setKeyword]
+    []
   );
 
   const onEdit = useCallback(
-    async (product: Partial<Product>) => {
+    async (id: string, data: PurchaseRequest) => {
       try {
         setEditLoading(true);
-
-        product.company_id = user?.company_id as string;
-
-        const { data: res } = await api.put(
-          "v1/products/" + product.id,
-          product
-        );
+        const { data: res } = await api.put(`v1/purchases/${id}`, data);
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Success update product",
+            message: "Purchase order updated successfully",
             color: "orange",
           });
-
-          router.push("/dashboard/products");
+          router.push("/dashboard/purchase-orders");
         } else {
           toast({
             title: "Error",
@@ -150,18 +186,17 @@ export const useProducts = () => {
             color: "red",
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         toast({
           title: "Error",
-          message:
-            error instanceof Error ? error.message : "Something went wrong",
+          message: error?.response?.data?.message || "Something went wrong",
           color: "red",
         });
       } finally {
         setEditLoading(false);
       }
     },
-    [pathKey, toast]
+    [pathKey, toast, router, user?.company_id]
   );
 
   const onDelete = useCallback(
@@ -169,28 +204,26 @@ export const useProducts = () => {
       try {
         setDeleteLoading(true);
 
-        const { data: res } = await api.delete(
-          `/v1/products/${id}?company_id=${user?.company_id}`
-        );
+        const { data: res } = await api.delete(`v1/purchases/${id}`);
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Success delete product",
+            message: "Purchase order deleted successfully",
             color: "orange",
           });
         } else {
           toast({
             title: "Error",
-            message: "Something went wrong",
+            message: res.message || "Something went wrong",
             color: "red",
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         toast({
           title: "Error",
-          message: "Something went wrong",
+          message: error?.response?.data?.message || "Something went wrong",
           color: "red",
         });
       } finally {
@@ -201,7 +234,7 @@ export const useProducts = () => {
   );
 
   return {
-    data: data?.data || { records: [], total: 0, page: 1, size: 5 },
+    data: data?.data || { records: [], page_summary: { total: 0, page: 1, size: 10, hasNext: false } },
     error,
     isValidating,
     loading,
@@ -214,19 +247,15 @@ export const useProducts = () => {
   };
 };
 
-// Hook for fetching a single product by ID
-export const useProduct = (productId: string | null) => {
-  const { user } = useAuth();
-
+// Hook for fetching a single purchase by ID
+export const usePurchaseOrder = (purchaseId: string | null) => {
   const {
     data,
     error,
     isValidating,
-    mutate: mutateProduct,
-  } = useSWR<ApiResponse<Product>>(
-    productId && user?.company_id
-      ? `v1/products/${productId}?company_id=${user.company_id}`
-      : null,
+    mutate: mutatePurchase,
+  } = useSWR<ApiResponse<Purchase>>(
+    purchaseId ? `v1/purchases/${purchaseId}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -235,24 +264,10 @@ export const useProduct = (productId: string | null) => {
   );
 
   return {
-    product: data?.data || null,
+    purchase: data?.data || null,
     isLoading: isValidating && !error && !data,
     error,
-    mutateProduct,
+    mutatePurchase,
   };
 };
 
-export const useProductOptions = () => {
-  const { user } = useAuth();
-  const { data, error, isValidating } = useSWR<ApiResponse<WithPagingResponse<Product>>>(
-    user?.company_id
-      ? `v1/products?company_id=${user.company_id}&size=1000`
-      : null,
-    fetcher
-  );
-
-  return {
-    data: data?.data?.records || [],
-    loading: (!error && !data) || isValidating,
-  };
-};

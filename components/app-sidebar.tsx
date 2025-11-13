@@ -36,6 +36,7 @@ import {
   Calculator,
   Settings2,
   FileText,
+  ShoppingCart,
 } from "lucide-react";
 
 const menuItems = [
@@ -69,6 +70,11 @@ const menuItems = [
     title: "Inventories",
     icon: Package,
     items: [
+      {
+        title: "Purchase Orders",
+        url: "/dashboard/purchase-orders",
+        icon: ShoppingCart,
+      },
       {
         title: "Productions",
         url: "/dashboard/productions",
