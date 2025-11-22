@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import { Plus, Trash2, Loader2, ArrowLeft } from "lucide-react";
 import {
   usePurchaseOrders,
   PurchaseRequest,
@@ -175,7 +174,7 @@ export default function NewPurchaseOrderPage() {
   const totals = calculateTotals();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-8 pb-8">
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
@@ -184,58 +183,76 @@ export default function NewPurchaseOrderPage() {
         ]}
       />
 
-      <Button
-        variant="outline"
-        onClick={() => router.push("/dashboard/purchase-orders")}
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
-      </Button>
-
-      <div className="flex items-center gap-4">
-        <div>
-          <h1 className="text-[26px] font-bold text-gray-900">
-            New Purchase Order
-          </h1>
-          <p className="text-gray-600 mt-2 text-sm">
-            Create a new purchase order
-          </p>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900">
+              Create Purchase Order
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Record a new purchase order from your supplier. Fill in the
+              supplier details, invoice information, and add the items you're
+              purchasing.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/dashboard/purchase-orders")}
+            className="text-sm"
+          >
+            Back to List
+          </Button>
         </div>
       </div>
 
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Purchase Order Information</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold">
+              Supplier & Invoice Details
+            </CardTitle>
+            <p className="text-xs text-gray-600 mt-1">
+              Enter the supplier information and invoice details for this
+              purchase order.
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="invoice_number">Invoice Number *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="invoice_number" className="text-xs font-medium">
+                  Invoice Number <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="invoice_number"
                   {...form.register("invoice_number")}
-                  placeholder="e.g., INV/001"
+                  placeholder="Enter invoice number from supplier"
+                  className="h-9 text-sm"
                 />
                 {form.formState.errors.invoice_number && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs text-red-500">
                     {form.formState.errors.invoice_number.message}
                   </p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="supplier_id">Supplier *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="supplier_id" className="text-xs font-medium">
+                  Supplier <span className="text-red-500">*</span>
+                </Label>
                 <Controller
                   name="supplier_id"
                   control={form.control}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select supplier" />
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue placeholder="Choose supplier" />
                       </SelectTrigger>
                       <SelectContent>
                         {suppliers.map((supplier) => (
-                          <SelectItem key={supplier.id} value={supplier.id}>
+                          <SelectItem
+                            key={supplier.id}
+                            value={supplier.id}
+                            className="text-sm"
+                          >
                             {supplier.name}
                           </SelectItem>
                         ))}
@@ -244,50 +261,62 @@ export default function NewPurchaseOrderPage() {
                   )}
                 />
                 {form.formState.errors.supplier_id && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs text-red-500">
                     {form.formState.errors.supplier_id.message}
                   </p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="invoice_date">Invoice Date *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="invoice_date" className="text-xs font-medium">
+                  Invoice Date <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="invoice_date"
                   type="date"
                   {...form.register("invoice_date")}
+                  className="h-9 text-sm"
                 />
                 {form.formState.errors.invoice_date && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs text-red-500">
                     {form.formState.errors.invoice_date.message}
                   </p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="delivery_date">Delivery Date *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="delivery_date" className="text-xs font-medium">
+                  Expected Delivery Date <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="delivery_date"
                   type="date"
                   {...form.register("delivery_date")}
+                  className="h-9 text-sm"
                 />
                 {form.formState.errors.delivery_date && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs text-red-500">
                     {form.formState.errors.delivery_date.message}
                   </p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="branch_id">Branch *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="branch_id" className="text-xs font-medium">
+                  Delivery Branch <span className="text-red-500">*</span>
+                </Label>
                 <Controller
                   name="branch_id"
                   control={form.control}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select branch" />
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue placeholder="Select delivery branch" />
                       </SelectTrigger>
                       <SelectContent>
                         {branches.map((branch) => (
-                          <SelectItem key={branch.id} value={branch.id}>
+                          <SelectItem
+                            key={branch.id}
+                            value={branch.id}
+                            className="text-sm"
+                          >
                             {branch.name}
                           </SelectItem>
                         ))}
@@ -296,7 +325,7 @@ export default function NewPurchaseOrderPage() {
                   )}
                 />
                 {form.formState.errors.branch_id && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs text-red-500">
                     {form.formState.errors.branch_id.message}
                   </p>
                 )}
@@ -306,34 +335,68 @@ export default function NewPurchaseOrderPage() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Items</CardTitle>
-              <Button type="button" onClick={addItem} variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-sm font-semibold">
+                  Purchase Items
+                </CardTitle>
+                <p className="text-xs text-gray-600 mt-1">
+                  Add the products, ingredients, or items you're purchasing from
+                  the supplier.
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={addItem}
+                variant="outline"
+                className="text-sm"
+              >
                 Add Item
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {fields.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No items added. Click "Add Item" to start.
+              <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
+                <p className="text-sm text-gray-500 mb-1">No items added yet</p>
+                <p className="text-xs text-gray-400">
+                  Click "Add Item" above to start adding products to this
+                  purchase order
+                </p>
               </div>
             ) : (
               <div className="border border-gray-200 rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Product *</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Quantity *</TableHead>
-                      <TableHead>Unit</TableHead>
-                      <TableHead>Price *</TableHead>
-                      <TableHead>Discount (%)</TableHead>
-                      <TableHead>Tax</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="font-semibold text-xs">
+                        Product
+                      </TableHead>
+                      <TableHead className="font-semibold text-xs">
+                        Description
+                      </TableHead>
+                      <TableHead className="font-semibold text-xs">
+                        Quantity
+                      </TableHead>
+                      <TableHead className="font-semibold text-xs">
+                        Unit
+                      </TableHead>
+                      <TableHead className="font-semibold text-xs">
+                        Unit Price
+                      </TableHead>
+                      <TableHead className="font-semibold text-xs">
+                        Discount (%)
+                      </TableHead>
+                      <TableHead className="font-semibold text-xs">
+                        Tax
+                      </TableHead>
+                      <TableHead className="font-semibold text-xs">
+                        Line Total
+                      </TableHead>
+                      <TableHead className="text-right font-semibold text-xs">
+                        Action
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -357,7 +420,7 @@ export default function NewPurchaseOrderPage() {
                                     );
                                   }}
                                 >
-                                  <SelectTrigger className="w-[200px]">
+                                  <SelectTrigger className="w-[200px] h-8 text-xs">
                                     <SelectValue placeholder="Select product" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -365,6 +428,7 @@ export default function NewPurchaseOrderPage() {
                                       <SelectItem
                                         key={product.id}
                                         value={product.id}
+                                        className="text-sm"
                                       >
                                         {product.name}
                                       </SelectItem>
@@ -387,7 +451,7 @@ export default function NewPurchaseOrderPage() {
                             <Input
                               {...form.register(`items.${index}.description`)}
                               placeholder="Description"
-                              className="w-[150px]"
+                              className="w-[150px] h-8 text-xs"
                             />
                           </TableCell>
                           <TableCell>
@@ -398,7 +462,7 @@ export default function NewPurchaseOrderPage() {
                               {...form.register(`items.${index}.quantity`, {
                                 valueAsNumber: true,
                               })}
-                              className="w-[100px]"
+                              className="w-[100px] h-8 text-xs"
                             />
                             {form.formState.errors.items?.[index]?.quantity && (
                               <p className="text-xs text-red-500 mt-1">
@@ -420,7 +484,7 @@ export default function NewPurchaseOrderPage() {
                                     field.onChange(value || null)
                                   }
                                 >
-                                  <SelectTrigger className="w-[120px]">
+                                  <SelectTrigger className="w-[120px] h-8 text-xs">
                                     <SelectValue placeholder="Unit" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -430,6 +494,7 @@ export default function NewPurchaseOrderPage() {
                                             <SelectItem
                                               key={unit.id}
                                               value={unit.id}
+                                              className="text-sm"
                                             >
                                               {unit.symbol || unit.name}
                                             </SelectItem>
@@ -439,6 +504,7 @@ export default function NewPurchaseOrderPage() {
                                           <SelectItem
                                             key={unit.id}
                                             value={unit.id}
+                                            className="text-sm"
                                           >
                                             {unit.symbol || unit.name}
                                           </SelectItem>
@@ -456,7 +522,7 @@ export default function NewPurchaseOrderPage() {
                               {...form.register(`items.${index}.price`, {
                                 valueAsNumber: true,
                               })}
-                              className="w-[100px]"
+                              className="w-[100px] h-8 text-xs"
                             />
                             {form.formState.errors.items?.[index]?.price && (
                               <p className="text-xs text-red-500 mt-1">
@@ -476,7 +542,7 @@ export default function NewPurchaseOrderPage() {
                               {...form.register(`items.${index}.discount`, {
                                 valueAsNumber: true,
                               })}
-                              className="w-[80px]"
+                              className="w-[80px] h-8 text-xs"
                             />
                           </TableCell>
                           <TableCell>
@@ -487,20 +553,21 @@ export default function NewPurchaseOrderPage() {
                               {...form.register(`items.${index}.tax`, {
                                 valueAsNumber: true,
                               })}
-                              className="w-[100px]"
+                              className="w-[100px] h-8 text-xs"
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-xs">
                             {formatCurrency(calculateItemAmount(item))}
                           </TableCell>
                           <TableCell className="text-right">
                             <Button
                               type="button"
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               onClick={() => remove(index)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs h-7"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              Remove
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -511,7 +578,7 @@ export default function NewPurchaseOrderPage() {
               </div>
             )}
             {form.formState.errors.items && (
-              <p className="text-sm text-red-500 mt-2">
+              <p className="text-xs text-red-500 mt-2">
                 {form.formState.errors.items.message}
               </p>
             )}
@@ -519,48 +586,46 @@ export default function NewPurchaseOrderPage() {
         </Card>
 
         {fields.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-end">
-                <div className="w-full max-w-md space-y-2">
-                  <div className="flex justify-between gap-8">
-                    <span className="text-gray-600">Subtotal:</span>
-                    <span className="font-medium">
-                      {formatCurrency(totals.subtotal)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between gap-8">
-                    <span className="text-gray-600">Total:</span>
-                    <span className="font-medium text-[14px]">
-                      {formatCurrency(totals.total)}
-                    </span>
-                  </div>
+          <div className="flex justify-end">
+            <div className="w-full max-w-sm bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-center pb-2 border-b border-gray-300">
+                  <span className="text-gray-700 font-medium text-xs">
+                    Subtotal
+                  </span>
+                  <span className="font-semibold text-gray-900 text-xs">
+                    {formatCurrency(totals.subtotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-1">
+                  <span className="text-gray-900 font-semibold text-sm">
+                    Total Amount
+                  </span>
+                  <span className="font-bold text-base text-gray-900">
+                    {formatCurrency(totals.total)}
+                  </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
           <Button
             type="button"
             variant="outline"
             onClick={() => router.push("/dashboard/purchase-orders")}
+            disabled={loading}
+            className="text-sm"
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Purchase Order"
-            )}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="min-w-[180px] text-sm"
+          >
+            {loading ? "Processing..." : "Create Purchase Order"}
           </Button>
         </div>
       </form>
