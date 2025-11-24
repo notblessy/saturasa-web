@@ -1,13 +1,27 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { BarChart3, Package, ShoppingCart, Users, TrendingUp, AlertCircle } from "lucide-react"
-import { useTranslation } from "@/lib/hooks/use-translation"
-import LanguageSelector from "@/components/language-selector"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/saturasui/card";
+import { Button } from "@/components/saturasui/button";
+import {
+  BarChart3,
+  Package,
+  ShoppingCart,
+  Users,
+  TrendingUp,
+  AlertCircle,
+} from "lucide-react";
+import { useTranslation } from "@/lib/hooks/use-translation";
+import LanguageSelector from "@/components/language-selector";
 
 export default function DashboardPage() {
-  const { t } = useTranslation()
-  
+  const { t } = useTranslation();
+
   const stats = [
     {
       title: t.dashboard.stats.totalProducts,
@@ -37,38 +51,64 @@ export default function DashboardPage() {
       icon: TrendingUp,
       color: "from-green-400 to-green-600",
     },
-  ]
+  ];
 
   const recentActivities = [
-    { action: t.dashboard.recentActivities.newProductAdded, item: "Premium Coffee Beans", time: `2 ${t.dashboard.recentActivities.timeAgo.hoursAgo}` },
-    { action: t.dashboard.recentActivities.productionCompleted, item: "Batch #1234", time: `4 ${t.dashboard.recentActivities.timeAgo.hoursAgo}` },
-    { action: t.dashboard.recentActivities.supplierUpdated, item: "ABC Supplies Co.", time: `6 ${t.dashboard.recentActivities.timeAgo.hoursAgo}` },
-    { action: t.dashboard.recentActivities.stockReplenished, item: "Packaging Materials", time: `8 ${t.dashboard.recentActivities.timeAgo.hoursAgo}` },
-  ]
+    {
+      action: t.dashboard.recentActivities.newProductAdded,
+      item: "Premium Coffee Beans",
+      time: `2 ${t.dashboard.recentActivities.timeAgo.hoursAgo}`,
+    },
+    {
+      action: t.dashboard.recentActivities.productionCompleted,
+      item: "Batch #1234",
+      time: `4 ${t.dashboard.recentActivities.timeAgo.hoursAgo}`,
+    },
+    {
+      action: t.dashboard.recentActivities.supplierUpdated,
+      item: "ABC Supplies Co.",
+      time: `6 ${t.dashboard.recentActivities.timeAgo.hoursAgo}`,
+    },
+    {
+      action: t.dashboard.recentActivities.stockReplenished,
+      item: "Packaging Materials",
+      time: `8 ${t.dashboard.recentActivities.timeAgo.hoursAgo}`,
+    },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t.dashboard.title}</h1>
-          <p className="text-gray-600 mt-2">{t.dashboard.subtitle}</p>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {t.dashboard.title}
+          </h1>
+          <p className="text-xs text-gray-600 mt-1">{t.dashboard.subtitle}</p>
         </div>
         <LanguageSelector />
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((stat, index) => (
-          <Card key={index} className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-6">
+          <Card key={index}>
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className="text-sm text-green-600 font-medium">{stat.change}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-gray-600 mb-1">
+                    {stat.title}
+                  </p>
+                  <p className="text-base font-semibold text-gray-900 mb-0.5">
+                    {stat.value}
+                  </p>
+                  <p className="text-xs text-green-600 font-medium">
+                    {stat.change}
+                  </p>
                 </div>
-                <div className={`p-3 rounded-full bg-gradient-to-r ${stat.color}`}>
-                  <stat.icon className="h-6 w-6 text-white" />
+                <div
+                  className={`p-2 rounded bg-gradient-to-r ${stat.color} shrink-0 ml-2`}
+                >
+                  <stat.icon className="h-4 w-4 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -77,57 +117,90 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Activities */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-purple-600" />
+            <CardTitle className="flex items-center gap-1.5">
+              <AlertCircle className="h-3.5 w-3.5 text-purple-600" />
               {t.dashboard.recentActivities.title}
             </CardTitle>
-            <CardDescription>{t.dashboard.recentActivities.subtitle}</CardDescription>
+            <CardDescription>
+              {t.dashboard.recentActivities.subtitle}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                  <div>
-                    <p className="font-medium text-gray-900">{activity.action}</p>
-                    <p className="text-sm text-gray-600">{activity.item}</p>
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 rounded bg-purple-50/30 hover:bg-purple-50/50 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-gray-900">
+                      {activity.action}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      {activity.item}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
+                  <p className="text-xs text-gray-500 shrink-0 ml-2">
+                    {activity.time}
+                  </p>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+        <Card>
           <CardHeader>
             <CardTitle>{t.dashboard.quickActions.title}</CardTitle>
-            <CardDescription>{t.dashboard.quickActions.subtitle}</CardDescription>
+            <CardDescription>
+              {t.dashboard.quickActions.subtitle}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <button className="p-4 rounded-lg bg-gradient-to-r from-purple-100 to-pink-100 hover:from-purple-200 hover:to-pink-200 transition-colors">
-                <Package className="h-6 w-6 text-purple-600 mb-2" />
-                <p className="text-sm font-medium">{t.dashboard.quickActions.addProduct}</p>
-              </button>
-              <button className="p-4 rounded-lg bg-gradient-to-r from-blue-100 to-cyan-100 hover:from-blue-200 hover:to-cyan-200 transition-colors">
-                <BarChart3 className="h-6 w-6 text-blue-600 mb-2" />
-                <p className="text-sm font-medium">{t.dashboard.quickActions.newProduction}</p>
-              </button>
-              <button className="p-4 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 transition-colors">
-                <Users className="h-6 w-6 text-green-600 mb-2" />
-                <p className="text-sm font-medium">{t.dashboard.quickActions.addSupplier}</p>
-              </button>
-              <button className="p-4 rounded-lg bg-gradient-to-r from-orange-100 to-red-100 hover:from-orange-200 hover:to-red-200 transition-colors">
-                <ShoppingCart className="h-6 w-6 text-orange-600 mb-2" />
-                <p className="text-sm font-medium">{t.dashboard.quickActions.stockUpdate}</p>
-              </button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="ghost"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-colors"
+              >
+                <Package className="h-4 w-4 text-purple-600 mb-1.5" />
+                <p className="text-xs font-medium text-gray-900">
+                  {t.dashboard.quickActions.addProduct}
+                </p>
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 transition-colors"
+              >
+                <BarChart3 className="h-4 w-4 text-blue-600 mb-1.5" />
+                <p className="text-xs font-medium text-gray-900">
+                  {t.dashboard.quickActions.newProduction}
+                </p>
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-colors"
+              >
+                <Users className="h-4 w-4 text-green-600 mb-1.5" />
+                <p className="text-xs font-medium text-gray-900">
+                  {t.dashboard.quickActions.addSupplier}
+                </p>
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-colors"
+              >
+                <ShoppingCart className="h-4 w-4 text-orange-600 mb-1.5" />
+                <p className="text-xs font-medium text-gray-900">
+                  {t.dashboard.quickActions.stockUpdate}
+                </p>
+              </Button>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/saturasui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { TopBar } from "@/components/top-bar";
 import { useAuth } from "@/lib/context/auth";
@@ -39,11 +39,11 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-purple-50/30 via-pink-50/30 to-blue-50/30">
+      <div className="h-screen flex w-full overflow-hidden bg-gradient-to-br from-purple-50/30 via-pink-50/30 to-blue-50/30">
         <AppSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <TopBar />
-          <main className="flex-1 p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 min-h-0">{children}</main>
         </div>
       </div>
     </SidebarProvider>

@@ -4,16 +4,16 @@ import type React from "react";
 
 import { useState } from "react";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
+import { Label } from "@/components/saturasui/label";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/saturasui/card";
 import { useAuth } from "@/lib/context/auth";
 import Link from "next/link";
 import { useTranslation } from "@/lib/hooks/use-translation";
@@ -32,38 +32,38 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50/40 via-purple-50/60 to-pink-50/40 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-between items-center">
           <Link
             href="/"
-            className="inline-flex items-center text-purple-600 hover:text-purple-700 transition-colors"
+            className="inline-flex items-center text-purple-700 hover:text-purple-800 transition-colors text-xs font-medium"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
             {t.login.backToHome}
           </Link>
           <LanguageSelector />
         </div>
 
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center">
+        <Card>
+          <CardHeader className="text-center space-y-3">
+            <div className="mx-auto w-14 h-14 rounded flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 p-2">
               <img
                 src="/saturasa-min.png"
                 alt="saturasa logo"
-                className="h-12 w-12 object-contain"
+                className="h-full w-full object-contain"
               />
             </div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <CardTitle className="text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               {t.login.title}
             </CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardDescription>
               {t.login.subtitle}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="username">{t.login.username}</Label>
                 <Input
                   id="username"
@@ -72,10 +72,9 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="bg-white/50"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="password">{t.login.password}</Label>
                 <div className="relative">
                   <Input
@@ -85,24 +84,24 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="bg-white/50 pr-10"
+                    className="pr-9"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-3.5 w-3.5" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-3.5 w-3.5" />
                     )}
                   </button>
                 </div>
               </div>
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="w-full"
                 disabled={loading}
               >
                 {loading ? t.login.signingIn : t.login.signIn}

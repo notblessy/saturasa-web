@@ -16,12 +16,12 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+} from "@/components/saturasui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@/components/saturasui/collapsible";
 import {
   LayoutDashboard,
   Package,
@@ -38,6 +38,8 @@ import {
   FileText,
   ShoppingCart,
 } from "lucide-react";
+import { useSidebar } from "@/components/saturasui/sidebar";
+import { cn } from "@/lib/utils";
 
 const menuItems = [
   {
@@ -124,18 +126,20 @@ export function AppSidebar() {
 
   const isActive = (url: string) => pathname === url;
 
+  const { state } = useSidebar();
+
   return (
-    <Sidebar className="border-r border-purple-100 w-64">
-      <SidebarHeader className="border-b border-purple-100 p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br flex items-center justify-center">
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <div className="flex items-center gap-2.5 min-w-0 h-full">
+          <div className="w-7 h-7 flex items-center justify-center shrink-0">
             <img
               src="/saturasa-min.png"
               alt="saturasa logo"
-              className="h-8 w-8 object-contain"
+              className="h-full w-full object-contain"
             />
           </div>
-          <span className="font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <span className="font-semibold text-xs bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent group-data-[collapsible=icon]:hidden truncate">
             saturasa
           </span>
         </div>
@@ -153,12 +157,17 @@ export function AppSidebar() {
                       onOpenChange={() => toggleItem(item.title)}
                     >
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="w-full justify-between">
-                          <div className="flex items-center gap-2">
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
+                        <SidebarMenuButton className="w-full justify-between group-data-[collapsible=icon]:justify-center">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <item.icon className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">{item.title}</span>
                           </div>
-                          <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 transition-transform duration-200 shrink-0 group-data-[collapsible=icon]:hidden",
+                              openItems.includes(item.title) && "rotate-180"
+                            )}
+                          />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
@@ -169,9 +178,14 @@ export function AppSidebar() {
                                 asChild
                                 isActive={isActive(subItem.url)}
                               >
-                                <Link href={subItem.url}>
-                                  <subItem.icon className="h-4 w-4" />
-                                  <span>{subItem.title}</span>
+                                <Link
+                                  href={subItem.url}
+                                  className="flex items-center gap-2 min-w-0"
+                                >
+                                  <subItem.icon className="h-3.5 w-3.5 shrink-0" />
+                                  <span className="truncate">
+                                    {subItem.title}
+                                  </span>
                                 </Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -180,10 +194,17 @@ export function AppSidebar() {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <Link href={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.url)}
+                      tooltip={item.title}
+                    >
+                      <Link
+                        href={item.url}
+                        className="flex items-center gap-2 min-w-0"
+                      >
+                        <item.icon className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   )}
