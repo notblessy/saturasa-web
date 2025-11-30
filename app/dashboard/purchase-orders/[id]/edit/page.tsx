@@ -70,8 +70,12 @@ export default function EditPurchaseOrderPage() {
       setFormData({
         invoice_number: purchase.invoice_number || "",
         supplier_id: purchase.supplier_id,
-        invoice_date: purchase.invoice_date ? purchase.invoice_date.split("T")[0] : "",
-        delivery_date: purchase.delivery_date ? purchase.delivery_date.split("T")[0] : "",
+        invoice_date: purchase.invoice_date
+          ? purchase.invoice_date.split("T")[0]
+          : "",
+        delivery_date: purchase.delivery_date
+          ? purchase.delivery_date.split("T")[0]
+          : "",
         branch_id: purchase.branch_id || "",
         items:
           purchase.purchase_items?.map((item, index) => ({
@@ -231,7 +235,7 @@ export default function EditPurchaseOrderPage() {
     );
   }
 
-  if (!purchaseOrder) {
+  if (!purchaseOrderId) {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center py-12">
@@ -258,7 +262,9 @@ export default function EditPurchaseOrderPage() {
           </p>
           <Button
             variant="outline"
-            onClick={() => router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)}
+            onClick={() =>
+              router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)
+            }
             className="mt-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -282,7 +288,9 @@ export default function EditPurchaseOrderPage() {
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
-          onClick={() => router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)}
+          onClick={() =>
+            router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)
+          }
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
@@ -291,7 +299,9 @@ export default function EditPurchaseOrderPage() {
           <h1 className="text-[26px] font-bold text-gray-900">
             Edit Purchase Order
           </h1>
-          <p className="text-gray-600 mt-2 text-sm">Update purchase order details</p>
+          <p className="text-gray-600 mt-2 text-sm">
+            Update purchase order details
+          </p>
         </div>
       </div>
 
@@ -435,7 +445,10 @@ export default function EditPurchaseOrderPage() {
                               </SelectTrigger>
                               <SelectContent>
                                 {products.map((product) => (
-                                  <SelectItem key={product.id} value={product.id}>
+                                  <SelectItem
+                                    key={product.id}
+                                    value={product.id}
+                                  >
                                     {product.name}
                                   </SelectItem>
                                 ))}
@@ -446,7 +459,11 @@ export default function EditPurchaseOrderPage() {
                             <Input
                               value={item.description || ""}
                               onChange={(e) =>
-                                updateItem(item.id, "description", e.target.value)
+                                updateItem(
+                                  item.id,
+                                  "description",
+                                  e.target.value
+                                )
                               }
                               placeholder="Description"
                               className="w-[150px]"
@@ -480,11 +497,16 @@ export default function EditPurchaseOrderPage() {
                               </SelectTrigger>
                               <SelectContent>
                                 {item.product_id
-                                  ? getProductUnits(item.product_id).map((unit) => (
-                                      <SelectItem key={unit.id} value={unit.id}>
-                                        {unit.symbol || unit.name}
-                                      </SelectItem>
-                                    ))
+                                  ? getProductUnits(item.product_id).map(
+                                      (unit) => (
+                                        <SelectItem
+                                          key={unit.id}
+                                          value={unit.id}
+                                        >
+                                          {unit.symbol || unit.name}
+                                        </SelectItem>
+                                      )
+                                    )
                                   : measurementUnits.map((unit) => (
                                       <SelectItem key={unit.id} value={unit.id}>
                                         {unit.symbol || unit.name}
@@ -587,7 +609,9 @@ export default function EditPurchaseOrderPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)}
+            onClick={() =>
+              router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)
+            }
           >
             Cancel
           </Button>
@@ -610,4 +634,3 @@ export default function EditPurchaseOrderPage() {
     </div>
   );
 }
-
