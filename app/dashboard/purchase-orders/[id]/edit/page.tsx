@@ -253,28 +253,6 @@ export default function EditPurchaseOrderPage() {
     );
   }
 
-  if (purchaseOrder.status !== "pending") {
-    return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="text-center py-12">
-          <p className="text-gray-500">
-            Only purchase orders with pending status can be edited
-          </p>
-          <Button
-            variant="outline"
-            onClick={() =>
-              router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)
-            }
-            className="mt-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Purchase Order
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <BreadcrumbNav
