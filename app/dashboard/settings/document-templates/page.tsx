@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import {
   Plus,
@@ -31,7 +31,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import {
   Select,
   SelectContent,
@@ -245,7 +245,7 @@ export default function DocumentTemplatesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: "Settings", href: "/dashboard/settings" },
@@ -255,10 +255,10 @@ export default function DocumentTemplatesPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-lg font-semibold text-gray-900">
             Document Templates
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-xs text-gray-600 mt-1">
             Manage document numbering templates for invoices and other documents
           </p>
         </div>
@@ -267,35 +267,34 @@ export default function DocumentTemplatesPage() {
           className="bg-primary hover:bg-primary/90"
           disabled={loading}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
           Add Template
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center gap-4">
-          <h2 className="text-xl font-semibold text-gray-900">Template List</h2>
-          <div className="flex gap-2">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="flex gap-2 flex-1">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
               <Input
                 placeholder="Search templates..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
             <Select
               value={typeFilter || "all"}
               onValueChange={handleTypeFilter}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="h-8 text-xs border-[#F2F1ED] w-48">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
+              <SelectContent className="border-[#F2F1ED]">
+                <SelectItem value="all" className="text-xs">All Types</SelectItem>
                 {DOCUMENT_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
+                  <SelectItem key={type.value} value={type.value} className="text-xs">
                     {type.label}
                   </SelectItem>
                 ))}
@@ -304,10 +303,10 @@ export default function DocumentTemplatesPage() {
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead>Document Type</TableHead>
                 <TableHead>Format</TableHead>
                 <TableHead>Last Number</TableHead>
@@ -319,31 +318,31 @@ export default function DocumentTemplatesPage() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    <p className="mt-2 text-gray-500">Loading templates...</p>
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    <p className="mt-2 text-xs text-gray-500">Loading templates...</p>
                   </TableCell>
                 </TableRow>
               ) : templates.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
-                    <p className="text-gray-500">No templates found</p>
+                    <p className="text-xs text-gray-500">No templates found</p>
                   </TableCell>
                 </TableRow>
               ) : (
                 templates.map((template) => (
                   <TableRow key={template.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-xs">
                       <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-primary" />
+                        <FileText className="h-3.5 w-3.5 text-primary" />
                         {template.document_type}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <code className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded font-mono">
+                    <TableCell className="text-xs">
+                      <code className="px-2 py-0.5 bg-gray-100 text-gray-800 text-xs rounded font-mono">
                         {template.format}
                       </code>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-xs">
                       <span className="font-mono">{template.last_number}</span>
                     </TableCell>
                     <TableCell>
@@ -354,18 +353,18 @@ export default function DocumentTemplatesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex justify-end gap-1.5">
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="default"
                           onClick={() => handlePreview(template)}
                           title="Preview"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="default"
                           onClick={() =>
                             handleResetSequence(
                               template.id,
@@ -374,27 +373,27 @@ export default function DocumentTemplatesPage() {
                           }
                           title="Reset Sequence"
                         >
-                          <RotateCcw className="h-4 w-4" />
+                          <RotateCcw className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="default"
                           onClick={() => handleEditTemplate(template)}
                           disabled={loading}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="default"
                           onClick={() => handleDeleteTemplate(template.id)}
                           className="text-red-600 hover:text-red-700"
                           disabled={deleteLoading}
                         >
                           {deleteLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           )}
                         </Button>
                       </div>
@@ -409,7 +408,7 @@ export default function DocumentTemplatesPage() {
 
       {/* Add/Edit Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="overflow-y-auto">
+        <SheetContent className="overflow-y-auto bg-white">
           <SheetHeader>
             <SheetTitle>
               {editingTemplate ? "Edit Template" : "Add New Template"}
@@ -421,8 +420,8 @@ export default function DocumentTemplatesPage() {
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-            <div className="space-y-2">
-              <Label htmlFor="document_type">
+            <div className="space-y-1.5">
+              <Label htmlFor="document_type" className="text-xs font-medium">
                 Document Type <span className="text-red-500">*</span>
               </Label>
               <Select
@@ -432,12 +431,12 @@ export default function DocumentTemplatesPage() {
                 }
                 required
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                   <SelectValue placeholder="Select document type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-[#F2F1ED]">
                   {DOCUMENT_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
+                    <SelectItem key={type.value} value={type.value} className="text-xs">
                       {type.label}
                     </SelectItem>
                   ))}
@@ -445,13 +444,13 @@ export default function DocumentTemplatesPage() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="format">
+            <div className="space-y-1.5">
+              <Label htmlFor="format" className="text-xs font-medium">
                 Format <span className="text-red-500">*</span>
               </Label>
 
               {/* Format Preview */}
-              <div className="min-h-[42px] p-2 border rounded-md bg-gray-50 flex flex-wrap gap-1 items-center">
+              <div className="min-h-[42px] p-2 border border-[#F2F1ED] rounded-md bg-gray-50 flex flex-wrap gap-1 items-center">
                 {formData.format ? (
                   formData.format
                     .split(/(\{[^}]+\}|-)/)
@@ -523,7 +522,6 @@ export default function DocumentTemplatesPage() {
                       key={token.value}
                       type="button"
                       variant="outline"
-                      size="sm"
                       onClick={() => handleAddToken(token.value)}
                       className="text-xs hover:bg-primary/5 hover:text-primary hover:border-primary/40"
                       title={token.description}
@@ -535,8 +533,8 @@ export default function DocumentTemplatesPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="reset_policy">
+            <div className="space-y-1.5">
+              <Label htmlFor="reset_policy" className="text-xs font-medium">
                 Reset Policy <span className="text-red-500">*</span>
               </Label>
               <Select
@@ -546,12 +544,12 @@ export default function DocumentTemplatesPage() {
                 }
                 required
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                   <SelectValue placeholder="Select reset policy" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-[#F2F1ED]">
                   {RESET_POLICIES.map((policy) => (
-                    <SelectItem key={policy.value} value={policy.value}>
+                    <SelectItem key={policy.value} value={policy.value} className="text-xs">
                       {policy.label}
                     </SelectItem>
                   ))}
@@ -562,8 +560,8 @@ export default function DocumentTemplatesPage() {
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="last_number">Starting Number</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="last_number" className="text-xs font-medium">Starting Number</Label>
               <Input
                 id="last_number"
                 type="number"
@@ -581,7 +579,7 @@ export default function DocumentTemplatesPage() {
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <Button
                 type="button"
                 variant="outline"
@@ -598,7 +596,7 @@ export default function DocumentTemplatesPage() {
               >
                 {loading || editLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                     Saving...
                   </>
                 ) : editingTemplate ? (
@@ -623,8 +621,8 @@ export default function DocumentTemplatesPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="company_code">Company Code</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="company_code" className="text-xs font-medium">Company Code</Label>
               <Input
                 id="company_code"
                 value={previewData.company_code}
@@ -638,8 +636,8 @@ export default function DocumentTemplatesPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="branch_code">Branch Code</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="branch_code" className="text-xs font-medium">Branch Code</Label>
               <Input
                 id="branch_code"
                 value={previewData.branch_code}
@@ -653,8 +651,8 @@ export default function DocumentTemplatesPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="issued_date">Issued Date</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="issued_date" className="text-xs font-medium">Issued Date</Label>
               <Input
                 id="issued_date"
                 type="date"
@@ -672,9 +670,9 @@ export default function DocumentTemplatesPage() {
               onClick={() =>
                 previewTemplate && generatePreview(previewTemplate)
               }
-              className="w-full"
+              className="w-full bg-primary hover:bg-primary/90"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
               Generate Preview
             </Button>
 

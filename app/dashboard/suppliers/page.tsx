@@ -3,8 +3,8 @@
 import type React from "react";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 import {
   Sheet,
   SheetContent,
@@ -20,7 +20,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
@@ -118,13 +118,13 @@ export default function SuppliersPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav items={[{ label: "Suppliers" }]} />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Suppliers</h1>
-          <p className="text-gray-600 mt-2">Manage your supplier network</p>
+          <h1 className="text-lg font-semibold text-gray-900">Suppliers</h1>
+          <p className="text-xs text-gray-600 mt-1">Manage your supplier network</p>
         </div>
         <Button
           onClick={handleAddSupplier}
@@ -132,9 +132,9 @@ export default function SuppliersPage() {
           className="bg-primary hover:bg-primary/90"
         >
           {loading ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
           ) : (
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-3.5 w-3.5 mr-1.5" />
           )}
           Add Supplier
         </Button>
@@ -142,22 +142,21 @@ export default function SuppliersPage() {
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Supplier List</h2>
           <div className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
             <Input
               placeholder="Search suppliers..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10"
+              className="pl-9"
             />
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white/80 backdrop-blur-sm shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead>Supplier Name</TableHead>
                 <TableHead>Contact Person</TableHead>
                 <TableHead>Contact Number</TableHead>
@@ -168,37 +167,37 @@ export default function SuppliersPage() {
             <TableBody>
               {suppliers.map((supplier) => (
                 <TableRow key={supplier.id}>
-                  <TableCell className="font-medium">{supplier.name}</TableCell>
-                  <TableCell>{supplier.contact_name}</TableCell>
-                  <TableCell>{supplier.contact_number}</TableCell>
-                  <TableCell className="max-w-xs truncate">
+                  <TableCell className="font-medium text-xs">{supplier.name}</TableCell>
+                  <TableCell className="text-xs">{supplier.contact_name}</TableCell>
+                  <TableCell className="text-xs">{supplier.contact_number}</TableCell>
+                  <TableCell className="max-w-xs truncate text-xs">
                     {supplier.address}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end gap-1.5">
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="default"
                         onClick={() => handleEditSupplier(supplier)}
                         disabled={editLoading}
                       >
                         {editLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3.5 w-3.5" />
                         )}
                       </Button>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="default"
                         onClick={() => handleDeleteSupplier(supplier.id)}
                         disabled={deleteLoading}
                         className="text-red-600 hover:text-red-700"
                       >
                         {deleteLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         )}
                       </Button>
                     </div>
@@ -212,13 +211,13 @@ export default function SuppliersPage() {
         {/* Pagination */}
         {suppliersData && (
           <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-xs text-gray-600">
               Showing {suppliers.length} of {suppliersData.total} suppliers
             </p>
-            <div className="flex space-x-2">
+            <div className="flex gap-1.5">
               <Button
                 variant="outline"
-                size="sm"
+                size="default"
                 onClick={() => onQuery({ page: suppliersData.page - 1 })}
                 disabled={suppliersData.page <= 1}
               >
@@ -226,7 +225,7 @@ export default function SuppliersPage() {
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                size="default"
                 onClick={() => onQuery({ page: suppliersData.page + 1 })}
                 disabled={suppliers.length < suppliersData.size}
               >
@@ -238,7 +237,7 @@ export default function SuppliersPage() {
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-[400px] sm:w-[540px]">
+        <SheetContent className="w-[400px] sm:w-[540px] bg-white">
           <SheetHeader>
             <SheetTitle>
               {editingSupplier ? "Edit Supplier" : "Add New Supplier"}
@@ -250,8 +249,8 @@ export default function SuppliersPage() {
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Supplier Name *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-medium">Supplier Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -262,8 +261,8 @@ export default function SuppliersPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="contact_name">Contact Person *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="contact_name" className="text-xs font-medium">Contact Person *</Label>
               <Input
                 id="contact_name"
                 value={formData.contact_name}
@@ -274,8 +273,8 @@ export default function SuppliersPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="contact_number">Contact Number *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="contact_number" className="text-xs font-medium">Contact Number *</Label>
               <Input
                 id="contact_number"
                 value={formData.contact_number}
@@ -286,8 +285,8 @@ export default function SuppliersPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="address" className="text-xs font-medium">Address</Label>
               <Textarea
                 id="address"
                 value={formData.address}
@@ -304,7 +303,7 @@ export default function SuppliersPage() {
               className="w-full bg-primary hover:bg-primary/90"
             >
               {loading || editLoading ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
               ) : null}
               {editingSupplier ? "Update Supplier" : "Add Supplier"}
             </Button>

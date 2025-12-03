@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import {
   Plus,
@@ -28,7 +28,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import {
   Select,
   SelectContent,
@@ -146,7 +146,7 @@ export default function ChartOfAccountsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: "Settings", href: "/dashboard/settings" },
@@ -156,10 +156,10 @@ export default function ChartOfAccountsPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-lg font-semibold text-gray-900">
             Chart of Accounts
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-xs text-gray-600 mt-1">
             Manage your company's chart of accounts and financial structure
           </p>
         </div>
@@ -168,35 +168,34 @@ export default function ChartOfAccountsPage() {
           className="bg-primary hover:bg-primary/90"
           disabled={loading}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
           Add Account
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center gap-4">
-          <h2 className="text-xl font-semibold text-gray-900">Account List</h2>
-          <div className="flex gap-2">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="flex gap-2 flex-1">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
               <Input
                 placeholder="Search by code or name..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
             <Select
               value={categoryFilter || "all"}
               onValueChange={handleCategoryFilter}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="h-8 text-xs border-[#F2F1ED] w-48">
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+              <SelectContent className="border-[#F2F1ED]">
+                <SelectItem value="all" className="text-xs">All Categories</SelectItem>
                 {ACCOUNT_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
+                  <SelectItem key={cat.value} value={cat.value} className="text-xs">
                     {cat.label}
                   </SelectItem>
                 ))}
@@ -205,10 +204,10 @@ export default function ChartOfAccountsPage() {
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead>Code</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
@@ -220,57 +219,57 @@ export default function ChartOfAccountsPage() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    <p className="mt-2 text-gray-500">Loading accounts...</p>
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    <p className="mt-2 text-xs text-gray-500">Loading accounts...</p>
                   </TableCell>
                 </TableRow>
               ) : accounts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
-                    <p className="text-gray-500">No accounts found</p>
+                    <p className="text-xs text-gray-500">No accounts found</p>
                   </TableCell>
                 </TableRow>
               ) : (
                 accounts.map((account) => (
                   <TableRow key={account.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-xs">
                       {account.code}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-xs">
                       {account.parent_id && (
                         <span className="text-gray-400 mr-2">└─</span>
                       )}
                       {account.name}
                     </TableCell>
                     <TableCell>
-                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded">
+                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded">
                         {account.category}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right font-mono">
+                    <TableCell className="text-right font-mono text-xs">
                       {formatCurrency(account.balance)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex justify-end gap-1.5">
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="default"
                           onClick={() => handleEditAccount(account)}
                           disabled={loading}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="default"
                           onClick={() => handleDeleteAccount(account.id)}
                           className="text-red-600 hover:text-red-700"
                           disabled={deleteLoading}
                         >
                           {deleteLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           )}
                         </Button>
                       </div>
@@ -284,7 +283,7 @@ export default function ChartOfAccountsPage() {
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="overflow-y-auto">
+        <SheetContent className="overflow-y-auto bg-white">
           <SheetHeader>
             <SheetTitle>
               {editingAccount ? "Edit Account" : "Add New Account"}
@@ -296,8 +295,8 @@ export default function ChartOfAccountsPage() {
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-            <div className="space-y-2">
-              <Label htmlFor="code">
+            <div className="space-y-1.5">
+              <Label htmlFor="code" className="text-xs font-medium">
                 Account Code <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -314,8 +313,8 @@ export default function ChartOfAccountsPage() {
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="name">
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-medium">
                 Account Name <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -329,8 +328,8 @@ export default function ChartOfAccountsPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="category">
+            <div className="space-y-1.5">
+              <Label htmlFor="category" className="text-xs font-medium">
                 Category <span className="text-red-500">*</span>
               </Label>
               <Select
@@ -340,12 +339,12 @@ export default function ChartOfAccountsPage() {
                 }
                 required
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-[#F2F1ED]">
                   {ACCOUNT_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
+                    <SelectItem key={cat.value} value={cat.value} className="text-xs">
                       {cat.label}
                     </SelectItem>
                   ))}
@@ -353,8 +352,8 @@ export default function ChartOfAccountsPage() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="balance">Balance</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="balance" className="text-xs font-medium">Balance</Label>
               <Input
                 id="balance"
                 type="number"
@@ -373,7 +372,7 @@ export default function ChartOfAccountsPage() {
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <Button
                 type="button"
                 variant="outline"
@@ -390,7 +389,7 @@ export default function ChartOfAccountsPage() {
               >
                 {loading || editLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                     Saving...
                   </>
                 ) : editingAccount ? (
