@@ -79,16 +79,16 @@ export default function SuperAdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
               <Building className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-primary">
                 {t.superAdmin.title}
               </h1>
               <p className="text-gray-600">{t.superAdmin.welcomeBack}, {user?.name}</p>
@@ -99,7 +99,7 @@ export default function SuperAdminPage() {
             <Button
               onClick={onLogout}
               variant="outline"
-              className="border-purple-200 text-purple-600 hover:bg-purple-50"
+              className="border-primary/20 text-primary hover:bg-primary/5"
             >
               {t.superAdmin.logout}
             </Button>
@@ -120,7 +120,7 @@ export default function SuperAdminPage() {
           <CardContent>
             <Button
               onClick={() => setIsModalOpen(true)}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="w-full bg-primary hover:bg-primary/90"
             >
               <Plus className="h-4 w-4 mr-2" />
               {t.superAdmin.companyManagement.createNew}

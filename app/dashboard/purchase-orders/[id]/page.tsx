@@ -13,7 +13,7 @@ import {
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { usePurchaseOrder } from "@/lib/hooks/purchase-orders";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/saturasui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const statusColors: Record<string, string> = {

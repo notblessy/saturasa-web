@@ -165,7 +165,7 @@ export default function ChartOfAccountsPage() {
         </div>
         <Button
           onClick={handleAddAccount}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
           disabled={loading}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -205,7 +205,7 @@ export default function ChartOfAccountsPage() {
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
@@ -243,7 +243,7 @@ export default function ChartOfAccountsPage() {
                       {account.name}
                     </TableCell>
                     <TableCell>
-                      <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
+                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded">
                         {account.category}
                       </span>
                     </TableCell>
@@ -385,7 +385,7 @@ export default function ChartOfAccountsPage() {
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="flex-1 bg-primary hover:bg-primary/90"
                 disabled={loading || editLoading}
               >
                 {loading || editLoading ? (

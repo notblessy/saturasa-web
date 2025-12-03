@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 import {
   Sheet,
   SheetContent,
@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { useCategories, useCategoryOptions } from "@/lib/hooks/categories";
 
@@ -103,36 +103,35 @@ export default function CategoriesComponent() {
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="w-full bg-white rounded-lg shadow-sm border-2 border-[#F2F1ED] p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Categories</h2>
+        <h2 className="text-sm font-semibold text-gray-900">Categories</h2>
         <Button
           onClick={handleAddCategory}
-          size="sm"
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
           disabled={loading}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
           Add Category
         </Button>
       </div>
 
       <div className="mb-4">
         <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
           <Input
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10"
+            className="pl-9"
           />
         </div>
       </div>
 
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               <TableHead>Name</TableHead>
               <TableHead>Parent</TableHead>
               <TableHead>Created At</TableHead>
@@ -143,45 +142,45 @@ export default function CategoriesComponent() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                  <p className="mt-2 text-gray-500">Loading categories...</p>
+                  <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                  <p className="mt-2 text-xs text-gray-500">Loading categories...</p>
                 </TableCell>
               </TableRow>
             ) : categories.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8">
-                  <p className="text-gray-500">No categories found</p>
+                  <p className="text-xs text-gray-500">No categories found</p>
                 </TableCell>
               </TableRow>
             ) : (
               categories.slice(0, 5).map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>{category.parent?.name || "—"}</TableCell>
-                  <TableCell>
+                  <TableCell className="font-medium text-xs">{category.name}</TableCell>
+                  <TableCell className="text-xs">{category.parent?.name || "—"}</TableCell>
+                  <TableCell className="text-xs">
                     {new Date(category.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end gap-1.5">
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="default"
                         onClick={() => handleEditCategory(category)}
                         disabled={editLoading}
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="default"
                         onClick={() => handleDeleteCategory(category.id)}
                         className="text-red-600 hover:text-red-700"
                         disabled={deleteLoading}
                       >
                         {deleteLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         )}
                       </Button>
                     </div>
@@ -206,8 +205,8 @@ export default function CategoriesComponent() {
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Category Name</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-medium">Category Name</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -218,8 +217,8 @@ export default function CategoriesComponent() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="parent">Parent Category (Optional)</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="parent" className="text-xs font-medium">Parent Category (Optional)</Label>
               <Select
                 value={formData?.parent_id}
                 onValueChange={(value) => {
@@ -230,15 +229,15 @@ export default function CategoriesComponent() {
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                   <SelectValue placeholder="Select parent category" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="no_parent">No Parent</SelectItem>
+                <SelectContent className="border-[#F2F1ED]">
+                  <SelectItem value="no_parent" className="text-xs">No Parent</SelectItem>
                   {categoryOptions
                     ?.filter((cat) => cat.id !== editingCategory?.id)
                     ?.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
+                      <SelectItem key={category.id} value={category.id} className="text-xs">
                         {category.name}
                       </SelectItem>
                     ))}
@@ -247,12 +246,12 @@ export default function CategoriesComponent() {
             </div>
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="w-full bg-primary hover:bg-primary/90"
               disabled={loading || editLoading}
             >
               {loading || editLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                   {editingCategory ? "Updating..." : "Adding..."}
                 </>
               ) : editingCategory ? (

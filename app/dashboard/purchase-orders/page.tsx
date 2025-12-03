@@ -22,7 +22,7 @@ import {
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Eye, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { usePurchaseOrders, Purchase } from "@/lib/hooks/purchase-orders";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/saturasui/badge";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -115,7 +115,7 @@ export default function PurchaseOrdersPage() {
         </div>
         <Button
           onClick={handleAddPurchaseOrder}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
           disabled={loading}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -157,7 +157,7 @@ export default function PurchaseOrdersPage() {
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>

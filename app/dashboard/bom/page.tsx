@@ -4,8 +4,8 @@ import type React from "react";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { useTranslation } from "@/lib/hooks/use-translation";
@@ -70,7 +70,7 @@ export default function BOMPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: t.common.inventories, href: "/dashboard" },
@@ -80,38 +80,36 @@ export default function BOMPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t.bom.title}</h1>
-          <p className="text-gray-600 mt-2">{t.bom.subtitle}</p>
+          <h1 className="text-lg font-semibold text-gray-900">{t.bom.title}</h1>
+          <p className="text-xs text-gray-600 mt-1">{t.bom.subtitle}</p>
         </div>
         <Button
           onClick={handleAddBOM}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
+          disabled={loading}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
           {t.bom.addBomRecipe}
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {t.bom.bomRecipeList}
-          </h2>
           <div className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
             <Input
               placeholder={t.bom.searchPlaceholder}
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="pl-10"
+              className="pl-9"
             />
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white/80 backdrop-blur-sm shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead>{t.bom.name}</TableHead>
                 <TableHead>{t.bom.type}</TableHead>
                 <TableHead>Product</TableHead>
@@ -125,15 +123,15 @@ export default function BOMPage() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    <p className="mt-2 text-gray-500">Loading BOMs...</p>
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    <p className="mt-2 text-xs text-gray-500">Loading BOMs...</p>
                   </TableCell>
                 </TableRow>
               ) : boms.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={7}
-                    className="text-center py-8 text-gray-500"
+                    className="text-center py-8 text-xs text-gray-500"
                   >
                     No BOMs found
                   </TableCell>
@@ -149,10 +147,10 @@ export default function BOMPage() {
 
                   return (
                     <TableRow key={bom.id}>
-                      <TableCell className="font-medium">{bom.name}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium text-xs">{bom.name}</TableCell>
+                      <TableCell className="text-xs">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          className={`px-2 py-0.5 rounded text-xs font-medium ${
                             bom.type === "assembly"
                               ? "bg-blue-100 text-blue-800"
                               : bom.type === "disassembly"
@@ -167,41 +165,41 @@ export default function BOMPage() {
                             : t.bom.menu}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs">
                         {product?.name || "Unknown Product"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs">
                         {unit
                           ? `${unit.name} (${unit.symbol})`
                           : "Unknown Unit"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs">
                         {formatCurrency(Number(bom.additional_fixed_cost || 0))}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs">
                         {bom.bom_details?.length || 0} items
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex justify-end gap-1.5">
                           <Button
                             variant="outline"
-                            size="sm"
+                            size="default"
                             onClick={() => handleEditBOM(bom)}
                             disabled={loading}
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-3.5 w-3.5" />
                           </Button>
                           <Button
                             variant="outline"
-                            size="sm"
+                            size="default"
                             onClick={() => handleDeleteBOM(bom.id)}
                             className="text-red-600 hover:text-red-700"
                             disabled={deleteLoading}
                           >
                             {deleteLoading ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             ) : (
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             )}
                           </Button>
                         </div>
@@ -216,21 +214,21 @@ export default function BOMPage() {
 
         {totalRecords > 0 && (
           <div className="flex justify-center mt-4">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-1.5">
               <Button
                 variant="outline"
-                size="sm"
+                size="default"
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
               >
                 Previous
               </Button>
-              <span className="text-sm">
+              <span className="text-xs">
                 Page {page} of {Math.ceil(totalRecords / size)}
               </span>
               <Button
                 variant="outline"
-                size="sm"
+                size="default"
                 onClick={() =>
                   setPage(Math.min(Math.ceil(totalRecords / size), page + 1))
                 }

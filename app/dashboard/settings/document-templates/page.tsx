@@ -50,7 +50,7 @@ import {
   useDocumentTemplates,
   DocumentTemplate,
 } from "@/lib/hooks/invoice-templates";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/saturasui/badge";
 
 const DOCUMENT_TYPES = [
   { value: "INVOICE", label: "Invoice" },
@@ -239,7 +239,7 @@ export default function DocumentTemplatesPage() {
       NONE: "bg-gray-100 text-gray-800",
       DAILY: "bg-blue-100 text-blue-800",
       MONTHLY: "bg-green-100 text-green-800",
-      YEARLY: "bg-purple-100 text-purple-800",
+      YEARLY: "bg-primary/10 text-primary",
     };
     return colors[policy] || colors.NONE;
   };
@@ -264,7 +264,7 @@ export default function DocumentTemplatesPage() {
         </div>
         <Button
           onClick={handleAddTemplate}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
           disabled={loading}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -304,7 +304,7 @@ export default function DocumentTemplatesPage() {
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
@@ -334,7 +334,7 @@ export default function DocumentTemplatesPage() {
                   <TableRow key={template.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-purple-600" />
+                        <FileText className="h-4 w-4 text-primary" />
                         {template.document_type}
                       </div>
                     </TableCell>
@@ -463,13 +463,13 @@ export default function DocumentTemplatesPage() {
                           <Badge
                             key={index}
                             variant="secondary"
-                            className="bg-purple-100 text-purple-800 hover:bg-purple-200 flex items-center gap-1 pr-1"
+                            className="bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-1 pr-1"
                           >
                             <span>{token.label}</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveToken(index)}
-                              className="hover:bg-purple-200 rounded-full p-0.5 transition-colors"
+                              className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
                               title="Remove"
                             >
                               <X className="h-3 w-3" />
@@ -525,7 +525,7 @@ export default function DocumentTemplatesPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleAddToken(token.value)}
-                      className="text-xs hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
+                      className="text-xs hover:bg-primary/5 hover:text-primary hover:border-primary/40"
                       title={token.description}
                     >
                       {token.label}
@@ -593,7 +593,7 @@ export default function DocumentTemplatesPage() {
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="flex-1 bg-primary hover:bg-primary/90"
                 disabled={loading || editLoading}
               >
                 {loading || editLoading ? (
@@ -679,9 +679,9 @@ export default function DocumentTemplatesPage() {
             </Button>
 
             {previewResult && (
-              <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">Preview Result:</p>
-                <p className="text-xl font-mono font-bold text-purple-900">
+                <p className="text-xl font-mono font-bold text-primary">
                   {previewResult}
                 </p>
               </div>

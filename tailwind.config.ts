@@ -62,6 +62,14 @@ const config: Config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			variant: {
+  				rose: '#BF3A5D',
+  				forest: '#28401C',
+  				gold: '#F1BB1B',
+  				cream: '#F1E9D0',
+  				orange: '#D87827',
+  				teal: '#11B9A6'
   			}
   		},
   		borderRadius: {

@@ -131,7 +131,7 @@ export default function ProductionsPage() {
         </div>
         <Button
           onClick={handleAddProduction}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
         >
           <Plus className="h-4 w-4 mr-2" />
           {t.productions.addProduction}
@@ -255,7 +255,7 @@ export default function ProductionsPage() {
             </div>
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="w-full bg-primary hover:bg-primary/90"
             >
               {editingProduction ? t.productions.updateProduction : t.productions.addProduction}
             </Button>

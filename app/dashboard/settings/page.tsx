@@ -40,16 +40,16 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart of Accounts */}
         <Card
-          className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50 backdrop-blur-sm hover:shadow-xl transition-shadow cursor-pointer"
+          className="border-0 shadow-lg bg-primary/5 backdrop-blur-sm hover:shadow-xl transition-shadow cursor-pointer"
           onClick={() => router.push("/dashboard/settings/chart-of-accounts")}
         >
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-purple-600" />
+                <DollarSign className="h-5 w-5 text-primary" />
                 Chart of Accounts
               </span>
-              <ArrowRight className="h-5 w-5 text-purple-600" />
+              <ArrowRight className="h-5 w-5 text-primary" />
             </CardTitle>
             <CardDescription>
               Manage your company's financial accounts
@@ -65,7 +65,7 @@ export default function SettingsPage() {
                 e.stopPropagation();
                 router.push("/dashboard/settings/chart-of-accounts");
               }}
-              className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="w-full mt-4 bg-primary hover:bg-primary/90"
             >
               Manage Accounts
             </Button>
@@ -109,7 +109,7 @@ export default function SettingsPage() {
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-purple-600" />
+              <User className="h-5 w-5 text-primary" />
               User Settings
             </CardTitle>
             <CardDescription>
@@ -133,7 +133,7 @@ export default function SettingsPage() {
               <Label htmlFor="fullName">Full Name</Label>
               <Input id="fullName" defaultValue="John Doe" />
             </div>
-            <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+            <Button className="w-full bg-primary hover:bg-primary/90">
               Update Profile
             </Button>
           </CardContent>
@@ -143,7 +143,7 @@ export default function SettingsPage() {
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-purple-600" />
+              <Bell className="h-5 w-5 text-primary" />
               Notifications
             </CardTitle>
             <CardDescription>
@@ -194,7 +194,7 @@ export default function SettingsPage() {
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-purple-600" />
+              <Shield className="h-5 w-5 text-primary" />
               Security Settings
             </CardTitle>
             <CardDescription>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input id="confirmPassword" type="password" />
             </div>
-            <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+            <Button className="w-full bg-primary hover:bg-primary/90">
               Change Password
             </Button>
           </CardContent>
@@ -224,7 +224,7 @@ export default function SettingsPage() {
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-purple-600" />
+              <Database className="h-5 w-5 text-primary" />
               System Settings
             </CardTitle>
             <CardDescription>Configure system-wide preferences</CardDescription>
@@ -249,7 +249,7 @@ export default function SettingsPage() {
               </div>
               <Switch />
             </div>
-            <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+            <Button className="w-full bg-primary hover:bg-primary/90">
               Save System Settings
             </Button>
           </CardContent>

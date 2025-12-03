@@ -151,7 +151,7 @@ const Sidebar = React.forwardRef<
       return (
         <div
           className={cn(
-            "flex h-full w-[--sidebar-width] flex-col bg-white border-r border-purple-100/80",
+            "flex h-full w-[--sidebar-width] flex-col bg-white border-r border-[#F2F1ED]",
             className
           )}
           ref={ref}
@@ -204,7 +204,7 @@ const Sidebar = React.forwardRef<
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            "w-[--sidebar-width] group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l border-purple-100/80",
+            "w-[--sidebar-width] group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l border-[#F2F1ED]",
             className
           )}
           {...props}
@@ -253,7 +253,7 @@ const SidebarHeader = React.forwardRef<
   return (
     <div
       ref={ref}
-      className={cn("flex items-center gap-2 h-10 shrink-0 px-3 border-b border-purple-100/80", className)}
+      className={cn("flex items-center gap-2 h-10 shrink-0 px-3 border-b border-[#F2F1ED]", className)}
       {...props}
     >
       {children}
@@ -363,10 +363,10 @@ const SidebarMenuButton = React.forwardRef<
       ref={ref as any}
       className={cn(
         "flex w-full items-center gap-2 overflow-hidden rounded px-2 py-1.5 text-xs text-left outline-none transition-colors",
-        "hover:bg-purple-50/50 hover:text-purple-700",
+        "hover:bg-primary/5 hover:text-primary",
         "focus-visible:ring-1 focus-visible:ring-purple-400",
         "group-data-[collapsible=icon]:!w-8 group-data-[collapsible=icon]:!p-2 group-data-[collapsible=icon]:justify-center",
-        isActive && "bg-purple-100/80 text-purple-700 font-medium",
+        isActive && "bg-primary/10 text-primary font-medium",
         "[&>span:last-child]:truncate [&>svg]:size-3.5 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:[&>span]:hidden",
         className
@@ -387,7 +387,7 @@ const SidebarMenuSub = React.forwardRef<
   <ul
     ref={ref}
     className={cn(
-      "mx-2 flex min-w-0 translate-x-px flex-col gap-0.5 border-l border-purple-200/60 px-2 py-1",
+      "mx-2 flex min-w-0 translate-x-px flex-col gap-0.5 border-l border-[#F2F1ED] px-2 py-1",
       "group-data-[collapsible=icon]:hidden",
       className
     )}
@@ -416,10 +416,10 @@ const SidebarMenuSubButton = React.forwardRef<
       ref={ref}
       className={cn(
         "flex h-6 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded px-2 text-xs text-gray-700 outline-none",
-        "hover:bg-purple-50/50 hover:text-purple-700",
+        "hover:bg-primary/5 hover:text-primary",
         "focus-visible:ring-1 focus-visible:ring-purple-400",
         "group-data-[collapsible=icon]:hidden",
-        isActive && "bg-purple-100/80 text-purple-700 font-medium",
+        isActive && "bg-primary/10 text-primary font-medium",
         "[&>span:last-child]:truncate [&>svg]:size-3.5 [&>svg]:shrink-0",
         className
       )}

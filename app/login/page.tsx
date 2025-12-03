@@ -32,12 +32,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/40 via-purple-50/60 to-pink-50/40 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-between items-center">
           <Link
             href="/"
-            className="inline-flex items-center text-purple-700 hover:text-purple-800 transition-colors text-xs font-medium"
+            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors text-xs font-medium"
           >
             <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
             {t.login.backToHome}
@@ -47,14 +47,14 @@ export default function LoginPage() {
 
         <Card>
           <CardHeader className="text-center space-y-3">
-            <div className="mx-auto w-14 h-14 rounded flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 p-2">
+            <div className="mx-auto w-14 h-14 rounded flex items-center justify-center bg-primary/10 p-2">
               <img
                 src="/saturasa-min.png"
                 alt="saturasa logo"
                 className="h-full w-full object-contain"
               />
             </div>
-            <CardTitle className="text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <CardTitle className="text-base font-semibold text-primary">
               {t.login.title}
             </CardTitle>
             <CardDescription>

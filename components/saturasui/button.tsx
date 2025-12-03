@@ -5,19 +5,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-400 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-3.5 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-3.5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-red-500 text-white hover:bg-red-600",
         outline:
-          "border border-purple-200 bg-white hover:bg-purple-50/50 text-purple-700 hover:border-purple-300",
+          "border border-[#F2F1ED] bg-[#F7F7F4] hover:bg-primary/5 text-primary hover:border-primary/40",
         secondary:
-          "bg-purple-50 text-purple-700 hover:bg-purple-100",
-        ghost: "hover:bg-purple-50/50 text-purple-700 hover:text-purple-900",
-        link: "text-purple-600 underline-offset-2 hover:underline hover:text-purple-700",
+          "bg-primary/10 text-primary hover:bg-primary/20",
+        ghost: "hover:bg-primary/5 text-primary hover:text-primary/90",
+        link: "text-primary underline-offset-2 hover:underline hover:text-primary/80",
       },
       size: {
         default: "h-8 px-3 py-1.5 text-xs",

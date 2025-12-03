@@ -129,27 +129,27 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50/30 via-pink-50/30 to-blue-50/30">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-purple-100 sticky top-0 z-50">
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-[#F2F1ED] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Image alt="saturasa logo" src="/saturasa-min.png" width={120} height={40} className="h-8" />
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="font-bold text-xl text-primary">
                 saturasa
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="#features" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="#features" className="text-gray-600 hover:text-primary transition-colors">
                 {t.nav.features}
               </Link>
-              <Link href="#how-it-works" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="#how-it-works" className="text-gray-600 hover:text-primary transition-colors">
                 {t.nav.howItWorks}
               </Link>
-              <Link href="#benefits" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="#benefits" className="text-gray-600 hover:text-primary transition-colors">
                 {t.nav.benefits}
               </Link>
             </div>
@@ -158,13 +158,13 @@ export default function LandingPage() {
               <Button
                 variant="outline"
                 onClick={handleTryDemo}
-                className="border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent"
+                className="border-primary/20 text-primary hover:bg-primary/5 bg-transparent"
               >
                 {t.nav.tryDemo}
               </Button>
               <Button
                 onClick={handleGetStarted}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="bg-primary hover:bg-primary/90"
               >
                 {isAuthenticated ? t.nav.dashboard : t.nav.getStarted}
               </Button>
@@ -202,7 +202,7 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 onClick={handleGetStarted}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-3"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-3"
               >
                 {isAuthenticated ? t.landing.hero.goToDashboard : t.landing.hero.getStarted}
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -211,7 +211,7 @@ export default function LandingPage() {
                 size="lg"
                 variant="outline"
                 onClick={handleTryDemo}
-                className="border-purple-200 text-purple-600 hover:bg-purple-50 text-lg px-8 py-3 bg-transparent"
+                className="border-primary/20 text-purple-600 hover:bg-primary/5 text-lg px-8 py-3 bg-transparent"
               >
                 {t.landing.hero.tryDemo}
               </Button>
@@ -242,7 +242,7 @@ export default function LandingPage() {
               >
                 <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm hover:shadow-xl transition-shadow h-full">
                   <CardHeader className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                       <feature.icon className="h-8 w-8 text-white" />
                     </div>
                     <CardTitle className="text-xl">{feature.title}</CardTitle>
@@ -277,10 +277,10 @@ export default function LandingPage() {
                 viewport={{ once: true }}
               >
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
                     <step.icon className="h-10 w-10 text-white" />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {index + 1}
                   </div>
                 </div>
@@ -311,7 +311,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                   <benefit.icon className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -359,7 +359,7 @@ export default function LandingPage() {
                       <div>
                         <p className="font-semibold text-gray-900">{testimonial.name}</p>
                         <p className="text-sm text-gray-600">{testimonial.role}</p>
-                        <p className="text-sm text-purple-600">{testimonial.company}</p>
+                        <p className="text-sm text-primary">{testimonial.company}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -371,7 +371,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-purple-600 to-pink-600">
+      <section className="py-20 bg-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -380,14 +380,14 @@ export default function LandingPage() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{t.landing.cta.title}</h2>
-            <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
               {t.landing.cta.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
                 onClick={handleGetStarted}
-                className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-3"
+                className="bg-white text-primary hover:bg-gray-100 text-lg px-8 py-3"
               >
                 {isAuthenticated ? t.landing.hero.goToDashboard : t.landing.cta.getStartedNow}
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -411,7 +411,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">sa</span>
                 </div>
                 <span className="font-bold text-xl">saturasa</span>

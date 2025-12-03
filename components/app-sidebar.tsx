@@ -139,7 +139,7 @@ export function AppSidebar() {
               className="h-full w-full object-contain"
             />
           </div>
-          <span className="font-semibold text-xs bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent group-data-[collapsible=icon]:hidden truncate">
+          <span className="font-semibold text-xs text-primary group-data-[collapsible=icon]:hidden truncate">
             saturasa
           </span>
         </div>

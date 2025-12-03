@@ -596,7 +596,7 @@ export default function EditPurchaseOrderPage() {
           <Button
             type="submit"
             disabled={editLoading || formData.items.length === 0}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            className="bg-primary hover:bg-primary/90"
           >
             {editLoading ? (
               <>

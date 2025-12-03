@@ -31,7 +31,7 @@ export function TopBar() {
   }
 
   return (
-    <header className="flex h-10 shrink-0 items-center gap-2 border-b border-purple-100/80 bg-white px-3">
+    <header className="flex h-10 shrink-0 items-center gap-2 border-b border-[#F2F1ED] bg-white px-3">
       <SidebarTrigger />
       <div className="ml-auto flex items-center gap-2">
         <DropdownMenu>

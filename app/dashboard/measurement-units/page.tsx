@@ -88,7 +88,7 @@ export default function MeasurementUnitsPage() {
         </div>
         <Button
           onClick={handleAddUnit}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
         >
           <Plus className="h-4 w-4 mr-2" />
           {t.measurementUnits.addUnit}
@@ -109,7 +109,7 @@ export default function MeasurementUnitsPage() {
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
@@ -176,7 +176,7 @@ export default function MeasurementUnitsPage() {
             </div>
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="w-full bg-primary hover:bg-primary/90"
             >
               {editingUnit ? t.measurementUnits.updateUnit : t.measurementUnits.addUnit}
             </Button>

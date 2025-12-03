@@ -129,7 +129,7 @@ export default function SuppliersPage() {
         <Button
           onClick={handleAddSupplier}
           disabled={loading}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="bg-primary hover:bg-primary/90"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -301,7 +301,7 @@ export default function SuppliersPage() {
             <Button
               type="submit"
               disabled={loading || editLoading}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="w-full bg-primary hover:bg-primary/90"
             >
               {loading || editLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

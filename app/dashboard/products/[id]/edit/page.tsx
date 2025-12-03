@@ -8,8 +8,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useTranslation } from "@/lib/hooks/use-translation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -18,8 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
 import { Plus, Trash2, Loader2, ArrowLeft } from "lucide-react";
 
 import { useProducts, useProduct, Product } from "@/lib/hooks/products";
@@ -137,9 +138,9 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       {product && product?.id !== "" && (
-        <div className="max-w-7xl mx-auto">
+        <>
           <BreadcrumbNav
             items={[
               { label: t.common.inventories, href: "/dashboard" },
@@ -148,54 +149,56 @@ export default function EditProductPage() {
             ]}
           />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between">
             <div>
-              <Button
-                variant="outline"
-                onClick={() => router.push("/dashboard/products")}
-                className="flex items-center gap-2 mb-4"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Products
-              </Button>
-              <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 m-0">
-                  Edit Product
-                </h1>
-                <p className="text-gray-400">
-                  Update product information and specifications
-                </p>
-              </div>
+              <h1 className="text-lg font-semibold text-gray-900">
+                Edit Product
+              </h1>
+              <p className="text-xs text-gray-600 mt-1">
+                Update product information and specifications
+              </p>
             </div>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-6"
+            <Button
+              variant="outline"
+              onClick={() => router.push("/dashboard/products")}
             >
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900">
+              Back to List
+            </Button>
+          </div>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
+            {/* Basic Information */}
+            <Card className="border-2 border-[#F2F1ED]">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold">
                   Basic Information
-                </h2>
+                </CardTitle>
+                <p className="text-xs text-gray-600 mt-1">
+                  Enter the basic details about the product including name, category
+                  and availability options.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Product Name *</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="name" className="text-xs font-medium">Product Name *</Label>
                     <Input
                       id="name"
                       {...form.register("name")}
                       placeholder="Enter product name"
                     />
                     {form.formState.errors.name && (
-                      <p className="text-sm text-red-500">
+                      <p className="text-xs text-red-500">
                         {form.formState.errors.name.message}
                       </p>
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category *</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="category" className="text-xs font-medium">Category *</Label>
                     <Select
                       value={form.watch("category_id")}
                       onValueChange={(value) => {
@@ -205,27 +208,27 @@ export default function EditProductPage() {
                         }
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-[#F2F1ED]">
                         {categories?.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
+                          <SelectItem key={category.id} value={category.id} className="text-xs">
                             {category.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     {form.formState.errors.category_id && (
-                      <p className="text-sm text-red-500">
+                      <p className="text-xs text-red-500">
                         {form.formState.errors.category_id.message}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="notes" className="text-xs font-medium">Notes</Label>
                   <Input
                     id="notes"
                     {...form.register("notes")}
@@ -233,8 +236,8 @@ export default function EditProductPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
                     <Switch
                       checked={form.watch("purchasable")}
                       onCheckedChange={(checked) =>
@@ -242,9 +245,11 @@ export default function EditProductPage() {
                       }
                       className="data-[state=checked]:bg-[#14B8A6]"
                     />
-                    <Label htmlFor="purchasable">Purchasable</Label>
+                    <Label htmlFor="purchasable" className="text-xs font-medium">
+                      Available for Purchase
+                    </Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <Switch
                       checked={form.watch("salesable")}
                       onCheckedChange={(checked) =>
@@ -252,20 +257,29 @@ export default function EditProductPage() {
                       }
                       className="data-[state=checked]:bg-[#14B8A6]"
                     />
-                    <Label htmlFor="salesable">Salesable</Label>
+                    <Label htmlFor="salesable" className="text-xs font-medium">
+                      Available for Sale
+                    </Label>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Specifications */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Product Specifications
-                  </h2>
+            {/* Specifications */}
+            <Card className="border-2 border-[#F2F1ED]">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-sm font-semibold">
+                      Product Specifications
+                    </CardTitle>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Define measurement units, pricing, and conversion factors for
+                      different product specifications.
+                    </p>
+                  </div>
                   <Button
                     type="button"
-                    variant="outline"
                     onClick={() =>
                       append({
                         measurement_unit_id: "",
@@ -278,37 +292,60 @@ export default function EditProductPage() {
                         is_sales_unit: false,
                       })
                     }
-                    className="flex items-center gap-2"
+                    variant="outline"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-3.5 w-3.5 mr-1.5" />
                     Add Specification
                   </Button>
                 </div>
+              </CardHeader>
+              {fields.length === 0 && (
+                <CardContent>
+                  <div className="text-center py-10 border-2 border-dashed border-[#F2F1ED] rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">
+                      No specifications added yet
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Click "Add Specification" above to add measurement units and
+                      pricing information
+                    </p>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
 
-                {fields.length > 0 ? (
-                  fields.map((field, index) => (
-                    <div
-                      key={field.id}
-                      className="border border-gray-200 rounded-lg p-4 space-y-4"
-                    >
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium text-lg">
+            {fields.length > 0 &&
+              fields.map((field, index) => (
+                <Card key={field.id} className="border-2 border-[#F2F1ED]">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-sm font-semibold">
                           Specification {index + 1}
-                        </h3>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => remove(index)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </CardTitle>
+                        <p className="text-xs text-gray-600 mt-1">
+                          Configure measurement unit, pricing, and conversion
+                          settings.
+                        </p>
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Measurement Unit *</Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => remove(index)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                        Remove
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium">
+                            Measurement Unit <span className="text-red-500">*</span>
+                          </Label>
                           <Select
                             value={form.watch(
                               `specifications.${index}.measurement_unit_id`
@@ -320,20 +357,20 @@ export default function EditProductPage() {
                               )
                             }
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                               <SelectValue placeholder="Select unit" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="border-[#F2F1ED]">
                               {measurementUnits?.map((unit) => (
-                                <SelectItem key={unit.id} value={unit.id}>
+                                <SelectItem key={unit.id} value={unit.id} className="text-xs">
                                   {unit.name} ({unit.symbol})
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </div>
-                        <div className="space-y-2">
-                          <Label>Base Price</Label>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium">Base Price</Label>
                           <Input
                             type="number"
                             step="0.01"
@@ -345,9 +382,11 @@ export default function EditProductPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Conversion Factor</Label>
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium">
+                            Conversion Factor
+                          </Label>
                           <Input
                             type="number"
                             step="0.0001"
@@ -357,8 +396,8 @@ export default function EditProductPage() {
                             placeholder="1.0"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label>Notes</Label>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium">Notes</Label>
                           <Input
                             {...form.register(`specifications.${index}.notes`)}
                             placeholder="Specification notes"
@@ -366,12 +405,9 @@ export default function EditProductPage() {
                         </div>
                       </div>
 
-                      {/* Flags */}
                       <div className="space-y-3">
-                        <Label className="text-sm font-medium">
-                          Unit Types
-                        </Label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <Label className="text-xs font-medium">Unit Types</Label>
+                        <div className="space-y-3">
                           {(
                             [
                               "is_base_unit",
@@ -398,7 +434,7 @@ export default function EditProductPage() {
                                 }
                                 className="data-[state=checked]:bg-[#14B8A6]"
                               />
-                              <Label className="text-sm">
+                              <Label className="text-xs">
                                 {flag
                                   .replace("is_", "")
                                   .replace("_", " ")
@@ -409,46 +445,37 @@ export default function EditProductPage() {
                         </div>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                    <p>No specifications added yet</p>
-                    <p className="text-sm">
-                      Click "Add Specification" to add measurement units and
-                      pricing
-                    </p>
-                  </div>
-                )}
-              </div>
+                  </CardContent>
+                </Card>
+              ))}
 
-              {/* Actions */}
-              <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push("/dashboard/products")}
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Updating...
-                    </>
-                  ) : (
-                    "Update Product"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
+            {/* Actions */}
+            <div className="flex justify-end gap-1.5 pt-4 border-t border-[#F2F1ED]">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push("/dashboard/products")}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Product"
+                )}
+              </Button>
+            </div>
+          </form>
+        </>
       )}
     </div>
   );

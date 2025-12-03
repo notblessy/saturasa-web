@@ -28,28 +28,28 @@ export default function DashboardPage() {
       value: "1,234",
       change: "+12%",
       icon: Package,
-      color: "from-purple-400 to-purple-600",
+      color: "bg-[#BF3A5D]",
     },
     {
       title: t.dashboard.stats.activeProductions,
       value: "56",
       change: "+8%",
       icon: BarChart3,
-      color: "from-pink-400 to-pink-600",
+      color: "bg-[#11B9A6]",
     },
     {
       title: t.dashboard.stats.suppliers,
       value: "89",
       change: "+3%",
       icon: Users,
-      color: "from-blue-400 to-blue-600",
+      color: "bg-[#28401C]",
     },
     {
       title: t.dashboard.stats.monthlyRevenue,
       value: "$45,678",
       change: "+15%",
       icon: TrendingUp,
-      color: "from-green-400 to-green-600",
+      color: "bg-[#F1BB1B]",
     },
   ];
 
@@ -106,7 +106,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <div
-                  className={`p-2 rounded bg-gradient-to-r ${stat.color} shrink-0 ml-2`}
+                  className={`p-2 rounded ${stat.color} shrink-0 ml-2`}
                 >
                   <stat.icon className="h-4 w-4 text-white" />
                 </div>
@@ -121,7 +121,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-1.5">
-              <AlertCircle className="h-3.5 w-3.5 text-purple-600" />
+              <AlertCircle className="h-3.5 w-3.5 text-primary" />
               {t.dashboard.recentActivities.title}
             </CardTitle>
             <CardDescription>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
               {recentActivities.map((activity, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-2 rounded bg-purple-50/30 hover:bg-purple-50/50 transition-colors"
+                  className="flex items-center justify-between p-2 rounded bg-primary/5 hover:bg-primary/10 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-gray-900">
@@ -163,36 +163,36 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="ghost"
-                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-colors"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-primary/5 hover:bg-primary/10 transition-colors"
               >
-                <Package className="h-4 w-4 text-purple-600 mb-1.5" />
+                <Package className="h-4 w-4 text-primary mb-1.5" />
                 <p className="text-xs font-medium text-gray-900">
                   {t.dashboard.quickActions.addProduct}
                 </p>
               </Button>
               <Button
                 variant="ghost"
-                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 transition-colors"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-[#11B9A6]/10 hover:bg-[#11B9A6]/20 transition-colors"
               >
-                <BarChart3 className="h-4 w-4 text-blue-600 mb-1.5" />
+                <BarChart3 className="h-4 w-4 text-[#11B9A6] mb-1.5" />
                 <p className="text-xs font-medium text-gray-900">
                   {t.dashboard.quickActions.newProduction}
                 </p>
               </Button>
               <Button
                 variant="ghost"
-                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-colors"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-[#28401C]/10 hover:bg-[#28401C]/20 transition-colors"
               >
-                <Users className="h-4 w-4 text-green-600 mb-1.5" />
+                <Users className="h-4 w-4 text-[#28401C] mb-1.5" />
                 <p className="text-xs font-medium text-gray-900">
                   {t.dashboard.quickActions.addSupplier}
                 </p>
               </Button>
               <Button
                 variant="ghost"
-                className="h-auto p-3 flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-colors"
+                className="h-auto p-3 flex flex-col items-center justify-center bg-[#D87827]/10 hover:bg-[#D87827]/20 transition-colors"
               >
-                <ShoppingCart className="h-4 w-4 text-orange-600 mb-1.5" />
+                <ShoppingCart className="h-4 w-4 text-[#D87827] mb-1.5" />
                 <p className="text-xs font-medium text-gray-900">
                   {t.dashboard.quickActions.stockUpdate}
                 </p>

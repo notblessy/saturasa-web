@@ -34,7 +34,7 @@ export default function LanguageSelector() {
         <Button
           variant="outline"
           size="sm"
-          className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border-purple-200 hover:bg-purple-50"
+          className="flex items-center gap-2 bg-[#F7F7F4]/80 backdrop-blur-sm border-primary/20 hover:bg-primary/5"
         >
           <Globe className="h-4 w-4" />
           <span className="hidden sm:inline">{currentLanguage.flag}</span>
@@ -48,13 +48,13 @@ export default function LanguageSelector() {
             key={code}
             onClick={() => handleLanguageChange(code as Locale)}
             className={`flex items-center gap-2 cursor-pointer ${
-              locale === code ? 'bg-purple-50 text-purple-600' : ''
+              locale === code ? 'bg-primary/10 text-primary' : ''
             }`}
           >
             <span>{lang.flag}</span>
             <span>{lang.name}</span>
             {locale === code && (
-              <span className="ml-auto text-purple-600">✓</span>
+              <span className="ml-auto text-primary">✓</span>
             )}
           </DropdownMenuItem>
         ))}

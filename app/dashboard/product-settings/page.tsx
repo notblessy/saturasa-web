@@ -9,7 +9,7 @@ export default function ProductSettingsPage() {
   const { t } = useTranslation();
   
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: t.common.inventories, href: "/dashboard" },
@@ -17,18 +17,16 @@ export default function ProductSettingsPage() {
         ]}
       />
 
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t.productSettings.title}</h1>
-          <p className="text-gray-600 mt-2">
-            {t.productSettings.subtitle}
-          </p>
-        </div>
+      <div>
+        <h1 className="text-lg font-semibold text-gray-900">{t.productSettings.title}</h1>
+        <p className="text-xs text-gray-600 mt-1">
+          {t.productSettings.subtitle}
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <CategoriesComponent />
-          <MeasurementUnitsComponent />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <CategoriesComponent />
+        <MeasurementUnitsComponent />
       </div>
     </div>
   );

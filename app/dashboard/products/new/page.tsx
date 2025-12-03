@@ -5,8 +5,8 @@ import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/use-translation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -15,9 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import { useProducts, ProductSpecification } from "@/lib/hooks/products";
 import { useCategoryOptions } from "@/lib/hooks/categories";
@@ -102,7 +102,7 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-8">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
@@ -111,29 +111,26 @@ export default function NewProductPage() {
         ]}
       />
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Create Product
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Add a new product to your inventory with pricing and measurement
-              specifications.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => router.push("/dashboard/products")}
-            className="text-sm"
-          >
-            Back to List
-          </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            Create Product
+          </h1>
+          <p className="text-xs text-gray-600 mt-1">
+            Add a new product to your inventory with pricing and measurement
+            specifications.
+          </p>
         </div>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/dashboard/products")}
+        >
+          Back to List
+        </Button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Card className="border-2 border-[#F2F1ED]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold">
               Basic Information
@@ -143,7 +140,7 @@ export default function NewProductPage() {
               and availability options.
             </p>
           </CardHeader>
-          <CardContent className="space-y-5">
+          <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="name" className="text-xs font-medium">
@@ -156,7 +153,6 @@ export default function NewProductPage() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   placeholder="Enter product name"
-                  className="h-9 text-sm"
                   required
                 />
               </div>
@@ -172,15 +168,15 @@ export default function NewProductPage() {
                   }
                   required
                 >
-                  <SelectTrigger className="h-9 text-sm">
+                  <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="border-[#F2F1ED]">
                     {categories?.map((category) => (
                       <SelectItem
                         key={category.id}
                         value={category.id}
-                        className="text-sm"
+                        className="text-xs"
                       >
                         {category.name}
                       </SelectItem>
@@ -201,7 +197,6 @@ export default function NewProductPage() {
                   setFormData({ ...formData, notes: e.target.value })
                 }
                 placeholder="Enter product notes or description"
-                className="h-9 text-sm"
               />
             </div>
 
@@ -242,7 +237,7 @@ export default function NewProductPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-2 border-[#F2F1ED]">
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start">
               <div>
@@ -258,29 +253,16 @@ export default function NewProductPage() {
                 type="button"
                 onClick={addSpecification}
                 variant="outline"
-                className="text-sm"
               >
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
                 Add Specification
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            {formData.specifications.length === 0 ? (
-              <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
-                <p className="text-sm text-gray-500 mb-1">
-                  No specifications added yet
-                </p>
-                <p className="text-xs text-gray-400">
-                  Click "Add Specification" above to add measurement units and
-                  pricing information
-                </p>
-              </div>
-            ) : null}
-          </CardContent>
         </Card>
 
         {formData.specifications.map((spec, index) => (
-          <Card key={index}>
+          <Card key={index} className="border-2 border-[#F2F1ED]">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -295,15 +277,15 @@ export default function NewProductPage() {
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
                   onClick={() => removeSpecification(index)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs h-7"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                   Remove
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-5">
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-4">
                   <div className="space-y-1.5">
@@ -317,15 +299,15 @@ export default function NewProductPage() {
                       }
                       required
                     >
-                      <SelectTrigger className="h-9 text-sm">
+                      <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
                         <SelectValue placeholder="Select unit" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-[#F2F1ED]">
                         {measurementUnits.map((unit) => (
                           <SelectItem
                             key={unit.id}
                             value={unit.id}
-                            className="text-sm"
+                            className="text-xs"
                           >
                             {unit.name} ({unit.symbol})
                           </SelectItem>
@@ -343,7 +325,6 @@ export default function NewProductPage() {
                         updateSpecification(index, "base_price", e.target.value)
                       }
                       placeholder="0.00"
-                      className="h-9 text-sm"
                     />
                   </div>
                 </div>
@@ -365,7 +346,6 @@ export default function NewProductPage() {
                         )
                       }
                       placeholder="1.0"
-                      className="h-9 text-sm"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -376,7 +356,6 @@ export default function NewProductPage() {
                         updateSpecification(index, "notes", e.target.value)
                       }
                       placeholder="Specification notes"
-                      className="h-9 text-sm"
                     />
                   </div>
                 </div>
@@ -471,24 +450,23 @@ export default function NewProductPage() {
           </Card>
         ))}
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <div className="flex justify-end gap-1.5 pt-4 border-t border-[#F2F1ED]">
           <Button
             type="button"
             variant="outline"
             onClick={() => router.push("/dashboard/products")}
             disabled={loading}
-            className="text-sm"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={loading}
-            className="min-w-[140px] text-sm"
+            className="bg-primary hover:bg-primary/90"
           >
             {loading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                 Creating...
               </>
             ) : (
