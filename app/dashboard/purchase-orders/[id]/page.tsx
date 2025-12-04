@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/saturasui/button";
 import {
   Table,
   TableBody,
@@ -9,12 +9,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { usePurchaseOrder } from "@/lib/hooks/purchase-orders";
 import { Badge } from "@/components/saturasui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -59,9 +59,9 @@ export default function PurchaseOrderDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-4">
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
         </div>
       </div>
     );
@@ -69,23 +69,23 @@ export default function PurchaseOrderDetailPage() {
 
   if (!purchase) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-4">
         <BreadcrumbNav
           items={[
             { label: "Dashboard", href: "/dashboard" },
-            { label: "Purchase Orders", href: "/dashboard/purchase-orders" },
+            { label: "Purchase Invoices", href: "/dashboard/purchase-orders" },
             { label: "Detail" },
           ]}
         />
         <div className="text-center py-12">
-          <p className="text-gray-500">Purchase order not found</p>
+          <p className="text-xs text-gray-500">Purchase invoice not found</p>
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/purchase-orders")}
             className="mt-4"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Purchase Orders
+            <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
+            Back to Purchase Invoices
           </Button>
         </div>
       </div>
@@ -93,31 +93,31 @@ export default function PurchaseOrderDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchase Orders", href: "/dashboard/purchase-orders" },
+          { label: "Purchase Invoices", href: "/dashboard/purchase-orders" },
           { label: "Detail" },
         ]}
       />
 
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-[26px] font-bold text-gray-900">
-            Purchase Order Detail
+          <h1 className="text-lg font-semibold text-gray-900">
+            Purchase Invoice Detail
           </h1>
-          <div className="flex items-center gap-3 mt-2">
-            <p className="text-gray-600 text-sm">
+          <div className="flex items-center gap-3 mt-1">
+            <p className="text-gray-600 text-xs">
               Invoice: <span className="font-semibold text-gray-900">{purchase.invoice_number}</span>
             </p>
             <span className="text-gray-300">•</span>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-xs">
               Created: <span className="font-medium">{formatDate(purchase.created_at)}</span>
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Badge
             className={
               statusColors[purchase.status] || "bg-gray-100 text-gray-800"
@@ -129,34 +129,34 @@ export default function PurchaseOrderDetailPage() {
             variant="outline"
             onClick={() => router.push("/dashboard/purchase-orders")}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
             Back
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="shadow-sm">
-          <CardHeader className="border-b bg-gray-50">
-            <CardTitle className="text-base">Purchase Order Information</CardTitle>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="bg-[#E8E8E3] border-b border-[#D4D4CF]">
+            <CardTitle>Purchase Invoice Information</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-hidden">
               <Table>
                 <TableBody>
-                  <TableRow className="border-b">
-                    <TableCell className="w-1/3 font-medium text-gray-700 bg-gray-50">
+                  <TableRow className="border-b border-[#F2F1ED]">
+                    <TableCell className="w-1/3 font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Invoice Number
                     </TableCell>
-                    <TableCell className="font-semibold text-gray-900">
+                    <TableCell className="font-semibold text-gray-900 text-xs py-2 px-3">
                       {purchase.invoice_number}
                     </TableCell>
                   </TableRow>
-                  <TableRow className="border-b">
-                    <TableCell className="font-medium text-gray-700 bg-gray-50">
+                  <TableRow className="border-b border-[#F2F1ED]">
+                    <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Status
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-xs py-2 px-3">
                       <Badge
                         className={`${statusColors[purchase.status] || "bg-gray-100 text-gray-800"} text-xs`}
                       >
@@ -164,36 +164,36 @@ export default function PurchaseOrderDetailPage() {
                       </Badge>
                     </TableCell>
                   </TableRow>
-                  <TableRow className="border-b">
-                    <TableCell className="font-medium text-gray-700 bg-gray-50">
+                  <TableRow className="border-b border-[#F2F1ED]">
+                    <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Supplier
                     </TableCell>
-                    <TableCell className="font-medium text-gray-900">
+                    <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
                       {purchase.supplier?.name || "-"}
                     </TableCell>
                   </TableRow>
-                  <TableRow className="border-b">
-                    <TableCell className="font-medium text-gray-700 bg-gray-50">
+                  <TableRow className="border-b border-[#F2F1ED]">
+                    <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Branch
                     </TableCell>
-                    <TableCell className="font-medium text-gray-900">
+                    <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
                       {purchase.branch?.name || "-"}
                     </TableCell>
                   </TableRow>
-                  <TableRow className="border-b">
-                    <TableCell className="font-medium text-gray-700 bg-gray-50">
+                  <TableRow className="border-b border-[#F2F1ED]">
+                    <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Invoice Date
                     </TableCell>
-                    <TableCell className="font-medium text-gray-900">
-                      {formatDate(purchase.invoice_date)}
+                    <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
+                      {purchase.invoice_date ? formatDate(purchase.invoice_date) : "-"}
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className="font-medium text-gray-700 bg-gray-50">
+                    <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Delivery Date
                     </TableCell>
-                    <TableCell className="font-medium text-gray-900">
-                      {formatDate(purchase.delivery_date)}
+                    <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
+                      {purchase.delivery_date ? formatDate(purchase.delivery_date) : "-"}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -202,35 +202,35 @@ export default function PurchaseOrderDetailPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="border-b bg-gray-50">
-            <CardTitle className="text-base">Financial Summary</CardTitle>
+        <Card>
+          <CardHeader className="bg-[#E8E8E3] border-b border-[#D4D4CF]">
+            <CardTitle>Financial Summary</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-hidden">
               <Table>
                 <TableBody>
-                  <TableRow className="border-b">
-                    <TableCell className="w-1/3 font-medium text-gray-700 bg-gray-50">
+                  <TableRow className="border-b border-[#F2F1ED]">
+                    <TableCell className="w-1/3 font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Grand Total
                     </TableCell>
-                    <TableCell className="font-bold text-lg text-gray-900">
+                    <TableCell className="font-bold text-sm text-gray-900 py-2 px-3">
                       {formatCurrency(purchase.grand_total)}
                     </TableCell>
                   </TableRow>
-                  <TableRow className="border-b">
-                    <TableCell className="font-medium text-gray-700 bg-gray-50">
+                  <TableRow className="border-b border-[#F2F1ED]">
+                    <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Total Items
                     </TableCell>
-                    <TableCell className="font-medium text-gray-900">
+                    <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
                       {purchase.purchase_items?.length || 0}
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className="font-medium text-gray-700 bg-gray-50">
+                    <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
                       Total Quantity
                     </TableCell>
-                    <TableCell className="font-medium text-gray-900">
+                    <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
                       {purchase.purchase_items?.reduce((sum, item) => sum + Number(item.quantity), 0) || 0}
                     </TableCell>
                   </TableRow>
@@ -241,10 +241,10 @@ export default function PurchaseOrderDetailPage() {
         </Card>
       </div>
 
-      <Card className="shadow-sm">
-        <CardHeader className="border-b bg-gray-50">
+      <Card>
+        <CardHeader className="bg-[#E8E8E3] border-b border-[#D4D4CF]">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-base">Purchase Items</CardTitle>
+            <CardTitle>Purchase Items</CardTitle>
             <span className="text-xs text-gray-500 font-medium">
               {purchase.purchase_items?.length || 0} item(s)
             </span>
@@ -254,15 +254,15 @@ export default function PurchaseOrderDetailPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-100 border-b-2 border-gray-300">
-                  <TableHead className="font-bold text-gray-900 py-3">Product</TableHead>
-                  <TableHead className="font-bold text-gray-900 py-3">Description</TableHead>
-                  <TableHead className="font-bold text-gray-900 py-3 text-center">Quantity</TableHead>
-                  <TableHead className="font-bold text-gray-900 py-3 text-center">Unit</TableHead>
-                  <TableHead className="font-bold text-gray-900 py-3 text-right">Price</TableHead>
-                  <TableHead className="font-bold text-gray-900 py-3 text-right">Discount</TableHead>
-                  <TableHead className="font-bold text-gray-900 py-3 text-right">Tax</TableHead>
-                  <TableHead className="text-right font-bold text-gray-900 py-3">Amount</TableHead>
+                <TableRow className="hover:bg-transparent h-10">
+                  <TableHead className="font-semibold text-xs py-2 px-3">Product</TableHead>
+                  <TableHead className="font-semibold text-xs py-2 px-3">Description</TableHead>
+                  <TableHead className="font-semibold text-xs text-center py-2 px-3">Quantity</TableHead>
+                  <TableHead className="font-semibold text-xs text-center py-2 px-3">Unit</TableHead>
+                  <TableHead className="font-semibold text-xs text-right py-2 px-3">Price</TableHead>
+                  <TableHead className="font-semibold text-xs text-right py-2 px-3">Discount</TableHead>
+                  <TableHead className="font-semibold text-xs text-right py-2 px-3">Tax</TableHead>
+                  <TableHead className="text-right font-semibold text-xs py-2 px-3">Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -270,11 +270,11 @@ export default function PurchaseOrderDetailPage() {
                   purchase.purchase_items.map((item, index) => (
                     <TableRow 
                       key={item.id || index} 
-                      className="hover:bg-gray-50 transition-colors border-b"
+                      className="hover:bg-[#F7F7F4] transition-colors border-b border-[#F2F1ED]"
                     >
-                      <TableCell className="py-3">
+                      <TableCell className="py-2 px-3">
                         <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="text-xs font-semibold text-gray-900">
                             {item.product?.name || "-"}
                           </span>
                           {item.product?.category && (
@@ -284,21 +284,21 @@ export default function PurchaseOrderDetailPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-gray-500 text-sm py-3">-</TableCell>
-                      <TableCell className="font-semibold text-gray-900 text-center py-3">
+                      <TableCell className="text-gray-500 text-xs py-2 px-3">-</TableCell>
+                      <TableCell className="font-semibold text-gray-900 text-center text-xs py-2 px-3">
                         {item.quantity}
                       </TableCell>
-                      <TableCell className="text-center py-3">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200">
+                      <TableCell className="text-center py-2 px-3">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200">
                           {item.measurement_unit?.symbol || item.measurement_unit?.name || "-"}
                         </span>
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-900 text-right py-3">
+                      <TableCell className="font-semibold text-gray-900 text-right text-xs py-2 px-3">
                         {formatCurrency(item.price)}
                       </TableCell>
-                      <TableCell className="text-gray-500 text-sm text-right py-3">-</TableCell>
-                      <TableCell className="text-gray-500 text-sm text-right py-3">-</TableCell>
-                      <TableCell className="text-right font-bold text-gray-900 py-3">
+                      <TableCell className="text-gray-500 text-xs text-right py-2 px-3">-</TableCell>
+                      <TableCell className="text-gray-500 text-xs text-right py-2 px-3">-</TableCell>
+                      <TableCell className="text-right font-bold text-gray-900 text-xs py-2 px-3">
                         {formatCurrency(item.sub_total)}
                       </TableCell>
                     </TableRow>
@@ -313,14 +313,14 @@ export default function PurchaseOrderDetailPage() {
               </TableBody>
               {purchase.purchase_items && purchase.purchase_items.length > 0 && (
                 <tfoot>
-                  <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-300">
+                  <TableRow className="bg-[#F7F7F4] border-t-2 border-[#F2F1ED]">
                     <TableCell 
                       colSpan={7} 
-                      className="text-right font-bold text-gray-900 py-4 pr-4"
+                      className="text-right font-bold text-gray-900 py-3 px-3 text-xs"
                     >
                       Grand Total:
                     </TableCell>
-                    <TableCell className="text-right font-bold text-xl text-gray-900 py-4">
+                    <TableCell className="text-right font-bold text-sm text-gray-900 py-3 px-3">
                       {formatCurrency(purchase.grand_total)}
                     </TableCell>
                   </TableRow>

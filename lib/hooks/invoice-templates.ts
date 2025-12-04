@@ -24,7 +24,7 @@ export interface GenerateDocumentNumberRequest {
 }
 
 export interface GenerateDocumentNumberResponse {
-  invoice_number: string;
+  document_number: string;
   next_sequence: number;
 }
 
@@ -312,6 +312,23 @@ export const useDocumentTemplateOptions = () => {
 
   return {
     data: data?.data ? data?.data : [],
+    loading: (!error && !data) || isValidating,
+  };
+};
+
+export const useDocumentTemplateByType = (documentType: string) => {
+  const { user } = useAuth();
+  const { data, error, isValidating } = useSWR<ApiResponse<DocumentTemplate[]>>(
+    user?.company_id && documentType
+      ? `v1/document-templates/options`
+      : null,
+    fetcher
+  );
+
+  const template = data?.data?.find((t) => t.document_type === documentType);
+
+  return {
+    template: template || null,
     loading: (!error && !data) || isValidating,
   };
 };

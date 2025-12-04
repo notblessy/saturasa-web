@@ -37,6 +37,7 @@ import {
   Settings2,
   FileText,
   ShoppingCart,
+  ReceiptText,
 } from "lucide-react";
 import { useSidebar } from "@/components/saturasui/sidebar";
 import { cn } from "@/lib/utils";
@@ -69,14 +70,14 @@ const menuItems = [
     ],
   },
   {
+    title: "Purchase Invoices",
+    url: "/dashboard/purchase-orders",
+    icon: ReceiptText,
+  },
+  {
     title: "Inventories",
     icon: Package,
     items: [
-      {
-        title: "Purchase Orders",
-        url: "/dashboard/purchase-orders",
-        icon: ShoppingCart,
-      },
       {
         title: "Productions",
         url: "/dashboard/productions",

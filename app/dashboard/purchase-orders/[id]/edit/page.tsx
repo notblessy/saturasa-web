@@ -3,8 +3,9 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { NumericFormat } from "react-number-format";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Trash2, Loader2, ArrowLeft } from "lucide-react";
 import {
@@ -25,7 +26,13 @@ import { useSupplierOptions } from "@/lib/hooks/suppliers";
 import { useProductOptions } from "@/lib/hooks/products";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
 import { useBranchOptions } from "@/lib/hooks/branches";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  useDocumentTemplateByType,
+  useDocumentTemplates,
+} from "@/lib/hooks/invoice-templates";
+import { useAuth } from "@/lib/context/auth";
+import { RefreshCw } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
 import {
   Table,
   TableBody,
@@ -33,7 +40,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat("id-ID", {
@@ -47,6 +54,7 @@ const formatCurrency = (amount: number): string => {
 export default function EditPurchaseOrderPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const purchaseOrderId = params.id as string;
   const { purchase, isLoading } = usePurchaseOrder(purchaseOrderId);
   const { loading, editLoading, onEdit } = usePurchaseOrders();
@@ -55,6 +63,9 @@ export default function EditPurchaseOrderPage() {
   const { data: measurementUnits, loading: unitsLoading } =
     useMeasurementUnitOptions();
   const { data: branches, loading: branchesLoading } = useBranchOptions();
+  const { template } = useDocumentTemplateByType("INVOICE");
+  const { onGeneratePreview } = useDocumentTemplates();
+  const [generatingInvoice, setGeneratingInvoice] = useState(false);
 
   const [formData, setFormData] = useState({
     invoice_number: "",
@@ -148,6 +159,36 @@ export default function EditPurchaseOrderPage() {
     return { subtotal, total: subtotal };
   };
 
+  const generateInvoiceNumber = async () => {
+    if (!template || !formData.branch_id || !formData.invoice_date) {
+      return;
+    }
+
+    setGeneratingInvoice(true);
+    try {
+      const selectedBranch = branches.find((b) => b.id === formData.branch_id);
+      const branchCode = selectedBranch?.name
+        ?.substring(0, 3)
+        .toUpperCase()
+        .replace(/\s/g, "") || "BR";
+      const companyCode = "COMP";
+
+      const result = await onGeneratePreview(template.id, {
+        company_code: companyCode,
+        branch_code: branchCode,
+        issued_date: formData.invoice_date,
+      });
+
+      if (result?.document_number) {
+        setFormData({ ...formData, invoice_number: result.document_number });
+      }
+    } catch (error) {
+      console.error("Failed to generate invoice number:", error);
+    } finally {
+      setGeneratingInvoice(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -210,12 +251,14 @@ export default function EditPurchaseOrderPage() {
     return products.find((p) => p.id === productId);
   };
 
-  const getProductUnits = (productId: string) => {
+  const getProductUnits = (
+    productId: string
+  ): Array<{ id: string; name: string; symbol: string }> => {
     const product = selectedProduct(productId);
     if (!product || !product.specifications) return [];
 
     return product.specifications
-      .filter((spec) => spec.is_purchase_unit)
+      .filter((spec) => spec.is_purchase_unit || spec.is_base_unit)
       .map((spec) => ({
         id: spec.measurement_unit_id,
         name: spec.measurement_unit?.name || "",
@@ -239,14 +282,14 @@ export default function EditPurchaseOrderPage() {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center py-12">
-          <p className="text-gray-500">Purchase order not found</p>
+          <p className="text-gray-500">Purchase invoice not found</p>
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/purchase-orders")}
             className="mt-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Purchase Orders
+            Back to Purchase Invoices
           </Button>
         </div>
       </div>
@@ -254,56 +297,110 @@ export default function EditPurchaseOrderPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 pb-8">
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchase Orders", href: "/dashboard/purchase-orders" },
-          { label: "Edit Purchase Order" },
+          { label: "Purchase Invoices", href: "/dashboard/purchase-orders" },
+          { label: "Edit Purchase Invoice" },
         ]}
       />
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            Edit Purchase Invoice
+          </h1>
+          <p className="text-xs text-gray-600 mt-1">
+            Update the purchase invoice details and items below.
+          </p>
+        </div>
         <Button
           variant="outline"
           onClick={() =>
             router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)
           }
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          Back to Detail
         </Button>
-        <div>
-          <h1 className="text-[26px] font-bold text-gray-900">
-            Edit Purchase Order
-          </h1>
-          <p className="text-gray-600 mt-2 text-sm">
-            Update purchase order details
-          </p>
-        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Purchase Order Information</CardTitle>
+            <CardTitle>
+              Supplier & Invoice Details
+            </CardTitle>
+            <p className="text-xs text-gray-600 mt-1">
+              Enter the supplier information and invoice details for this
+              purchase invoice.
+            </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="invoice_number">Invoice Number *</Label>
-                <Input
-                  id="invoice_number"
-                  value={formData.invoice_number}
-                  onChange={(e) =>
-                    setFormData({ ...formData, invoice_number: e.target.value })
+              <div className="space-y-1.5">
+                <Label htmlFor="branch_id" className="text-xs font-medium">
+                  Delivery Branch <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.branch_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, branch_id: value })
                   }
-                  placeholder="e.g., INV/001"
                   required
-                />
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Select delivery branch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branches.map((branch) => (
+                      <SelectItem
+                        key={branch.id}
+                        value={branch.id}
+                        className="text-sm"
+                      >
+                        {branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="supplier_id">Supplier *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="invoice_number" className="text-xs font-medium">
+                  Invoice Number <span className="text-red-500">*</span>
+                </Label>
+                <div className="flex gap-1.5">
+                  <Input
+                    id="invoice_number"
+                    value={formData.invoice_number}
+                    onChange={(e) =>
+                      setFormData({ ...formData, invoice_number: e.target.value })
+                    }
+                    placeholder="Enter invoice number or generate automatically"
+                    className="flex-1"
+                    required
+                  />
+                  {template && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={generateInvoiceNumber}
+                      disabled={!formData.branch_id || !formData.invoice_date || generatingInvoice}
+                      title="Generate invoice number from template"
+                    >
+                      {generatingInvoice ? (
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="supplier_id" className="text-xs font-medium">
+                  Supplier <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={formData.supplier_id}
                   onValueChange={(value) =>
@@ -311,20 +408,26 @@ export default function EditPurchaseOrderPage() {
                   }
                   required
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select supplier" />
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Choose supplier" />
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers.map((supplier) => (
-                      <SelectItem key={supplier.id} value={supplier.id}>
+                      <SelectItem
+                        key={supplier.id}
+                        value={supplier.id}
+                        className="text-sm"
+                      >
                         {supplier.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="invoice_date">Invoice Date *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="invoice_date" className="text-xs font-medium">
+                  Invoice Date <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="invoice_date"
                   type="date"
@@ -338,8 +441,10 @@ export default function EditPurchaseOrderPage() {
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="delivery_date">Delivery Date *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="delivery_date" className="text-xs font-medium">
+                  Expected Delivery Date <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="delivery_date"
                   type="date"
@@ -350,67 +455,60 @@ export default function EditPurchaseOrderPage() {
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="branch_id">Branch *</Label>
-                <Select
-                  value={formData.branch_id}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, branch_id: value })
-                  }
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {branches.map((branch) => (
-                      <SelectItem key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Items</CardTitle>
-              <Button type="button" onClick={addItem} variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle>
+                  Purchase Items
+                </CardTitle>
+                <p className="text-xs text-gray-600 mt-1">
+                  Add the products, ingredients, or items you're purchasing from
+                  the supplier.
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={addItem}
+                variant="outline"
+              >
                 Add Item
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {formData.items.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No items added. Click "Add Item" to start.
+              <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
+                <p className="text-sm text-gray-500 mb-1">No items added yet</p>
+                <p className="text-xs text-gray-400">
+                  Click "Add Item" above to start adding products to this
+                  purchase invoice
+                </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Unit</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Discount %</TableHead>
-                        <TableHead>Tax</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
+              <div className="border border-[#F2F1ED] rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent h-7">
+                      <TableHead className="font-medium text-xs py-2 px-3">Product</TableHead>
+                      <TableHead className="font-medium text-xs py-2 px-3">Description</TableHead>
+                      <TableHead className="font-medium text-xs py-2 px-3">Quantity</TableHead>
+                      <TableHead className="font-medium text-xs py-2 px-3">Unit</TableHead>
+                      <TableHead className="font-medium text-xs py-2 px-3">Unit Price</TableHead>
+                      <TableHead className="font-medium text-xs py-2 px-3">Discount (%)</TableHead>
+                      <TableHead className="font-medium text-xs py-2 px-3">Tax</TableHead>
+                      <TableHead className="font-medium text-xs py-2 px-3">Line Total</TableHead>
+                      <TableHead className="text-right font-medium text-xs py-2 px-3">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
                     <TableBody>
                       {formData.items.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>
+                        <TableRow key={item.id} className="h-8">
+                          <TableCell className="py-1.5 px-2">
                             <Select
                               value={item.product_id}
                               onValueChange={(value) => {
@@ -418,7 +516,7 @@ export default function EditPurchaseOrderPage() {
                                 updateItem(item.id, "unit_id", null);
                               }}
                             >
-                              <SelectTrigger className="w-[200px]">
+                              <SelectTrigger className="w-[200px] h-7">
                                 <SelectValue placeholder="Select product" />
                               </SelectTrigger>
                               <SelectContent>
@@ -426,6 +524,7 @@ export default function EditPurchaseOrderPage() {
                                   <SelectItem
                                     key={product.id}
                                     value={product.id}
+                                    className="text-sm"
                                   >
                                     {product.name}
                                   </SelectItem>
@@ -433,7 +532,7 @@ export default function EditPurchaseOrderPage() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-1.5 px-2">
                             <Input
                               value={item.description || ""}
                               onChange={(e) =>
@@ -444,33 +543,35 @@ export default function EditPurchaseOrderPage() {
                                 )
                               }
                               placeholder="Description"
-                              className="w-[150px]"
+                              className="w-[150px] h-7"
                             />
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={item.quantity}
-                              onChange={(e) =>
+                          <TableCell className="py-1.5 px-2">
+                            <NumericFormat
+                              value={item.quantity || ""}
+                              onValueChange={(values) => {
                                 updateItem(
                                   item.id,
                                   "quantity",
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
-                              className="w-[100px]"
+                                  values.floatValue || 0
+                                );
+                              }}
+                              thousandSeparator="."
+                              decimalSeparator=","
+                              decimalScale={2}
+                              allowNegative={false}
+                              customInput={Input}
+                              className="w-[100px] h-7"
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-1.5 px-2">
                             <Select
                               value={item.unit_id || ""}
                               onValueChange={(value) =>
                                 updateItem(item.id, "unit_id", value || null)
                               }
                             >
-                              <SelectTrigger className="w-[120px]">
+                              <SelectTrigger className="w-[120px] h-7">
                                 <SelectValue placeholder="Unit" />
                               </SelectTrigger>
                               <SelectContent>
@@ -480,80 +581,91 @@ export default function EditPurchaseOrderPage() {
                                         <SelectItem
                                           key={unit.id}
                                           value={unit.id}
+                                          className="text-sm"
                                         >
                                           {unit.symbol || unit.name}
                                         </SelectItem>
                                       )
                                     )
                                   : measurementUnits.map((unit) => (
-                                      <SelectItem key={unit.id} value={unit.id}>
+                                      <SelectItem
+                                        key={unit.id}
+                                        value={unit.id}
+                                        className="text-sm"
+                                      >
                                         {unit.symbol || unit.name}
                                       </SelectItem>
                                     ))}
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={item.price}
-                              onChange={(e) =>
+                          <TableCell className="py-1.5 px-2">
+                            <NumericFormat
+                              value={item.price || ""}
+                              onValueChange={(values) => {
                                 updateItem(
                                   item.id,
                                   "price",
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
-                              className="w-[120px]"
+                                  values.floatValue || 0
+                                );
+                              }}
+                              thousandSeparator="."
+                              decimalSeparator=","
+                              decimalScale={2}
+                              allowNegative={false}
+                              customInput={Input}
+                              className="w-[100px] h-7"
                             />
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              max="100"
-                              value={item.discount}
-                              onChange={(e) =>
+                          <TableCell className="py-1.5 px-2">
+                            <NumericFormat
+                              value={item.discount || ""}
+                              onValueChange={(values) => {
                                 updateItem(
                                   item.id,
                                   "discount",
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
-                              className="w-[80px]"
+                                  values.floatValue || 0
+                                );
+                              }}
+                              thousandSeparator="."
+                              decimalSeparator=","
+                              decimalScale={2}
+                              allowNegative={false}
+                              max={100}
+                              customInput={Input}
+                              className="w-[80px] h-7"
                             />
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={item.tax}
-                              onChange={(e) =>
+                          <TableCell className="py-1.5 px-2">
+                            <NumericFormat
+                              value={item.tax || ""}
+                              onValueChange={(values) => {
                                 updateItem(
                                   item.id,
                                   "tax",
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
-                              className="w-[100px]"
+                                  values.floatValue || 0
+                                );
+                              }}
+                              thousandSeparator="."
+                              decimalSeparator=","
+                              decimalScale={2}
+                              allowNegative={false}
+                              customInput={Input}
+                              className="w-[100px] h-7"
                             />
                           </TableCell>
-                          <TableCell className="font-medium">
+                          <TableCell className="text-xs py-1.5 px-2">
                             {formatCurrency(calculateItemAmount(item))}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right py-1.5 px-2">
                             <Button
                               type="button"
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               onClick={() => removeItem(item.id)}
-                              className="text-red-600"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 h-7"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              Remove
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -561,18 +673,24 @@ export default function EditPurchaseOrderPage() {
                     </TableBody>
                   </Table>
                 </div>
-
-                <div className="flex justify-end space-x-4 pt-4 border-t">
-                  <div className="text-right space-y-2">
-                    <div className="flex justify-between gap-8">
-                      <span className="text-gray-600">Subtotal:</span>
-                      <span className="font-medium">
+            )}
+            {formData.items.length > 0 && (
+              <div className="flex justify-end mt-4">
+                <div className="w-full max-w-sm bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-300">
+                      <span className="text-gray-700 font-medium text-xs">
+                        Subtotal
+                      </span>
+                      <span className="font-semibold text-gray-900 text-xs">
                         {formatCurrency(totals.subtotal)}
                       </span>
                     </div>
-                    <div className="flex justify-between gap-8">
-                      <span className="text-gray-600">Total:</span>
-                      <span className="font-medium text-[14px]">
+                    <div className="flex justify-between items-center pt-1">
+                      <span className="text-gray-900 font-semibold text-sm">
+                        Total Amount
+                      </span>
+                      <span className="font-bold text-base text-gray-900">
                         {formatCurrency(totals.total)}
                       </span>
                     </div>
@@ -583,29 +701,23 @@ export default function EditPurchaseOrderPage() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end gap-1.5 pt-4 border-t border-[#F2F1ED]">
           <Button
             type="button"
             variant="outline"
             onClick={() =>
               router.push(`/dashboard/purchase-orders/${purchaseOrderId}`)
             }
+            disabled={editLoading}
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={editLoading || formData.items.length === 0}
-            className="bg-primary hover:bg-primary/90"
+            className="min-w-[180px]"
           >
-            {editLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Updating...
-              </>
-            ) : (
-              "Update Purchase Order"
-            )}
+            {editLoading ? "Processing..." : "Update Purchase Invoice"}
           </Button>
         </div>
       </form>

@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { NumericFormat } from "react-number-format";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Select,
   SelectContent,
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import {
   usePurchaseOrders,
@@ -25,7 +26,14 @@ import { useSupplierOptions } from "@/lib/hooks/suppliers";
 import { useProductOptions } from "@/lib/hooks/products";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
 import { useBranchOptions } from "@/lib/hooks/branches";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  useDocumentTemplateByType,
+  useDocumentTemplates,
+} from "@/lib/hooks/invoice-templates";
+import { useAuth } from "@/lib/context/auth";
+import { RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
 import {
   Table,
   TableBody,
@@ -33,7 +41,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 
 const itemSchema = z.object({
   product_id: z.string().min(1, "Product is required"),
@@ -67,12 +75,16 @@ const formatCurrency = (amount: number): string => {
 
 export default function NewPurchaseOrderPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { loading, onAdd } = usePurchaseOrders();
   const { data: suppliers, loading: suppliersLoading } = useSupplierOptions();
   const { data: products, loading: productsLoading } = useProductOptions();
   const { data: measurementUnits, loading: unitsLoading } =
     useMeasurementUnitOptions();
   const { data: branches, loading: branchesLoading } = useBranchOptions();
+  const { template } = useDocumentTemplateByType("INVOICE");
+  const { onGeneratePreview, onIncrementSequence } = useDocumentTemplates();
+  const [generatingInvoice, setGeneratingInvoice] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -87,6 +99,54 @@ export default function NewPurchaseOrderPage() {
       items: [],
     },
   });
+
+  const invoiceDate = form.watch("invoice_date");
+  const branchId = form.watch("branch_id");
+
+  // Auto-generate invoice number when branch and date are selected
+  useEffect(() => {
+    if (
+      template &&
+      branchId &&
+      invoiceDate &&
+      !form.getValues("invoice_number")
+    ) {
+      generateInvoiceNumber();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template?.id, branchId, invoiceDate]);
+
+  const generateInvoiceNumber = async () => {
+    if (!template || !branchId || !invoiceDate) {
+      return;
+    }
+
+    setGeneratingInvoice(true);
+    try {
+      const selectedBranch = branches.find((b) => b.id === branchId);
+      // Use first 3 characters of branch name as code, or default to "BR"
+      const branchCode = selectedBranch?.name
+        ?.substring(0, 3)
+        .toUpperCase()
+        .replace(/\s/g, "") || "BR";
+      // Use "COMP" as default company code (can be enhanced later with actual company code)
+      const companyCode = "COMP";
+
+      const result = await onGeneratePreview(template.id, {
+        company_code: companyCode,
+        branch_code: branchCode,
+        issued_date: invoiceDate,
+      });
+
+      if (result?.document_number) {
+        form.setValue("invoice_number", result.document_number);
+      }
+    } catch (error) {
+      console.error("Failed to generate invoice number:", error);
+    } finally {
+      setGeneratingInvoice(false);
+    }
+  };
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -156,7 +216,22 @@ export default function NewPurchaseOrderPage() {
       })),
     };
 
-    await onAdd(purchaseData);
+    // Check if invoice number was generated from template
+    const wasGenerated = template && 
+      values.invoice_number && 
+      values.invoice_number !== "";
+
+    try {
+      await onAdd(purchaseData);
+      
+      // Increment document sequence after successful creation
+      // Note: onAdd navigates away on success, so this will only run if creation succeeds
+      if (wasGenerated && template) {
+        await onIncrementSequence(template.id);
+      }
+    } catch (error) {
+      // Error handling is done in onAdd
+    }
   };
 
   const addItem = () => {
@@ -174,60 +249,106 @@ export default function NewPurchaseOrderPage() {
   const totals = calculateTotals();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-8">
+    <div className="max-w-6xl mx-auto space-y-4 pb-8">
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchase Orders", href: "/dashboard/purchase-orders" },
-          { label: "New Purchase Order" },
+          { label: "Purchase Invoices", href: "/dashboard/purchase-orders" },
+          { label: "New Purchase Invoice" },
         ]}
       />
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Create Purchase Order
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Record a new purchase order from your supplier. Fill in the
-              supplier details, invoice information, and add the items you're
-              purchasing.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => router.push("/dashboard/purchase-orders")}
-            className="text-sm"
-          >
-            Back to List
-          </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            Create Purchase Invoice
+          </h1>
+          <p className="text-xs text-gray-600 mt-1">
+            Record a new purchase invoice from your supplier. Fill in the
+            supplier details, invoice information, and add the items you're
+            purchasing.
+          </p>
         </div>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/dashboard/purchase-orders")}
+        >
+          Back to List
+        </Button>
       </div>
 
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold">
+          <CardHeader>
+            <CardTitle>
               Supplier & Invoice Details
             </CardTitle>
             <p className="text-xs text-gray-600 mt-1">
               Enter the supplier information and invoice details for this
-              purchase order.
+              purchase invoice.
             </p>
           </CardHeader>
-          <CardContent className="space-y-5">
+          <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="branch_id" className="text-xs font-medium">
+                  Delivery Branch <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="branch_id"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue placeholder="Select delivery branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {branches.map((branch) => (
+                          <SelectItem
+                            key={branch.id}
+                            value={branch.id}
+                            className="text-sm"
+                          >
+                            {branch.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {form.formState.errors.branch_id && (
+                  <p className="text-xs text-red-500">
+                    {form.formState.errors.branch_id.message}
+                  </p>
+                )}
+              </div>
               <div className="space-y-1.5">
                 <Label htmlFor="invoice_number" className="text-xs font-medium">
                   Invoice Number <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="invoice_number"
-                  {...form.register("invoice_number")}
-                  placeholder="Enter invoice number from supplier"
-                  className="h-9 text-sm"
-                />
+                <div className="flex gap-1.5">
+                  <Input
+                    id="invoice_number"
+                    {...form.register("invoice_number")}
+                    placeholder="Enter invoice number or generate automatically"
+                    className="flex-1"
+                  />
+                  {template && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={generateInvoiceNumber}
+                      disabled={!branchId || !invoiceDate || generatingInvoice}
+                      title="Generate invoice number from template"
+                    >
+                      {generatingInvoice ? (
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  )}
+                </div>
                 {form.formState.errors.invoice_number && (
                   <p className="text-xs text-red-500">
                     {form.formState.errors.invoice_number.message}
@@ -243,7 +364,7 @@ export default function NewPurchaseOrderPage() {
                   control={form.control}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-9 text-sm">
+                      <SelectTrigger className="h-8">
                         <SelectValue placeholder="Choose supplier" />
                       </SelectTrigger>
                       <SelectContent>
@@ -274,7 +395,6 @@ export default function NewPurchaseOrderPage() {
                   id="invoice_date"
                   type="date"
                   {...form.register("invoice_date")}
-                  className="h-9 text-sm"
                 />
                 {form.formState.errors.invoice_date && (
                   <p className="text-xs text-red-500">
@@ -290,43 +410,10 @@ export default function NewPurchaseOrderPage() {
                   id="delivery_date"
                   type="date"
                   {...form.register("delivery_date")}
-                  className="h-9 text-sm"
                 />
                 {form.formState.errors.delivery_date && (
                   <p className="text-xs text-red-500">
                     {form.formState.errors.delivery_date.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="branch_id" className="text-xs font-medium">
-                  Delivery Branch <span className="text-red-500">*</span>
-                </Label>
-                <Controller
-                  name="branch_id"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-9 text-sm">
-                        <SelectValue placeholder="Select delivery branch" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {branches.map((branch) => (
-                          <SelectItem
-                            key={branch.id}
-                            value={branch.id}
-                            className="text-sm"
-                          >
-                            {branch.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {form.formState.errors.branch_id && (
-                  <p className="text-xs text-red-500">
-                    {form.formState.errors.branch_id.message}
                   </p>
                 )}
               </div>
@@ -335,10 +422,10 @@ export default function NewPurchaseOrderPage() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader>
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle className="text-sm font-semibold">
+                <CardTitle>
                   Purchase Items
                 </CardTitle>
                 <p className="text-xs text-gray-600 mt-1">
@@ -350,7 +437,6 @@ export default function NewPurchaseOrderPage() {
                 type="button"
                 onClick={addItem}
                 variant="outline"
-                className="text-sm"
               >
                 Add Item
               </Button>
@@ -362,39 +448,39 @@ export default function NewPurchaseOrderPage() {
                 <p className="text-sm text-gray-500 mb-1">No items added yet</p>
                 <p className="text-xs text-gray-400">
                   Click "Add Item" above to start adding products to this
-                  purchase order
+                  purchase invoice
                 </p>
               </div>
             ) : (
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="border border-[#F2F1ED] rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
-                      <TableHead className="font-semibold text-xs">
+                    <TableRow className="hover:bg-transparent h-7">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Product
                       </TableHead>
-                      <TableHead className="font-semibold text-xs">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Description
                       </TableHead>
-                      <TableHead className="font-semibold text-xs">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Quantity
                       </TableHead>
-                      <TableHead className="font-semibold text-xs">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Unit
                       </TableHead>
-                      <TableHead className="font-semibold text-xs">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Unit Price
                       </TableHead>
-                      <TableHead className="font-semibold text-xs">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Discount (%)
                       </TableHead>
-                      <TableHead className="font-semibold text-xs">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Tax
                       </TableHead>
-                      <TableHead className="font-semibold text-xs">
+                      <TableHead className="font-medium text-xs py-2 px-3">
                         Line Total
                       </TableHead>
-                      <TableHead className="text-right font-semibold text-xs">
+                      <TableHead className="text-right font-medium text-xs py-2 px-3">
                         Action
                       </TableHead>
                     </TableRow>
@@ -404,8 +490,8 @@ export default function NewPurchaseOrderPage() {
                       const item = form.watch(`items.${index}`);
                       const productId = form.watch(`items.${index}.product_id`);
                       return (
-                        <TableRow key={field.id}>
-                          <TableCell>
+                        <TableRow key={field.id} className="h-8">
+                          <TableCell className="py-1.5 px-2">
                             <Controller
                               name={`items.${index}.product_id`}
                               control={form.control}
@@ -420,7 +506,7 @@ export default function NewPurchaseOrderPage() {
                                     );
                                   }}
                                 >
-                                  <SelectTrigger className="w-[200px] h-8 text-xs">
+                                  <SelectTrigger className="w-[200px] h-7">
                                     <SelectValue placeholder="Select product" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -447,22 +533,31 @@ export default function NewPurchaseOrderPage() {
                               </p>
                             )}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-1.5 px-2">
                             <Input
                               {...form.register(`items.${index}.description`)}
                               placeholder="Description"
-                              className="w-[150px] h-8 text-xs"
+                              className="w-[150px] h-7"
                             />
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              {...form.register(`items.${index}.quantity`, {
-                                valueAsNumber: true,
-                              })}
-                              className="w-[100px] h-8 text-xs"
+                          <TableCell className="py-1.5 px-2">
+                            <Controller
+                              name={`items.${index}.quantity`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <NumericFormat
+                                  value={field.value || ""}
+                                  onValueChange={(values) => {
+                                    field.onChange(values.floatValue || 0);
+                                  }}
+                                  thousandSeparator="."
+                                  decimalSeparator=","
+                                  decimalScale={2}
+                                  allowNegative={false}
+                                  customInput={Input}
+                                  className="w-[100px] h-7"
+                                />
+                              )}
                             />
                             {form.formState.errors.items?.[index]?.quantity && (
                               <p className="text-xs text-red-500 mt-1">
@@ -473,7 +568,7 @@ export default function NewPurchaseOrderPage() {
                               </p>
                             )}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-1.5 px-2">
                             <Controller
                               name={`items.${index}.unit_id`}
                               control={form.control}
@@ -484,7 +579,7 @@ export default function NewPurchaseOrderPage() {
                                     field.onChange(value || null)
                                   }
                                 >
-                                  <SelectTrigger className="w-[120px] h-8 text-xs">
+                                  <SelectTrigger className="w-[120px] h-7">
                                     <SelectValue placeholder="Unit" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -514,15 +609,24 @@ export default function NewPurchaseOrderPage() {
                               )}
                             />
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              {...form.register(`items.${index}.price`, {
-                                valueAsNumber: true,
-                              })}
-                              className="w-[100px] h-8 text-xs"
+                          <TableCell className="py-1.5 px-2">
+                            <Controller
+                              name={`items.${index}.price`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <NumericFormat
+                                  value={field.value || ""}
+                                  onValueChange={(values) => {
+                                    field.onChange(values.floatValue || 0);
+                                  }}
+                                  thousandSeparator="."
+                                  decimalSeparator=","
+                                  decimalScale={2}
+                                  allowNegative={false}
+                                  customInput={Input}
+                                  className="w-[100px] h-7"
+                                />
+                              )}
                             />
                             {form.formState.errors.items?.[index]?.price && (
                               <p className="text-xs text-red-500 mt-1">
@@ -533,39 +637,57 @@ export default function NewPurchaseOrderPage() {
                               </p>
                             )}
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              max="100"
-                              {...form.register(`items.${index}.discount`, {
-                                valueAsNumber: true,
-                              })}
-                              className="w-[80px] h-8 text-xs"
+                          <TableCell className="py-1.5 px-2">
+                            <Controller
+                              name={`items.${index}.discount`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <NumericFormat
+                                  value={field.value || ""}
+                                  onValueChange={(values) => {
+                                    field.onChange(values.floatValue || 0);
+                                  }}
+                                  thousandSeparator="."
+                                  decimalSeparator=","
+                                  decimalScale={2}
+                                  allowNegative={false}
+                                  max={100}
+                                  customInput={Input}
+                                  className="w-[80px] h-7"
+                                />
+                              )}
                             />
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              {...form.register(`items.${index}.tax`, {
-                                valueAsNumber: true,
-                              })}
-                              className="w-[100px] h-8 text-xs"
+                          <TableCell className="py-1.5 px-2">
+                            <Controller
+                              name={`items.${index}.tax`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <NumericFormat
+                                  value={field.value || ""}
+                                  onValueChange={(values) => {
+                                    field.onChange(values.floatValue || 0);
+                                  }}
+                                  thousandSeparator="."
+                                  decimalSeparator=","
+                                  decimalScale={2}
+                                  allowNegative={false}
+                                  customInput={Input}
+                                  className="w-[100px] h-7"
+                                />
+                              )}
                             />
                           </TableCell>
-                          <TableCell className="text-xs">
+                          <TableCell className="text-xs py-1.5 px-2">
                             {formatCurrency(calculateItemAmount(item))}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right py-1.5 px-2">
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
                               onClick={() => remove(index)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs h-7"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 h-7"
                             >
                               Remove
                             </Button>
@@ -610,22 +732,21 @@ export default function NewPurchaseOrderPage() {
           </div>
         )}
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <div className="flex justify-end gap-1.5 pt-4 border-t border-[#F2F1ED]">
           <Button
             type="button"
             variant="outline"
             onClick={() => router.push("/dashboard/purchase-orders")}
             disabled={loading}
-            className="text-sm"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={loading}
-            className="min-w-[180px] text-sm"
+            className="min-w-[180px]"
           >
-            {loading ? "Processing..." : "Create Purchase Order"}
+            {loading ? "Processing..." : "Create Purchase Invoice"}
           </Button>
         </div>
       </form>

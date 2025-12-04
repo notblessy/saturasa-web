@@ -37,12 +37,14 @@ export interface PurchaseItem {
 
 export interface Purchase {
   id: string;
+  company_id: string;
   branch_id: string;
   supplier_id: string;
   invoice_number: string;
-  invoice_date: string;
-  delivery_date: string;
+  invoice_date: string | null;
+  delivery_date: string | null;
   status: string;
+  payment_method?: string | null;
   grand_total: number;
   created_at: string;
   updated_at: string;
@@ -122,7 +124,7 @@ export const usePurchaseOrders = () => {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Purchase order created successfully",
+            message: "Purchase invoice created successfully",
             color: "orange",
           });
           router.push("/dashboard/purchase-orders");
@@ -175,7 +177,7 @@ export const usePurchaseOrders = () => {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Purchase order updated successfully",
+            message: "Purchase invoice updated successfully",
             color: "orange",
           });
           router.push("/dashboard/purchase-orders");
@@ -210,7 +212,7 @@ export const usePurchaseOrders = () => {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Purchase order deleted successfully",
+            message: "Purchase invoice deleted successfully",
             color: "orange",
           });
         } else {

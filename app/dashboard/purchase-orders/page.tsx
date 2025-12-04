@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/saturasui/table";
 import {
   Select,
   SelectContent,
@@ -63,7 +63,7 @@ export default function PurchaseOrdersPage() {
 
   const handleDeletePurchaseOrder = async (id: string) => {
     if (
-      window.confirm("Are you sure you want to delete this purchase order?")
+      window.confirm("Are you sure you want to delete this purchase invoice?")
     ) {
       await onDelete(id);
     }
@@ -96,21 +96,21 @@ export default function PurchaseOrdersPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchase Orders" },
+          { label: "Purchase Invoices" },
         ]}
       />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-[26px] font-bold text-gray-900">
-            Purchase Orders
+          <h1 className="text-lg font-semibold text-gray-900">
+            Purchase Invoices
           </h1>
-          <p className="text-gray-600 mt-2 text-sm">
-            Manage your purchase orders
+          <p className="text-xs text-gray-600 mt-1">
+            Manage your purchase invoices
           </p>
         </div>
         <Button
@@ -118,49 +118,44 @@ export default function PurchaseOrdersPage() {
           className="bg-primary hover:bg-primary/90"
           disabled={loading}
         >
-          <Plus className="h-4 w-4 mr-2" />
-          New Purchase Order
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
+          New Purchase Invoice
         </Button>
       </div>
 
       <div className="space-y-4">
-        <div className="flex justify-between items-center gap-4">
-          <h2 className="text-[16px] font-semibold text-gray-900">
-            Purchase Order List
-          </h2>
-          <div className="flex gap-2">
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search by number..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={handleStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="canceled">Canceled</SelectItem>
-                <SelectItem value="waiting_for_payment">
-                  Waiting for Payment
-                </SelectItem>
-                <SelectItem value="payment_partial">Payment Partial</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="flex justify-between items-center">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
+            <Input
+              placeholder="Search by invoice number..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-9"
+            />
           </div>
+          <Select value={statusFilter} onValueChange={handleStatusFilter}>
+            <SelectTrigger className="w-[180px] h-8">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="canceled">Canceled</SelectItem>
+              <SelectItem value="waiting_for_payment">
+                Waiting for Payment
+              </SelectItem>
+              <SelectItem value="payment_partial">Payment Partial</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent h-10">
                 <TableHead>Invoice Number</TableHead>
                 <TableHead>Supplier</TableHead>
                 <TableHead>Invoice Date</TableHead>
@@ -174,30 +169,30 @@ export default function PurchaseOrdersPage() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    <p className="mt-2 text-gray-500 text-xs">
-                      Loading purchase orders...
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    <p className="mt-2 text-xs text-gray-500">
+                      Loading purchase invoices...
                     </p>
                   </TableCell>
                 </TableRow>
               ) : purchaseOrders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                    <p className="text-gray-500 text-xs">
-                      No purchase orders found
+                    <p className="text-xs text-gray-500">
+                      No purchase invoices found
                     </p>
                   </TableCell>
                 </TableRow>
               ) : (
                 purchaseOrders.map((po: Purchase) => (
                   <TableRow key={po.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-xs">
                       {po.invoice_number}
                     </TableCell>
-                    <TableCell>{po.supplier?.name || "-"}</TableCell>
-                    <TableCell>{formatDate(po.invoice_date)}</TableCell>
-                    <TableCell>{formatDate(po.delivery_date)}</TableCell>
-                    <TableCell>{formatCurrency(po.grand_total)}</TableCell>
+                    <TableCell className="text-xs">{po.supplier?.name || "-"}</TableCell>
+                    <TableCell className="text-xs">{po.invoice_date ? formatDate(po.invoice_date) : "-"}</TableCell>
+                    <TableCell className="text-xs">{po.delivery_date ? formatDate(po.delivery_date) : "-"}</TableCell>
+                    <TableCell className="text-xs">{formatCurrency(po.grand_total)}</TableCell>
                     <TableCell>
                       <Badge
                         className={
@@ -208,36 +203,36 @@ export default function PurchaseOrdersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex justify-end gap-1.5">
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="default"
                           onClick={() => handleViewPurchaseOrder(po.id)}
                           disabled={loading}
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5" />
                         </Button>
                         {po.status === "pending" && (
                           <>
                             <Button
                               variant="outline"
-                              size="sm"
+                              size="default"
                               onClick={() => handleEditPurchaseOrder(po.id)}
                               disabled={loading}
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               variant="outline"
-                              size="sm"
+                              size="default"
                               onClick={() => handleDeletePurchaseOrder(po.id)}
                               className="text-red-600 hover:text-red-700"
                               disabled={deleteLoading}
                             >
                               {deleteLoading ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
                               ) : (
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-3.5 w-3.5" />
                               )}
                             </Button>
                           </>
@@ -256,12 +251,12 @@ export default function PurchaseOrdersPage() {
           <div className="flex justify-between items-center">
             <p className="text-xs text-gray-600">
               Showing {purchaseOrders.length} of {pageSummary.total} purchase
-              orders
+              invoices
             </p>
-            <div className="flex space-x-2">
+            <div className="flex gap-1.5">
               <Button
                 variant="outline"
-                size="sm"
+                size="default"
                 onClick={() => onQuery({ page: pageSummary.page - 1 })}
                 disabled={pageSummary.page <= 1}
               >
@@ -269,7 +264,7 @@ export default function PurchaseOrdersPage() {
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                size="default"
                 onClick={() => onQuery({ page: pageSummary.page + 1 })}
                 disabled={!pageSummary.hasNext}
               >
