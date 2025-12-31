@@ -124,7 +124,9 @@ export default function SuppliersPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-lg font-semibold text-gray-900">Suppliers</h1>
-          <p className="text-xs text-gray-600 mt-1">Manage your supplier network</p>
+          <p className="text-xs text-gray-600 mt-1">
+            Manage your supplier network
+          </p>
         </div>
         <Button
           onClick={handleAddSupplier}
@@ -153,10 +155,10 @@ export default function SuppliersPage() {
           </div>
         </div>
 
-        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
+              <TableRow className="hover:bg-transparent h-10">
                 <TableHead>Supplier Name</TableHead>
                 <TableHead>Contact Person</TableHead>
                 <TableHead>Contact Number</TableHead>
@@ -166,10 +168,16 @@ export default function SuppliersPage() {
             </TableHeader>
             <TableBody>
               {suppliers.map((supplier) => (
-                <TableRow key={supplier.id}>
-                  <TableCell className="font-medium text-xs">{supplier.name}</TableCell>
-                  <TableCell className="text-xs">{supplier.contact_name}</TableCell>
-                  <TableCell className="text-xs">{supplier.contact_number}</TableCell>
+                <TableRow key={supplier.id} className="h-10">
+                  <TableCell className="font-medium text-xs">
+                    {supplier.name}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {supplier.contact_name}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {supplier.contact_number}
+                  </TableCell>
                   <TableCell className="max-w-xs truncate text-xs">
                     {supplier.address}
                   </TableCell>
@@ -250,7 +258,9 @@ export default function SuppliersPage() {
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs font-medium">Supplier Name *</Label>
+              <Label htmlFor="name" className="text-xs font-medium">
+                Supplier Name *
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -262,7 +272,9 @@ export default function SuppliersPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="contact_name" className="text-xs font-medium">Contact Person *</Label>
+              <Label htmlFor="contact_name" className="text-xs font-medium">
+                Contact Person *
+              </Label>
               <Input
                 id="contact_name"
                 value={formData.contact_name}
@@ -274,7 +286,9 @@ export default function SuppliersPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="contact_number" className="text-xs font-medium">Contact Number *</Label>
+              <Label htmlFor="contact_number" className="text-xs font-medium">
+                Contact Number *
+              </Label>
               <Input
                 id="contact_number"
                 value={formData.contact_number}
@@ -286,7 +300,9 @@ export default function SuppliersPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="address" className="text-xs font-medium">Address</Label>
+              <Label htmlFor="address" className="text-xs font-medium">
+                Address
+              </Label>
               <Textarea
                 id="address"
                 value={formData.address}

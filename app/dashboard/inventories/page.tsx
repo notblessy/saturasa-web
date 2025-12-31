@@ -67,10 +67,10 @@ export default function InventoriesPage() {
           </div>
         </div>
 
-        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
+              <TableRow className="hover:bg-transparent h-10">
                 <TableHead>Product</TableHead>
                 <TableHead>Branch</TableHead>
                 <TableHead className="text-right">Current Stock</TableHead>
@@ -102,6 +102,7 @@ export default function InventoriesPage() {
                 inventories.map((inventory, index) => (
                   <TableRow
                     key={`${inventory.product_id}-${inventory.branch_id}-${index}`}
+                    className="h-10"
                   >
                     <TableCell className="font-medium text-xs">
                       {inventory.product_name}

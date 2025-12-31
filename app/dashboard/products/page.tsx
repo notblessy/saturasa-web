@@ -98,7 +98,7 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent h-10">
@@ -134,8 +134,10 @@ export default function ProductsPage() {
                     <TableCell className="font-medium text-xs">
                       {product.name}
                     </TableCell>
-                    <TableCell className="text-xs">{product.slug || "-"}</TableCell>
-                    <TableCell className="text-xs">{/* BOM column, currently empty */}</TableCell>
+                    <TableCell className="text-xs">
+                      {product.slug || "-"}
+                    </TableCell>
+                    <TableCell className="text-xs"></TableCell>
                     <TableCell className="text-xs">
                       {product.category?.name ||
                         getCategoryName(product.category_id)}

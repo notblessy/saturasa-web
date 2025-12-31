@@ -112,10 +112,10 @@ export default function MeasurementUnitsComponent() {
         </div>
       </div>
 
-      <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white">
+      <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
+            <TableRow className="hover:bg-transparent h-10">
               <TableHead>Name</TableHead>
               <TableHead>Symbol</TableHead>
               <TableHead>Created At</TableHead>
@@ -135,13 +135,17 @@ export default function MeasurementUnitsComponent() {
             ) : units.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8">
-                  <p className="text-xs text-gray-500">No measurement units found</p>
+                  <p className="text-xs text-gray-500">
+                    No measurement units found
+                  </p>
                 </TableCell>
               </TableRow>
             ) : (
               units?.slice(0, 5).map((unit) => (
-                <TableRow key={unit.id}>
-                  <TableCell className="font-medium text-xs">{unit.name}</TableCell>
+                <TableRow key={unit.id} className="h-10">
+                  <TableCell className="font-medium text-xs">
+                    {unit.name}
+                  </TableCell>
                   <TableCell className="text-xs">{unit.symbol}</TableCell>
                   <TableCell className="text-xs">
                     {new Date(unit.created_at).toLocaleDateString()}
@@ -194,7 +198,9 @@ export default function MeasurementUnitsComponent() {
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs font-medium">Unit Name</Label>
+              <Label htmlFor="name" className="text-xs font-medium">
+                Unit Name
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -206,7 +212,9 @@ export default function MeasurementUnitsComponent() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="symbol" className="text-xs font-medium">Symbol</Label>
+              <Label htmlFor="symbol" className="text-xs font-medium">
+                Symbol
+              </Label>
               <Input
                 id="symbol"
                 value={formData.symbol}

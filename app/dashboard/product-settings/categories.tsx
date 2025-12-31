@@ -128,10 +128,10 @@ export default function CategoriesComponent() {
         </div>
       </div>
 
-      <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white">
+      <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
+            <TableRow className="hover:bg-transparent h-10">
               <TableHead>Name</TableHead>
               <TableHead>Parent</TableHead>
               <TableHead>Created At</TableHead>
@@ -143,7 +143,9 @@ export default function CategoriesComponent() {
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8">
                   <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                  <p className="mt-2 text-xs text-gray-500">Loading categories...</p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Loading categories...
+                  </p>
                 </TableCell>
               </TableRow>
             ) : categories.length === 0 ? (
@@ -154,9 +156,13 @@ export default function CategoriesComponent() {
               </TableRow>
             ) : (
               categories.slice(0, 5).map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium text-xs">{category.name}</TableCell>
-                  <TableCell className="text-xs">{category.parent?.name || "—"}</TableCell>
+                <TableRow key={category.id} className="h-10">
+                  <TableCell className="font-medium text-xs">
+                    {category.name}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {category.parent?.name || "—"}
+                  </TableCell>
                   <TableCell className="text-xs">
                     {new Date(category.created_at).toLocaleDateString()}
                   </TableCell>
@@ -206,7 +212,9 @@ export default function CategoriesComponent() {
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs font-medium">Category Name</Label>
+              <Label htmlFor="name" className="text-xs font-medium">
+                Category Name
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -218,7 +226,9 @@ export default function CategoriesComponent() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="parent" className="text-xs font-medium">Parent Category (Optional)</Label>
+              <Label htmlFor="parent" className="text-xs font-medium">
+                Parent Category (Optional)
+              </Label>
               <Select
                 value={formData?.parent_id}
                 onValueChange={(value) => {
@@ -233,11 +243,17 @@ export default function CategoriesComponent() {
                   <SelectValue placeholder="Select parent category" />
                 </SelectTrigger>
                 <SelectContent className="border-[#F2F1ED]">
-                  <SelectItem value="no_parent" className="text-xs">No Parent</SelectItem>
+                  <SelectItem value="no_parent" className="text-xs">
+                    No Parent
+                  </SelectItem>
                   {categoryOptions
                     ?.filter((cat) => cat.id !== editingCategory?.id)
                     ?.map((category) => (
-                      <SelectItem key={category.id} value={category.id} className="text-xs">
+                      <SelectItem
+                        key={category.id}
+                        value={category.id}
+                        className="text-xs"
+                      >
                         {category.name}
                       </SelectItem>
                     ))}

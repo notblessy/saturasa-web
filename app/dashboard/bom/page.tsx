@@ -106,10 +106,10 @@ export default function BOMPage() {
           </div>
         </div>
 
-        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
+              <TableRow className="hover:bg-transparent h-10">
                 <TableHead>{t.bom.name}</TableHead>
                 <TableHead>{t.bom.type}</TableHead>
                 <TableHead>Product</TableHead>
@@ -124,7 +124,9 @@ export default function BOMPage() {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                    <p className="mt-2 text-xs text-gray-500">Loading BOMs...</p>
+                    <p className="mt-2 text-xs text-gray-500">
+                      Loading BOMs...
+                    </p>
                   </TableCell>
                 </TableRow>
               ) : boms.length === 0 ? (
@@ -147,7 +149,9 @@ export default function BOMPage() {
 
                   return (
                     <TableRow key={bom.id}>
-                      <TableCell className="font-medium text-xs">{bom.name}</TableCell>
+                      <TableCell className="font-medium text-xs">
+                        {bom.name}
+                      </TableCell>
                       <TableCell className="text-xs">
                         <span
                           className={`px-2 py-0.5 rounded text-xs font-medium ${
