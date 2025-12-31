@@ -21,8 +21,9 @@ import {
 } from "@/components/ui/select";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Eye, Edit, Trash2, Search, Loader2 } from "lucide-react";
-import { usePurchaseOrders, Purchase } from "@/lib/hooks/purchase-orders";
-import { Badge } from "@/components/saturasui/badge";
+import { usePurchaseInvoices, Purchase } from "@/lib/hooks/purchase-invoices";
+import { ConfirmDialog } from "@/components/saturasui/confirm-dialog";
+import { Pagination } from "@/components/saturasui/pagination";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -33,39 +34,51 @@ const statusColors: Record<string, string> = {
   payment_partial: "bg-orange-100 text-orange-800",
 };
 
-export default function PurchaseOrdersPage() {
+export default function PurchaseInvoicesPage() {
   const router = useRouter();
   const {
-    data: purchaseOrdersData,
+    data: purchaseInvoicesData,
     loading,
     deleteLoading,
+    statusLoading,
     onQuery,
     onDelete,
-  } = usePurchaseOrders();
+    onUpdateStatus,
+  } = usePurchaseInvoices();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<{
+    id: string;
+    action?: string;
+  } | null>(null);
 
-  const purchaseOrders = purchaseOrdersData?.records || [];
-  const pageSummary = purchaseOrdersData?.page_summary;
+  const purchaseInvoices = purchaseInvoicesData?.records || [];
+  const pageSummary = purchaseInvoicesData?.page_summary;
 
   const handleAddPurchaseOrder = () => {
-    router.push("/dashboard/purchase-orders/new");
+    router.push("/dashboard/purchase-invoices/new");
   };
 
-  const handleViewPurchaseOrder = (id: string) => {
-    router.push(`/dashboard/purchase-orders/${id}`);
+  const handleViewPurchaseInvoice = (id: string) => {
+    router.push(`/dashboard/purchase-invoices/${id}`);
   };
 
-  const handleEditPurchaseOrder = (id: string) => {
-    router.push(`/dashboard/purchase-orders/${id}/edit`);
+  const handleEditPurchaseInvoice = (id: string) => {
+    router.push(`/dashboard/purchase-invoices/${id}/edit`);
   };
 
-  const handleDeletePurchaseOrder = async (id: string) => {
-    if (
-      window.confirm("Are you sure you want to delete this purchase invoice?")
-    ) {
-      await onDelete(id);
+  const handleDeletePurchaseInvoice = (id: string) => {
+    setSelectedPurchase({ id });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (selectedPurchase) {
+      await onDelete(selectedPurchase.id);
+      setSelectedPurchase(null);
     }
   };
 
@@ -75,8 +88,20 @@ export default function PurchaseOrdersPage() {
   };
 
   const handleStatusFilter = (value: string) => {
-    setStatusFilter(value);
-    onQuery({ status: value, page: 1 });
+    setStatusFilter(value === "all" ? "" : value);
+    onQuery({ status: value === "all" ? "" : value, page: 1 });
+  };
+
+  const handleStatusChange = (purchaseId: string, newStatus: string) => {
+    setSelectedPurchase({ id: purchaseId, action: newStatus });
+    setStatusDialogOpen(true);
+  };
+
+  const confirmStatusChange = async () => {
+    if (selectedPurchase?.id && selectedPurchase?.action) {
+      await onUpdateStatus(selectedPurchase.id, selectedPurchase.action);
+      setSelectedPurchase(null);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -175,7 +200,7 @@ export default function PurchaseOrdersPage() {
                     </p>
                   </TableCell>
                 </TableRow>
-              ) : purchaseOrders.length === 0 ? (
+              ) : purchaseInvoices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-xs text-gray-500">
@@ -184,30 +209,61 @@ export default function PurchaseOrdersPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                purchaseOrders.map((po: Purchase) => (
+                purchaseInvoices.map((po: Purchase) => (
                   <TableRow key={po.id}>
                     <TableCell className="font-medium text-xs">
                       {po.invoice_number}
                     </TableCell>
-                    <TableCell className="text-xs">{po.supplier?.name || "-"}</TableCell>
-                    <TableCell className="text-xs">{po.invoice_date ? formatDate(po.invoice_date) : "-"}</TableCell>
-                    <TableCell className="text-xs">{po.delivery_date ? formatDate(po.delivery_date) : "-"}</TableCell>
-                    <TableCell className="text-xs">{formatCurrency(po.grand_total)}</TableCell>
+                    <TableCell className="text-xs">
+                      {po.supplier?.name || "-"}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {po.invoice_date ? formatDate(po.invoice_date) : "-"}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {po.delivery_date ? formatDate(po.delivery_date) : "-"}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {formatCurrency(po.grand_total)}
+                    </TableCell>
                     <TableCell>
-                      <Badge
-                        className={
-                          statusColors[po.status] || "bg-gray-100 text-gray-800"
+                      <Select
+                        value={po.status}
+                        onValueChange={(value) =>
+                          handleStatusChange(po.id, value)
                         }
+                        disabled={statusLoading}
                       >
-                        {po.status.replace(/_/g, " ").toUpperCase()}
-                      </Badge>
+                        <SelectTrigger
+                          className={`w-[160px] h-7 text-xs ${
+                            statusColors[po.status] ||
+                            "bg-gray-100 text-gray-800"
+                          } border-0`}
+                        >
+                          <SelectValue>
+                            {po.status.replace(/_/g, " ").toUpperCase()}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="approved">Approved</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                          <SelectItem value="canceled">Canceled</SelectItem>
+                          <SelectItem value="waiting_for_payment">
+                            Waiting for Payment
+                          </SelectItem>
+                          <SelectItem value="payment_partial">
+                            Payment Partial
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1.5">
                         <Button
                           variant="outline"
                           size="default"
-                          onClick={() => handleViewPurchaseOrder(po.id)}
+                          onClick={() => handleViewPurchaseInvoice(po.id)}
                           disabled={loading}
                         >
                           <Eye className="h-3.5 w-3.5" />
@@ -217,7 +273,7 @@ export default function PurchaseOrdersPage() {
                             <Button
                               variant="outline"
                               size="default"
-                              onClick={() => handleEditPurchaseOrder(po.id)}
+                              onClick={() => handleEditPurchaseInvoice(po.id)}
                               disabled={loading}
                             >
                               <Edit className="h-3.5 w-3.5" />
@@ -225,7 +281,7 @@ export default function PurchaseOrdersPage() {
                             <Button
                               variant="outline"
                               size="default"
-                              onClick={() => handleDeletePurchaseOrder(po.id)}
+                              onClick={() => handleDeletePurchaseInvoice(po.id)}
                               className="text-red-600 hover:text-red-700"
                               disabled={deleteLoading}
                             >
@@ -250,30 +306,49 @@ export default function PurchaseOrdersPage() {
         {pageSummary && pageSummary.total > 0 && (
           <div className="flex justify-between items-center">
             <p className="text-xs text-gray-600">
-              Showing {purchaseOrders.length} of {pageSummary.total} purchase
+              Showing {purchaseInvoices.length} of {pageSummary.total} purchase
               invoices
             </p>
-            <div className="flex gap-1.5">
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: pageSummary.page - 1 })}
-                disabled={pageSummary.page <= 1}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: pageSummary.page + 1 })}
-                disabled={!pageSummary.hasNext}
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination
+              currentPage={pageSummary.page}
+              totalPages={Math.ceil(pageSummary.total / pageSummary.size)}
+              onPageChange={(page: number) => onQuery({ page })}
+            />
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Purchase Invoice"
+        description="Are you sure you want to delete this purchase invoice? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        variant="destructive"
+        loading={deleteLoading}
+      />
+
+      {/* Status Change Confirmation Dialog */}
+      <ConfirmDialog
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
+        title="Change Status"
+        description={
+          selectedPurchase?.action
+            ? `Are you sure you want to change the status to ${selectedPurchase.action
+                .replace(/_/g, " ")
+                .toUpperCase()}?`
+            : "Are you sure you want to change the status?"
+        }
+        confirmText="Change Status"
+        cancelText="Cancel"
+        onConfirm={confirmStatusChange}
+        variant="default"
+        loading={statusLoading}
+      />
     </div>
   );
 }

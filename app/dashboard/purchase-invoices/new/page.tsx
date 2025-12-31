@@ -18,10 +18,10 @@ import {
 import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import {
-  usePurchaseOrders,
+  usePurchaseInvoices,
   PurchaseRequest,
   PurchaseItemRequest,
-} from "@/lib/hooks/purchase-orders";
+} from "@/lib/hooks/purchase-invoices";
 import { useSupplierOptions } from "@/lib/hooks/suppliers";
 import { useProductOptions } from "@/lib/hooks/products";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
@@ -33,7 +33,12 @@ import {
 import { useAuth } from "@/lib/context/auth";
 import { RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/saturasui/card";
 import {
   Table,
   TableBody,
@@ -73,10 +78,10 @@ const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
-export default function NewPurchaseOrderPage() {
+export default function NewPurchaseInvoicePage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { loading, onAdd } = usePurchaseOrders();
+  const { loading, onAdd } = usePurchaseInvoices();
   const { data: suppliers, loading: suppliersLoading } = useSupplierOptions();
   const { data: products, loading: productsLoading } = useProductOptions();
   const { data: measurementUnits, loading: unitsLoading } =
@@ -125,10 +130,11 @@ export default function NewPurchaseOrderPage() {
     try {
       const selectedBranch = branches.find((b) => b.id === branchId);
       // Use first 3 characters of branch name as code, or default to "BR"
-      const branchCode = selectedBranch?.name
-        ?.substring(0, 3)
-        .toUpperCase()
-        .replace(/\s/g, "") || "BR";
+      const branchCode =
+        selectedBranch?.name
+          ?.substring(0, 3)
+          .toUpperCase()
+          .replace(/\s/g, "") || "BR";
       // Use "COMP" as default company code (can be enhanced later with actual company code)
       const companyCode = "COMP";
 
@@ -217,13 +223,12 @@ export default function NewPurchaseOrderPage() {
     };
 
     // Check if invoice number was generated from template
-    const wasGenerated = template && 
-      values.invoice_number && 
-      values.invoice_number !== "";
+    const wasGenerated =
+      template && values.invoice_number && values.invoice_number !== "";
 
     try {
       await onAdd(purchaseData);
-      
+
       // Increment document sequence after successful creation
       // Note: onAdd navigates away on success, so this will only run if creation succeeds
       if (wasGenerated && template) {
@@ -253,7 +258,7 @@ export default function NewPurchaseOrderPage() {
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchase Invoices", href: "/dashboard/purchase-orders" },
+          { label: "Purchase Invoices", href: "/dashboard/purchase-invoices" },
           { label: "New Purchase Invoice" },
         ]}
       />
@@ -271,7 +276,7 @@ export default function NewPurchaseOrderPage() {
         </div>
         <Button
           variant="outline"
-          onClick={() => router.push("/dashboard/purchase-orders")}
+          onClick={() => router.push("/dashboard/purchase-invoices")}
         >
           Back to List
         </Button>
@@ -280,9 +285,7 @@ export default function NewPurchaseOrderPage() {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>
-              Supplier & Invoice Details
-            </CardTitle>
+            <CardTitle>Supplier & Invoice Details</CardTitle>
             <p className="text-xs text-gray-600 mt-1">
               Enter the supplier information and invoice details for this
               purchase invoice.
@@ -425,19 +428,13 @@ export default function NewPurchaseOrderPage() {
           <CardHeader>
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle>
-                  Purchase Items
-                </CardTitle>
+                <CardTitle>Purchase Items</CardTitle>
                 <p className="text-xs text-gray-600 mt-1">
                   Add the products, ingredients, or items you're purchasing from
                   the supplier.
                 </p>
               </div>
-              <Button
-                type="button"
-                onClick={addItem}
-                variant="outline"
-              >
+              <Button type="button" onClick={addItem} variant="outline">
                 Add Item
               </Button>
             </div>
@@ -736,16 +733,12 @@ export default function NewPurchaseOrderPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/dashboard/purchase-orders")}
+            onClick={() => router.push("/dashboard/purchase-invoices")}
             disabled={loading}
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            disabled={loading}
-            className="min-w-[180px]"
-          >
+          <Button type="submit" disabled={loading} className="min-w-[180px]">
             {loading ? "Processing..." : "Create Purchase Invoice"}
           </Button>
         </div>

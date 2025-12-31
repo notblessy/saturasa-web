@@ -90,7 +90,7 @@ interface PurchasesResponse {
   };
 }
 
-export const usePurchaseOrders = () => {
+export const usePurchaseInvoices = () => {
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuth();
@@ -98,6 +98,7 @@ export const usePurchaseOrders = () => {
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
@@ -127,7 +128,7 @@ export const usePurchaseOrders = () => {
             message: "Purchase invoice created successfully",
             color: "orange",
           });
-          router.push("/dashboard/purchase-orders");
+          router.push("/dashboard/purchase-invoices");
         } else {
           toast({
             title: "Error",
@@ -148,24 +149,21 @@ export const usePurchaseOrders = () => {
     [pathKey, toast, router, user?.company_id]
   );
 
-  const onQuery = useCallback(
-    (props: Record<string, any>) => {
-      for (const [key, value] of Object.entries(props)) {
-        if (key === "page") {
-          setPage(value);
-        } else if (key === "size") {
-          setSize(value);
-        } else if (key === "sort") {
-          setSort(value);
-        } else if (key === "keyword") {
-          setKeyword(value);
-        } else if (key === "status") {
-          setStatus(value);
-        }
+  const onQuery = useCallback((props: Record<string, any>) => {
+    for (const [key, value] of Object.entries(props)) {
+      if (key === "page") {
+        setPage(value);
+      } else if (key === "size") {
+        setSize(value);
+      } else if (key === "sort") {
+        setSort(value);
+      } else if (key === "keyword") {
+        setKeyword(value);
+      } else if (key === "status") {
+        setStatus(value);
       }
-    },
-    []
-  );
+    }
+  }, []);
 
   const onEdit = useCallback(
     async (id: string, data: PurchaseRequest) => {
@@ -180,7 +178,7 @@ export const usePurchaseOrders = () => {
             message: "Purchase invoice updated successfully",
             color: "orange",
           });
-          router.push("/dashboard/purchase-orders");
+          router.push("/dashboard/purchase-invoices");
         } else {
           toast({
             title: "Error",
@@ -235,22 +233,63 @@ export const usePurchaseOrders = () => {
     [pathKey, toast, user?.company_id]
   );
 
+  const onUpdateStatus = useCallback(
+    async (id: string, status: string) => {
+      try {
+        setStatusLoading(true);
+
+        const { data: res } = await api.patch(`v1/purchases/${id}/status`, {
+          status,
+        });
+
+        if (res.success) {
+          mutate(pathKey);
+          toast({
+            title: "Success",
+            message: "Purchase invoice status updated successfully",
+            color: "orange",
+          });
+        } else {
+          toast({
+            title: "Error",
+            message: res.message || "Something went wrong",
+            color: "red",
+          });
+        }
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          message: error?.response?.data?.message || "Something went wrong",
+          color: "red",
+        });
+      } finally {
+        setStatusLoading(false);
+      }
+    },
+    [pathKey, toast, user?.company_id]
+  );
+
   return {
-    data: data?.data || { records: [], page_summary: { total: 0, page: 1, size: 10, hasNext: false } },
+    data: data?.data || {
+      records: [],
+      page_summary: { total: 0, page: 1, size: 10, hasNext: false },
+    },
     error,
     isValidating,
     loading,
     deleteLoading,
     editLoading,
+    statusLoading,
     onAdd,
     onQuery,
     onEdit,
     onDelete,
+    onUpdateStatus,
   };
 };
 
 // Hook for fetching a single purchase by ID
-export const usePurchaseOrder = (purchaseId: string | null) => {
+export const usePurchaseInvoice = (purchaseId: string | null) => {
   const {
     data,
     error,
@@ -272,4 +311,3 @@ export const usePurchaseOrder = (purchaseId: string | null) => {
     mutatePurchase,
   };
 };
-

@@ -71,7 +71,7 @@ const menuItems = [
   },
   {
     title: "Purchase Invoices",
-    url: "/dashboard/purchase-orders",
+    url: "/dashboard/purchase-invoices",
     icon: ReceiptText,
   },
   {
