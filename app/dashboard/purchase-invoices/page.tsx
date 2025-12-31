@@ -24,6 +24,7 @@ import { Plus, Eye, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { usePurchaseInvoices, Purchase } from "@/lib/hooks/purchase-invoices";
 import { ConfirmDialog } from "@/components/saturasui/confirm-dialog";
 import { Pagination } from "@/components/saturasui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -39,6 +40,7 @@ export default function PurchaseInvoicesPage() {
   const {
     data: purchaseInvoicesData,
     loading,
+    isValidating,
     deleteLoading,
     statusLoading,
     onQuery,
@@ -131,9 +133,14 @@ export default function PurchaseInvoicesPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">
-            Purchase Invoices
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold text-gray-900">
+              Purchase Invoices
+            </h1>
+            {isValidating && !loading && (
+              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+            )}
+          </div>
           <p className="text-xs text-gray-600 mt-1">
             Manage your purchase invoices
           </p>
@@ -141,7 +148,7 @@ export default function PurchaseInvoicesPage() {
         <Button
           onClick={handleAddPurchaseOrder}
           className="bg-primary hover:bg-primary/90"
-          disabled={loading}
+          disabled={loading || isValidating}
         >
           <Plus className="h-3.5 w-3.5 mr-1.5" />
           New Purchase Invoice
@@ -191,15 +198,38 @@ export default function PurchaseInvoicesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                    <p className="mt-2 text-xs text-gray-500">
-                      Loading purchase invoices...
-                    </p>
-                  </TableCell>
-                </TableRow>
+              {loading || isValidating ? (
+                <>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={`skeleton-${i}`}>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-28" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-7 w-32" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1.5">
+                          <Skeleton className="h-8 w-8" />
+                          <Skeleton className="h-8 w-8" />
+                          <Skeleton className="h-8 w-8" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
               ) : purchaseInvoices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
@@ -264,7 +294,7 @@ export default function PurchaseInvoicesPage() {
                           variant="outline"
                           size="default"
                           onClick={() => handleViewPurchaseInvoice(po.id)}
-                          disabled={loading}
+                          disabled={loading || isValidating}
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </Button>
@@ -274,7 +304,7 @@ export default function PurchaseInvoicesPage() {
                               variant="outline"
                               size="default"
                               onClick={() => handleEditPurchaseInvoice(po.id)}
-                              disabled={loading}
+                              disabled={loading || isValidating}
                             >
                               <Edit className="h-3.5 w-3.5" />
                             </Button>

@@ -16,9 +16,15 @@ import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Search, Loader2, Package } from "lucide-react";
 import { Button } from "@/components/saturasui/button";
 import { useInventories } from "@/lib/hooks/inventories";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function InventoriesPage() {
-  const { data: inventoriesData, loading, onQuery } = useInventories();
+  const {
+    data: inventoriesData,
+    loading,
+    isValidating,
+    onQuery,
+  } = useInventories();
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -47,7 +53,12 @@ export default function InventoriesPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">Inventories</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold text-gray-900">Inventories</h1>
+            {isValidating && !loading && (
+              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+            )}
+          </div>
           <p className="text-xs text-gray-600 mt-1">
             View and manage inventory levels across branches
           </p>
@@ -78,15 +89,25 @@ export default function InventoriesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                    <p className="mt-2 text-xs text-gray-500">
-                      Loading inventories...
-                    </p>
-                  </TableCell>
-                </TableRow>
+              {loading || isValidating ? (
+                <>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={`skeleton-${i}`}>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-4 w-20 ml-auto" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-28" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
               ) : inventories.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8">
@@ -113,8 +134,13 @@ export default function InventoriesPage() {
                     <TableCell className="text-right font-mono text-xs">
                       {Number(inventory.total_stock).toLocaleString("id-ID", {
                         minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
+                        maximumFractionDigits: 10,
                       })}
+                      {inventory.unit_symbol && (
+                        <span className="ml-1 text-gray-500">
+                          {inventory.unit_symbol}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="text-xs text-gray-500">
                       {formatDate(inventory.last_updated)}

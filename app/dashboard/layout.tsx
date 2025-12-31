@@ -31,8 +31,9 @@ export default function DashboardLayout({
   // Show loading during hydration to prevent mismatch
   if (!isHydrated || (!user && loading)) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-gray-200 border-t-primary mb-4"></div>
+        <p className="text-sm text-gray-500">Loading...</p>
       </div>
     );
   }
@@ -43,7 +44,9 @@ export default function DashboardLayout({
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <TopBar />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 min-h-0 bg-[#FDFDFC]">{children}</main>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 min-h-0 bg-[#FDFDFC]">
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>

@@ -10,6 +10,7 @@ interface Inventory {
   branch_name: string;
   total_stock: number;
   last_updated: string;
+  unit_symbol?: string;
 }
 
 interface WithPagingResponse<T> {
@@ -38,10 +39,22 @@ export const useInventories = () => {
   const [keyword, setKeyword] = useState("");
   const [branchId, setBranchId] = useState("");
 
-  const pathKey = `v1/inventories?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}${branchId ? `&branch_id=${branchId}` : ""}`;
+  const pathKey = user?.company_id
+    ? `v1/inventories?company_id=${
+        user.company_id
+      }&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}${
+        branchId ? `&branch_id=${branchId}` : ""
+      }`
+    : null;
   const { data, error, isValidating } = useSWR<
     ApiResponse<WithPagingResponse<Inventory>>
-  >(pathKey, fetcher, {});
+  >(
+    pathKey as string,
+    fetcher as (
+      url: string
+    ) => Promise<ApiResponse<WithPagingResponse<Inventory>>>,
+    {}
+  );
 
   const onQuery = useCallback(
     (props: Record<string, any>) => {
@@ -77,4 +90,3 @@ export const useInventories = () => {
     onQuery,
   };
 };
-

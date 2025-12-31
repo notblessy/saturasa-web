@@ -20,8 +20,14 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/saturasui/card";
 import { Plus, Trash2, Loader2, ArrowLeft } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { useProducts, useProduct, Product } from "@/lib/hooks/products";
 import { useCategoryOptions } from "@/lib/hooks/categories";
@@ -62,7 +68,7 @@ export default function EditProductPage() {
   const params = useParams();
   const productId = params.id as string;
 
-  const { loading, onEdit } = useProducts();
+  const { loading, editLoading, onEdit } = useProducts();
   const { data: categories, loading: categoriesLoading } = useCategoryOptions();
   const { data: measurementUnits, loading: measurementUnitsLoading } =
     useMeasurementUnitOptions();
@@ -101,38 +107,205 @@ export default function EditProductPage() {
   }, [product?.id]);
 
   const handleSubmit = async (values: FormValues) => {
-    const productData: Product = {
-      ...product!,
-      ...values,
-      specifications: values.specifications?.map((spec) => ({
-        ...spec,
-        notes: spec.notes ?? "",
-      })),
-    };
-    await onEdit(productData);
+    if (!product) return;
+
+    try {
+      const productData: Product = {
+        ...product,
+        ...values,
+        specifications: values.specifications?.map((spec) => ({
+          ...spec,
+          notes: spec.notes ?? "",
+        })),
+      };
+      await onEdit(productData);
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
   };
 
   if (productLoading || categoriesLoading || measurementUnitsLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading product...</span>
+      <div className="max-w-6xl mx-auto space-y-4">
+        <BreadcrumbNav
+          items={[
+            { label: t.common.inventories, href: "/dashboard" },
+            { label: t.products.title, href: "/dashboard/products" },
+            { label: "Edit Product" },
+          ]}
+        />
+
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+
+        {/* Basic Information Skeleton */}
+        <Card className="border-2 border-[#F2F1ED]">
+          <CardHeader className="pb-3">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-3 w-96 mt-2" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-8 w-full" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center space-x-3">
+                <Skeleton className="h-5 w-10" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="flex items-center space-x-3">
+                <Skeleton className="h-5 w-10" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Specifications Skeleton */}
+        <Card className="border-2 border-[#F2F1ED]">
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-3 w-96" />
+              </div>
+              <Skeleton className="h-9 w-40" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[...Array(2)].map((_, i) => (
+                <Card key={i} className="border-2 border-[#F2F1ED]">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-8 w-20" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-8 w-full" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-8 w-full" />
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-28" />
+                          <Skeleton className="h-8 w-full" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-8 w-full" />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <Skeleton className="h-4 w-20" />
+                        <div className="space-y-3">
+                          {[...Array(4)].map((_, j) => (
+                            <div
+                              key={j}
+                              className="flex items-center space-x-2"
+                            >
+                              <Skeleton className="h-5 w-10" />
+                              <Skeleton className="h-4 w-24" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Actions Skeleton */}
+        <div className="flex justify-end gap-1.5 pt-4 border-t border-[#F2F1ED]">
+          <Skeleton className="h-10 w-20" />
+          <Skeleton className="h-10 w-32" />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>Error loading product: {error.message}</p>
+      <div className="max-w-6xl mx-auto space-y-4">
+        <BreadcrumbNav
+          items={[
+            { label: t.common.inventories, href: "/dashboard" },
+            { label: t.products.title, href: "/dashboard/products" },
+            { label: "Edit Product" },
+          ]}
+        />
+        <Card className="border-2 border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <p className="text-sm font-medium text-red-800 mb-2">
+                Error loading product
+              </p>
+              <p className="text-xs text-red-600 mb-4">{error.message}</p>
+              <Button
+                variant="outline"
+                onClick={() => router.push("/dashboard/products")}
+              >
+                Back to Products
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!product && !productLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>Product not found</p>
+      <div className="max-w-6xl mx-auto space-y-4">
+        <BreadcrumbNav
+          items={[
+            { label: t.common.inventories, href: "/dashboard" },
+            { label: t.products.title, href: "/dashboard/products" },
+            { label: "Edit Product" },
+          ]}
+        />
+        <Card className="border-2 border-gray-200 bg-gray-50">
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <p className="text-sm font-medium text-gray-800 mb-4">
+                Product not found
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => router.push("/dashboard/products")}
+              >
+                Back to Products
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -166,7 +339,10 @@ export default function EditProductPage() {
             </Button>
           </div>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit(handleSubmit)(e);
+            }}
             className="space-y-4"
           >
             {/* Basic Information */}
@@ -176,15 +352,16 @@ export default function EditProductPage() {
                   Basic Information
                 </CardTitle>
                 <p className="text-xs text-gray-600 mt-1">
-                  Enter the basic details about the product including name, category
-                  and availability options.
+                  Enter the basic details about the product including name,
+                  category and availability options.
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="name" className="text-xs font-medium">Product Name *</Label>
+                    <Label htmlFor="name" className="text-xs font-medium">
+                      Product Name *
+                    </Label>
                     <Input
                       id="name"
                       {...form.register("name")}
@@ -198,7 +375,9 @@ export default function EditProductPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="category" className="text-xs font-medium">Category *</Label>
+                    <Label htmlFor="category" className="text-xs font-medium">
+                      Category *
+                    </Label>
                     <Select
                       value={form.watch("category_id")}
                       onValueChange={(value) => {
@@ -213,7 +392,11 @@ export default function EditProductPage() {
                       </SelectTrigger>
                       <SelectContent className="border-[#F2F1ED]">
                         {categories?.map((category) => (
-                          <SelectItem key={category.id} value={category.id} className="text-xs">
+                          <SelectItem
+                            key={category.id}
+                            value={category.id}
+                            className="text-xs"
+                          >
                             {category.name}
                           </SelectItem>
                         ))}
@@ -228,7 +411,9 @@ export default function EditProductPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="notes" className="text-xs font-medium">Notes</Label>
+                  <Label htmlFor="notes" className="text-xs font-medium">
+                    Notes
+                  </Label>
                   <Input
                     id="notes"
                     {...form.register("notes")}
@@ -245,7 +430,10 @@ export default function EditProductPage() {
                       }
                       className="data-[state=checked]:bg-[#14B8A6]"
                     />
-                    <Label htmlFor="purchasable" className="text-xs font-medium">
+                    <Label
+                      htmlFor="purchasable"
+                      className="text-xs font-medium"
+                    >
                       Available for Purchase
                     </Label>
                   </div>
@@ -274,8 +462,8 @@ export default function EditProductPage() {
                       Product Specifications
                     </CardTitle>
                     <p className="text-xs text-gray-600 mt-1">
-                      Define measurement units, pricing, and conversion factors for
-                      different product specifications.
+                      Define measurement units, pricing, and conversion factors
+                      for different product specifications.
                     </p>
                   </div>
                   <Button
@@ -306,8 +494,8 @@ export default function EditProductPage() {
                       No specifications added yet
                     </p>
                     <p className="text-xs text-gray-400">
-                      Click "Add Specification" above to add measurement units and
-                      pricing information
+                      Click "Add Specification" above to add measurement units
+                      and pricing information
                     </p>
                   </div>
                 </CardContent>
@@ -344,7 +532,8 @@ export default function EditProductPage() {
                       <div className="space-y-4">
                         <div className="space-y-1.5">
                           <Label className="text-xs font-medium">
-                            Measurement Unit <span className="text-red-500">*</span>
+                            Measurement Unit{" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={form.watch(
@@ -362,7 +551,11 @@ export default function EditProductPage() {
                             </SelectTrigger>
                             <SelectContent className="border-[#F2F1ED]">
                               {measurementUnits?.map((unit) => (
-                                <SelectItem key={unit.id} value={unit.id} className="text-xs">
+                                <SelectItem
+                                  key={unit.id}
+                                  value={unit.id}
+                                  className="text-xs"
+                                >
                                   {unit.name} ({unit.symbol})
                                 </SelectItem>
                               ))}
@@ -370,7 +563,9 @@ export default function EditProductPage() {
                           </Select>
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-xs font-medium">Base Price</Label>
+                          <Label className="text-xs font-medium">
+                            Base Price
+                          </Label>
                           <Input
                             type="number"
                             step="0.01"
@@ -406,7 +601,9 @@ export default function EditProductPage() {
                       </div>
 
                       <div className="space-y-3">
-                        <Label className="text-xs font-medium">Unit Types</Label>
+                        <Label className="text-xs font-medium">
+                          Unit Types
+                        </Label>
                         <div className="space-y-3">
                           {(
                             [
@@ -455,16 +652,16 @@ export default function EditProductPage() {
                 type="button"
                 variant="outline"
                 onClick={() => router.push("/dashboard/products")}
-                disabled={loading}
+                disabled={editLoading}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 className="bg-primary hover:bg-primary/90"
-                disabled={loading}
+                disabled={editLoading}
               >
-                {loading ? (
+                {editLoading ? (
                   <>
                     <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                     Updating...

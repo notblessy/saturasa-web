@@ -331,9 +331,15 @@ export default function ChartOfAccountsPage() {
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent className="border-[#F2F1ED]">
-                <SelectItem value="all" className="text-xs">All Categories</SelectItem>
+                <SelectItem value="all" className="text-xs">
+                  All Categories
+                </SelectItem>
                 {ACCOUNT_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value} className="text-xs">
+                  <SelectItem
+                    key={cat.value}
+                    value={cat.value}
+                    className="text-xs"
+                  >
                     {cat.label}
                   </SelectItem>
                 ))}
@@ -360,9 +366,9 @@ export default function ChartOfAccountsPage() {
           </div>
         </div>
 
-        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white shadow-sm">
           {/* Header */}
-          <div className="bg-gray-50 border-b border-[#F2F1ED] px-3 py-2">
+          <div className="bg-[#F8F8F6] border-b border-[#F2F1ED] px-3 py-2">
             <div className="flex items-center gap-4 text-xs font-semibold text-gray-700">
               <div className="w-5" />
               <div className="font-medium min-w-[100px]">Code</div>
@@ -376,7 +382,9 @@ export default function ChartOfAccountsPage() {
             {loading ? (
               <div className="text-center py-8">
                 <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                <p className="mt-2 text-xs text-gray-500">Loading accounts...</p>
+                <p className="mt-2 text-xs text-gray-500">
+                  Loading accounts...
+                </p>
               </div>
             ) : treeData.length === 0 ? (
               <div className="text-center py-8">
@@ -453,7 +461,11 @@ export default function ChartOfAccountsPage() {
                 </SelectTrigger>
                 <SelectContent className="border-[#F2F1ED]">
                   {ACCOUNT_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value} className="text-xs">
+                    <SelectItem
+                      key={cat.value}
+                      value={cat.value}
+                      className="text-xs"
+                    >
                       {cat.label}
                     </SelectItem>
                   ))}
@@ -475,11 +487,19 @@ export default function ChartOfAccountsPage() {
                   <SelectValue placeholder="Select parent account (optional)" />
                 </SelectTrigger>
                 <SelectContent className="border-[#F2F1ED]">
-                  <SelectItem value="" className="text-xs">None (Top Level)</SelectItem>
+                  <SelectItem value="" className="text-xs">
+                    None (Top Level)
+                  </SelectItem>
                   {accounts
-                    .filter((acc) => !editingAccount || acc.id !== editingAccount.id)
+                    .filter(
+                      (acc) => !editingAccount || acc.id !== editingAccount.id
+                    )
                     .map((account) => (
-                      <SelectItem key={account.id} value={account.id} className="text-xs">
+                      <SelectItem
+                        key={account.id}
+                        value={account.id}
+                        className="text-xs"
+                      >
                         {account.code} - {account.name}
                       </SelectItem>
                     ))}
@@ -491,7 +511,9 @@ export default function ChartOfAccountsPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="balance" className="text-xs font-medium">Balance</Label>
+              <Label htmlFor="balance" className="text-xs font-medium">
+                Balance
+              </Label>
               <Input
                 id="balance"
                 type="number"

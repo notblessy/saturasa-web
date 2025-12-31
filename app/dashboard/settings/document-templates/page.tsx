@@ -292,9 +292,15 @@ export default function DocumentTemplatesPage() {
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent className="border-[#F2F1ED]">
-                <SelectItem value="all" className="text-xs">All Types</SelectItem>
+                <SelectItem value="all" className="text-xs">
+                  All Types
+                </SelectItem>
                 {DOCUMENT_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value} className="text-xs">
+                  <SelectItem
+                    key={type.value}
+                    value={type.value}
+                    className="text-xs"
+                  >
                     {type.label}
                   </SelectItem>
                 ))}
@@ -303,10 +309,10 @@ export default function DocumentTemplatesPage() {
           </div>
         </div>
 
-        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
+              <TableRow className="hover:bg-transparent h-10">
                 <TableHead>Document Type</TableHead>
                 <TableHead>Format</TableHead>
                 <TableHead>Last Number</TableHead>
@@ -319,7 +325,9 @@ export default function DocumentTemplatesPage() {
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
                     <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                    <p className="mt-2 text-xs text-gray-500">Loading templates...</p>
+                    <p className="mt-2 text-xs text-gray-500">
+                      Loading templates...
+                    </p>
                   </TableCell>
                 </TableRow>
               ) : templates.length === 0 ? (
@@ -436,7 +444,11 @@ export default function DocumentTemplatesPage() {
                 </SelectTrigger>
                 <SelectContent className="border-[#F2F1ED]">
                   {DOCUMENT_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value} className="text-xs">
+                    <SelectItem
+                      key={type.value}
+                      value={type.value}
+                      className="text-xs"
+                    >
                       {type.label}
                     </SelectItem>
                   ))}
@@ -549,7 +561,11 @@ export default function DocumentTemplatesPage() {
                 </SelectTrigger>
                 <SelectContent className="border-[#F2F1ED]">
                   {RESET_POLICIES.map((policy) => (
-                    <SelectItem key={policy.value} value={policy.value} className="text-xs">
+                    <SelectItem
+                      key={policy.value}
+                      value={policy.value}
+                      className="text-xs"
+                    >
                       {policy.label}
                     </SelectItem>
                   ))}
@@ -561,7 +577,9 @@ export default function DocumentTemplatesPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="last_number" className="text-xs font-medium">Starting Number</Label>
+              <Label htmlFor="last_number" className="text-xs font-medium">
+                Starting Number
+              </Label>
               <Input
                 id="last_number"
                 type="number"
@@ -622,7 +640,9 @@ export default function DocumentTemplatesPage() {
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div className="space-y-1.5">
-              <Label htmlFor="company_code" className="text-xs font-medium">Company Code</Label>
+              <Label htmlFor="company_code" className="text-xs font-medium">
+                Company Code
+              </Label>
               <Input
                 id="company_code"
                 value={previewData.company_code}
@@ -637,7 +657,9 @@ export default function DocumentTemplatesPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="branch_code" className="text-xs font-medium">Branch Code</Label>
+              <Label htmlFor="branch_code" className="text-xs font-medium">
+                Branch Code
+              </Label>
               <Input
                 id="branch_code"
                 value={previewData.branch_code}
@@ -652,7 +674,9 @@ export default function DocumentTemplatesPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="issued_date" className="text-xs font-medium">Issued Date</Label>
+              <Label htmlFor="issued_date" className="text-xs font-medium">
+                Issued Date
+              </Label>
               <Input
                 id="issued_date"
                 type="date"

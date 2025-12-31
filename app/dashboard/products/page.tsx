@@ -17,6 +17,7 @@ import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { useProducts, Product } from "@/lib/hooks/products";
 import { useCategoryOptions } from "@/lib/hooks/categories";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductsPage() {
   const { t } = useTranslation();
@@ -24,6 +25,7 @@ export default function ProductsPage() {
   const {
     data: productsData,
     loading,
+    isValidating,
     deleteLoading,
     onQuery,
     onDelete,
@@ -70,15 +72,20 @@ export default function ProductsPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">
-            {t.products.title}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold text-gray-900">
+              {t.products.title}
+            </h1>
+            {isValidating && !loading && (
+              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+            )}
+          </div>
           <p className="text-xs text-gray-600 mt-1">{t.products.subtitle}</p>
         </div>
         <Button
           onClick={handleAddProduct}
           className="bg-primary hover:bg-primary/90"
-          disabled={loading}
+          disabled={loading || isValidating}
         >
           <Plus className="h-3.5 w-3.5 mr-1.5" />
           {t.products.addProduct}
@@ -111,15 +118,37 @@ export default function ProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                    <p className="mt-2 text-xs text-gray-500">
-                      {t.products.loadingProducts}
-                    </p>
-                  </TableCell>
-                </TableRow>
+              {loading || isValidating ? (
+                <>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={`skeleton-${i}`}>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-16" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-28" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1.5">
+                          <Skeleton className="h-5 w-20" />
+                          <Skeleton className="h-5 w-20" />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1.5">
+                          <Skeleton className="h-8 w-8" />
+                          <Skeleton className="h-8 w-8" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
               ) : products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
@@ -162,7 +191,7 @@ export default function ProductsPage() {
                           variant="outline"
                           size="default"
                           onClick={() => handleEditProduct(product)}
-                          disabled={loading}
+                          disabled={loading || isValidating}
                         >
                           <Edit className="h-3.5 w-3.5" />
                         </Button>

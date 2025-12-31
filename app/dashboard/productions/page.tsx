@@ -1,267 +1,460 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/saturasui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { BreadcrumbNav } from "@/components/breadcrumb-nav";
+import { Plus, Eye, Search, Loader2 } from "lucide-react";
+import { useProductions, Production } from "@/lib/hooks/productions";
+import { ConfirmDialog } from "@/components/saturasui/confirm-dialog";
+import { Pagination } from "@/components/saturasui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Label } from "@/components/saturasui/label";
+import { useBOMOptions } from "@/lib/hooks/productions";
+import { useBranchOptions } from "@/lib/hooks/branches";
+import { useAuth } from "@/lib/context/auth";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { BreadcrumbNav } from "@/components/breadcrumb-nav"
-import { Plus, Edit, Trash2, Search } from "lucide-react"
-import { useTranslation } from "@/lib/hooks/use-translation"
-
-interface Production {
-  id: string
-  bomName: string
-  quantity: number
-  status: "pending" | "in-progress" | "completed" | "cancelled"
-  createdDate: string
-}
-
-const mockProductions: Production[] = [
-  {
-    id: "1",
-    bomName: "Premium Coffee Blend Recipe",
-    quantity: 100,
-    status: "completed",
-    createdDate: "2024-01-15",
-  },
-  {
-    id: "2",
-    bomName: "Gift Box Assembly",
-    quantity: 50,
-    status: "in-progress",
-    createdDate: "2024-01-16",
-  },
-]
-
-const mockBOMs = ["Premium Coffee Blend Recipe", "Gift Box Assembly", "Chocolate Bar Recipe", "Tea Blend Assembly"]
+const statusColors: Record<string, string> = {
+  pending: "bg-yellow-100 text-yellow-800",
+  completed: "bg-green-100 text-green-800",
+  canceled: "bg-gray-100 text-gray-800",
+};
 
 export default function ProductionsPage() {
-  const { t } = useTranslation()
-  const [productions, setProductions] = useState<Production[]>(mockProductions)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [editingProduction, setEditingProduction] = useState<Production | null>(null)
-  const [formData, setFormData] = useState({
-    bomName: "",
-    quantity: "",
-    status: "" as "pending" | "in-progress" | "completed" | "cancelled" | "",
-  })
+  const router = useRouter();
+  const { user } = useAuth();
+  const {
+    data: productionsData,
+    loading,
+    isValidating,
+    statusLoading,
+    onQuery,
+    onAdd,
+    onUpdateStatus,
+  } = useProductions();
 
-  const filteredProductions = productions.filter((production) =>
-    production.bomName.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const { data: boms, loading: bomsLoading } = useBOMOptions();
+  const { data: branches, loading: branchesLoading } = useBranchOptions();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedProduction, setSelectedProduction] = useState<{
+    id: string;
+    action?: string;
+  } | null>(null);
+
+  const [formData, setFormData] = useState({
+    branch_id: "",
+    bom_id: "",
+    quantity: "",
+    notes: "",
+  });
+
+  const productions = productionsData?.records || [];
+  const pageSummary = productionsData?.page_summary;
 
   const handleAddProduction = () => {
-    setEditingProduction(null)
-    setFormData({ bomName: "", quantity: "", status: "" })
-    setIsSheetOpen(true)
-  }
-
-  const handleEditProduction = (production: Production) => {
-    setEditingProduction(production)
     setFormData({
-      bomName: production.bomName,
-      quantity: production.quantity.toString(),
-      status: production.status,
-    })
-    setIsSheetOpen(true)
-  }
+      branch_id: "",
+      bom_id: "",
+      quantity: "",
+      notes: "",
+    });
+    setIsSheetOpen(true);
+  };
 
-  const handleDeleteProduction = (id: string) => {
-    setProductions(productions.filter((p) => p.id !== id))
-  }
+  const handleViewProduction = (id: string) => {
+    router.push(`/dashboard/productions/${id}`);
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (editingProduction) {
-      setProductions(
-        productions.map((p) =>
-          p.id === editingProduction.id
-            ? {
-                ...p,
-                bomName: formData.bomName,
-                quantity: Number.parseInt(formData.quantity),
-                status: formData.status as "pending" | "in-progress" | "completed" | "cancelled",
-              }
-            : p,
-        ),
-      )
-    } else {
-      const newProduction: Production = {
-        id: Date.now().toString(),
-        bomName: formData.bomName,
-        quantity: Number.parseInt(formData.quantity),
-        status: formData.status as "pending" | "in-progress" | "completed" | "cancelled",
-        createdDate: new Date().toISOString().split("T")[0],
-      }
-      setProductions([...productions, newProduction])
+  const handleStatusChange = (productionId: string, newStatus: string) => {
+    setSelectedProduction({ id: productionId, action: newStatus });
+    setStatusDialogOpen(true);
+  };
+
+  const confirmStatusChange = async () => {
+    if (selectedProduction?.id && selectedProduction?.action) {
+      await onUpdateStatus(selectedProduction.id, selectedProduction.action);
+      setSelectedProduction(null);
+      setStatusDialogOpen(false);
     }
-    setIsSheetOpen(false)
-    setFormData({ bomName: "", quantity: "", status: "" })
-  }
+  };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800"
-      case "in-progress":
-        return "bg-blue-100 text-blue-800"
-      case "completed":
-        return "bg-green-100 text-green-800"
-      case "cancelled":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    onQuery({ keyword: value, page: 1 });
+  };
+
+  const handleStatusFilter = (value: string) => {
+    setStatusFilter(value === "all" ? "" : value);
+    onQuery({ status: value === "all" ? "" : value, page: 1 });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user?.company_id) return;
+
+    const result = await onAdd({
+      company_id: user.company_id,
+      branch_id: formData.branch_id,
+      bom_id: formData.bom_id,
+      quantity: parseFloat(formData.quantity),
+      notes: formData.notes,
+    });
+
+    if (result?.success) {
+      setIsSheetOpen(false);
+      setFormData({
+        branch_id: "",
+        bom_id: "",
+        quantity: "",
+        notes: "",
+      });
     }
-  }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <BreadcrumbNav items={[{ label: t.common.inventories, href: "/dashboard" }, { label: t.productions.title }]} />
+    <div className="max-w-6xl mx-auto space-y-4">
+      <BreadcrumbNav
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Productions" },
+        ]}
+      />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t.productions.title}</h1>
-          <p className="text-gray-600 mt-2">{t.productions.subtitle}</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold text-gray-900">Productions</h1>
+            {isValidating && !loading && (
+              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+            )}
+          </div>
+          <p className="text-xs text-gray-600 mt-1">
+            Manage your production orders
+          </p>
         </div>
         <Button
           onClick={handleAddProduction}
           className="bg-primary hover:bg-primary/90"
+          disabled={loading || isValidating}
         >
-          <Plus className="h-4 w-4 mr-2" />
-          {t.productions.addProduction}
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
+          New Production
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">{t.productions.productionList}</h2>
           <div className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
             <Input
-              placeholder={t.productions.searchPlaceholder}
+              placeholder="Search by BOM name..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-9"
             />
           </div>
+          <Select value={statusFilter} onValueChange={handleStatusFilter}>
+            <SelectTrigger className="w-[180px] h-8">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="canceled">Canceled</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white/80 backdrop-blur-sm shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>{t.productions.bomRecipe}</TableHead>
-                <TableHead>{t.productions.quantity}</TableHead>
-                <TableHead>{t.productions.status}</TableHead>
-                <TableHead>{t.productions.createdDate}</TableHead>
-                <TableHead className="text-right">{t.productions.actions}</TableHead>
+              <TableRow className="hover:bg-transparent h-10">
+                <TableHead>BOM Name</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Branch</TableHead>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Created Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProductions.map((production) => (
-                <TableRow key={production.id}>
-                  <TableCell className="font-medium">{production.bomName}</TableCell>
-                  <TableCell>{production.quantity}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(production.status)}`}>
-                      {production.status === 'pending' ? t.productions.pending : 
-                       production.status === 'in-progress' ? t.productions.inProgress :
-                       production.status === 'completed' ? t.productions.completed :
-                       production.status === 'cancelled' ? t.productions.cancelled : production.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>{production.createdDate}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditProduction(production)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteProduction(production.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {loading || isValidating ? (
+                <>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={`skeleton-${i}`}>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-28" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-16" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-7 w-32" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-8 w-8 ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
+              ) : productions.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <p className="text-xs text-gray-500">
+                      No productions found
+                    </p>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                productions.map((production: Production) => (
+                  <TableRow key={production.id}>
+                    <TableCell className="font-medium text-xs">
+                      {production.bom?.name || "-"}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {production.bom?.product?.name || "-"}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {production.branch?.name || "-"}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {production.quantity}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {formatDate(production.created_at)}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={production.status}
+                        onValueChange={(value) =>
+                          handleStatusChange(production.id, value)
+                        }
+                        disabled={
+                          statusLoading || production.status !== "pending"
+                        }
+                      >
+                        <SelectTrigger
+                          className={`w-[140px] h-7 text-xs ${
+                            statusColors[production.status] ||
+                            "bg-gray-100 text-gray-800"
+                          } border-0`}
+                        >
+                          <SelectValue>
+                            {production.status.toUpperCase()}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="canceled">Canceled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="default"
+                          onClick={() => handleViewProduction(production.id)}
+                          disabled={loading || isValidating}
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination */}
+        {pageSummary && pageSummary.total > 0 && (
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-gray-600">
+              Showing {productions.length} of {pageSummary.total} productions
+            </p>
+            <Pagination
+              currentPage={pageSummary.page}
+              totalPages={Math.ceil(pageSummary.total / pageSummary.size)}
+              onPageChange={(page: number) => onQuery({ page })}
+            />
+          </div>
+        )}
       </div>
 
+      {/* Create Production Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{editingProduction ? t.productions.editProduction : t.productions.addNewProduction}</SheetTitle>
+            <SheetTitle>New Production</SheetTitle>
             <SheetDescription>
-              {editingProduction ? t.productions.updateProductionInfo : t.productions.createNewProductionOrder}
+              Create a new production order from a BOM
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-            <div className="space-y-2">
-              <Label htmlFor="bomName">{t.productions.bomRecipe}</Label>
-              <Select value={formData.bomName} onValueChange={(value) => setFormData({ ...formData, bomName: value })}>
+            <div className="space-y-1.5">
+              <Label htmlFor="branch_id">Branch</Label>
+              <Select
+                value={formData.branch_id}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, branch_id: value })
+                }
+                required
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder={t.productions.selectBomRecipe} />
+                  <SelectValue placeholder="Select branch" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockBOMs.map((bom) => (
-                    <SelectItem key={bom} value={bom}>
-                      {bom}
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>
+                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="quantity">{t.productions.quantity}</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="bom_id">BOM</Label>
+              <Select
+                value={formData.bom_id}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, bom_id: value })
+                }
+                required
+                disabled={bomsLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={bomsLoading ? "Loading BOMs..." : "Select BOM"}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {bomsLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="ml-2 text-xs text-gray-500">
+                        Loading BOMs...
+                      </span>
+                    </div>
+                  ) : boms.length === 0 ? (
+                    <div className="py-4 text-center text-xs text-gray-500">
+                      No BOMs available
+                    </div>
+                  ) : (
+                    boms.map((bom: any) => (
+                      <SelectItem key={bom.id} value={bom.id}>
+                        {bom.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="quantity">Quantity</Label>
               <Input
                 id="quantity"
                 type="number"
+                step="0.01"
+                min="0.01"
                 value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                placeholder={t.productions.enterQuantity}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity: e.target.value })
+                }
+                placeholder="Enter quantity"
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">{t.productions.status}</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, status: value as "pending" | "in-progress" | "completed" | "cancelled" })
+            <div className="space-y-1.5">
+              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Input
+                id="notes"
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t.productions.selectStatus} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">{t.productions.pending}</SelectItem>
-                  <SelectItem value="in-progress">{t.productions.inProgress}</SelectItem>
-                  <SelectItem value="completed">{t.productions.completed}</SelectItem>
-                  <SelectItem value="cancelled">{t.productions.cancelled}</SelectItem>
-                </SelectContent>
-              </Select>
+                placeholder="Enter notes"
+              />
             </div>
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90"
+              disabled={loading}
             >
-              {editingProduction ? t.productions.updateProduction : t.productions.addProduction}
+              {loading ? "Creating..." : "Create Production"}
             </Button>
           </form>
         </SheetContent>
       </Sheet>
+
+      {/* Status Change Confirmation Dialog */}
+      <ConfirmDialog
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
+        title="Change Status"
+        description={
+          selectedProduction?.action
+            ? `Are you sure you want to change the status to ${selectedProduction.action.toUpperCase()}? ${
+                selectedProduction.action === "completed"
+                  ? "This will process all stock transactions."
+                  : ""
+              }`
+            : "Are you sure you want to change the status?"
+        }
+        confirmText="Change Status"
+        cancelText="Cancel"
+        onConfirm={confirmStatusChange}
+        variant="default"
+        loading={statusLoading}
+      />
     </div>
-  )
+  );
 }

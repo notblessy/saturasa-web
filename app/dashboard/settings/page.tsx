@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -10,248 +11,248 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import {
-  User,
-  Bell,
-  Shield,
-  Database,
-  DollarSign,
-  ArrowRight,
-  FileText,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useUserSettings } from "@/lib/hooks/user-settings";
+import { useAuth } from "@/lib/context/auth";
+import useSWR from "swr";
+import { fetcher } from "@/lib/utils/api";
+
+interface UserProfile {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  company_id?: string;
+}
 
 export default function SettingsPage() {
-  const router = useRouter();
+  const { user: authUser } = useAuth();
+  const {
+    updateProfile,
+    changePassword,
+    updateProfileLoading,
+    changePasswordLoading,
+  } = useUserSettings();
+
+  // Fetch full user profile
+  const { data: userData } = useSWR<ApiResponse<UserProfile>>(
+    authUser ? "/v1/users" : null,
+    fetcher
+  );
+
+  const user = userData?.data;
+
+  // Profile form state
+  const [profileForm, setProfileForm] = useState({
+    username: "",
+    name: "",
+    email: "",
+  });
+
+  // Password form state
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  // Initialize form with user data
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        username: user.username || "",
+        name: user.name || "",
+        email: user.email || "",
+      });
+    }
+  }, [user]);
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!profileForm.username || !profileForm.name || !profileForm.email) {
+      return;
+    }
+
+    await updateProfile({
+      username: profileForm.username,
+      name: profileForm.name,
+      email: profileForm.email,
+    });
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      return;
+    }
+
+    await changePassword({
+      current_password: passwordForm.currentPassword,
+      new_password: passwordForm.newPassword,
+    });
+
+    // Clear form on success
+    setPasswordForm({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <BreadcrumbNav items={[{ label: "Settings" }]} />
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-lg font-semibold text-gray-900">Settings</h1>
+        <p className="text-xs text-gray-600 mt-1">
           Manage your account and application preferences
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart of Accounts */}
-        <Card
-          className="border-0 shadow-lg bg-primary/5 backdrop-blur-sm hover:shadow-xl transition-shadow cursor-pointer"
-          onClick={() => router.push("/dashboard/settings/chart-of-accounts")}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-primary" />
-                Chart of Accounts
-              </span>
-              <ArrowRight className="h-5 w-5 text-primary" />
-            </CardTitle>
-            <CardDescription>
-              Manage your company's financial accounts
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              Configure and organize your chart of accounts for better financial
-              management and reporting.
-            </p>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push("/dashboard/settings/chart-of-accounts");
-              }}
-              className="w-full mt-4 bg-primary hover:bg-primary/90"
-            >
-              Manage Accounts
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Invoice Templates */}
-        <Card
-          className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-sm hover:shadow-xl transition-shadow cursor-pointer"
-          onClick={() => router.push("/dashboard/settings/invoice-templates")}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-blue-600" />
-                Invoice Templates
-              </span>
-              <ArrowRight className="h-5 w-5 text-blue-600" />
-            </CardTitle>
-            <CardDescription>
-              Configure document numbering templates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              Set up and manage invoice numbering templates for automated
-              document generation with custom formats.
-            </p>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push("/dashboard/settings/invoice-templates");
-              }}
-              className="w-full mt-4 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
-            >
-              Manage Templates
-            </Button>
-          </CardContent>
-        </Card>
-        {/* User Settings */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Account Profile */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              User Settings
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold">
+              Account Profile
             </CardTitle>
-            <CardDescription>
+            <p className="text-xs text-gray-600 mt-1">
               Update your personal information and preferences
-            </CardDescription>
+            </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" defaultValue="john.doe" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                defaultValue="john.doe@epicsales.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" defaultValue="John Doe" />
-            </div>
-            <Button className="w-full bg-primary hover:bg-primary/90">
-              Update Profile
-            </Button>
+            <form onSubmit={handleProfileSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={profileForm.username}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, username: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={profileForm.email}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, email: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={profileForm.name}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90"
+                disabled={updateProfileLoading}
+              >
+                {updateProfileLoading ? "Updating..." : "Update Profile"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
 
-        {/* Notification Settings */}
+        {/* Update Password */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-primary" />
-              Notifications
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold">
+              Update Password
             </CardTitle>
-            <CardDescription>
-              Configure your notification preferences
-            </CardDescription>
+            <p className="text-xs text-gray-600 mt-1">
+              Change your account password
+            </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Email Notifications</Label>
-                <p className="text-sm text-gray-600">
-                  Receive email notifications for important updates
-                </p>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="currentPassword">Current Password</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) =>
+                    setPasswordForm({
+                      ...passwordForm,
+                      currentPassword: e.target.value,
+                    })
+                  }
+                  required
+                />
               </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Production Alerts</Label>
-                <p className="text-sm text-gray-600">
-                  Get notified about production issues
-                </p>
+              <div className="space-y-1.5">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) =>
+                    setPasswordForm({
+                      ...passwordForm,
+                      newPassword: e.target.value,
+                    })
+                  }
+                  required
+                  minLength={8}
+                />
               </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Stock Warnings</Label>
-                <p className="text-sm text-gray-600">
-                  Receive alerts when stock is low
-                </p>
+              <div className="space-y-1.5">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordForm({
+                      ...passwordForm,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  required
+                  minLength={8}
+                />
+                {passwordForm.newPassword &&
+                  passwordForm.confirmPassword &&
+                  passwordForm.newPassword !== passwordForm.confirmPassword && (
+                    <p className="text-xs text-red-500">
+                      Passwords do not match
+                    </p>
+                  )}
               </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>System Updates</Label>
-                <p className="text-sm text-gray-600">
-                  Get notified about system updates
-                </p>
-              </div>
-              <Switch />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Security Settings */}
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              Security Settings
-            </CardTitle>
-            <CardDescription>
-              Manage your password and security preferences
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
-              <Input id="currentPassword" type="password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
-              <Input id="newPassword" type="password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input id="confirmPassword" type="password" />
-            </div>
-            <Button className="w-full bg-primary hover:bg-primary/90">
-              Change Password
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* System Settings */}
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-primary" />
-              System Settings
-            </CardTitle>
-            <CardDescription>Configure system-wide preferences</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name</Label>
-              <Input id="companyName" defaultValue="saturasa" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="timezone">Timezone</Label>
-              <Input id="timezone" defaultValue="UTC-5 (Eastern Time)" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="currency">Default Currency</Label>
-              <Input id="currency" defaultValue="USD" />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Maintenance Mode</Label>
-                <p className="text-sm text-gray-600">Enable maintenance mode</p>
-              </div>
-              <Switch />
-            </div>
-            <Button className="w-full bg-primary hover:bg-primary/90">
-              Save System Settings
-            </Button>
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90"
+                disabled={
+                  changePasswordLoading ||
+                  passwordForm.newPassword !== passwordForm.confirmPassword ||
+                  !passwordForm.currentPassword ||
+                  !passwordForm.newPassword
+                }
+              >
+                {changePasswordLoading ? "Changing..." : "Change Password"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>

@@ -51,7 +51,13 @@ export const useSuppliers = () => {
   const pathKey = `v1/suppliers?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}`;
   const { data, error, isValidating } = useSWR<
     ApiResponse<WithPagingResponse<Supplier>>
-  >(pathKey, fetcher, {});
+  >(
+    pathKey as string,
+    fetcher as (
+      url: string
+    ) => Promise<ApiResponse<WithPagingResponse<Supplier>>>,
+    {}
+  );
 
   const onAdd = useCallback(
     async (data: Partial<Supplier>) => {
@@ -204,7 +210,9 @@ export const useSupplierOptions = () => {
     user?.company_id
       ? `v1/suppliers?company_id=${user.company_id}&size=1000`
       : null,
-    fetcher
+    fetcher as (
+      url: string
+    ) => Promise<ApiResponse<WithPagingResponse<Supplier>>>
   );
 
   return {

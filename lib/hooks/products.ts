@@ -161,7 +161,7 @@ export const useProducts = () => {
         setEditLoading(false);
       }
     },
-    [pathKey, toast]
+    [pathKey, toast, router, user?.company_id]
   );
 
   const onDelete = useCallback(
