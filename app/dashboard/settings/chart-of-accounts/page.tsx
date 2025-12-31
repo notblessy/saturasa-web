@@ -1,16 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/saturasui/button";
 import { Input } from "@/components/saturasui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/saturasui/table";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import {
   Plus,
@@ -18,8 +10,8 @@ import {
   Trash2,
   Search,
   Loader2,
-  DollarSign,
-  Calculator,
+  ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import {
   Sheet,
@@ -67,6 +59,7 @@ export default function ChartOfAccountsPage() {
   const [editingAccount, setEditingAccount] = useState<ChartOfAccount | null>(
     null
   );
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     code: "",
     name: "",
@@ -76,6 +69,83 @@ export default function ChartOfAccountsPage() {
   });
 
   const accounts = accountsData?.records || [];
+
+  // Build tree structure from flat list
+  interface TreeNode extends ChartOfAccount {
+    children: TreeNode[];
+  }
+
+  const buildTree = (accounts: ChartOfAccount[]): TreeNode[] => {
+    const accountMap = new Map<string, TreeNode>();
+    const roots: TreeNode[] = [];
+
+    // First pass: create all nodes
+    accounts.forEach((account) => {
+      accountMap.set(account.id, { ...account, children: [] });
+    });
+
+    // Second pass: build tree structure
+    accounts.forEach((account) => {
+      const node = accountMap.get(account.id)!;
+      if (account.parent_id) {
+        const parent = accountMap.get(account.parent_id);
+        if (parent) {
+          parent.children.push(node);
+        } else {
+          // Parent not found, treat as root
+          roots.push(node);
+        }
+      } else {
+        roots.push(node);
+      }
+    });
+
+    // Sort by code
+    const sortTree = (nodes: TreeNode[]): TreeNode[] => {
+      return nodes
+        .sort((a, b) => a.code.localeCompare(b.code))
+        .map((node) => ({
+          ...node,
+          children: sortTree(node.children),
+        }));
+    };
+
+    return sortTree(roots);
+  };
+
+  const treeData = useMemo(() => {
+    return buildTree(accounts);
+  }, [accounts]);
+
+  const toggleNode = (nodeId: string) => {
+    setExpandedNodes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(nodeId)) {
+        newSet.delete(nodeId);
+      } else {
+        newSet.add(nodeId);
+      }
+      return newSet;
+    });
+  };
+
+  const expandAll = () => {
+    const allNodeIds = new Set<string>();
+    const collectIds = (nodes: TreeNode[]) => {
+      nodes.forEach((node) => {
+        if (node.children.length > 0) {
+          allNodeIds.add(node.id);
+          collectIds(node.children);
+        }
+      });
+    };
+    collectIds(treeData);
+    setExpandedNodes(allNodeIds);
+  };
+
+  const collapseAll = () => {
+    setExpandedNodes(new Set());
+  };
 
   const handleAddAccount = () => {
     setEditingAccount(null);
@@ -128,21 +198,89 @@ export default function ChartOfAccountsPage() {
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
-    onQuery({ keyword: value, page: 1 });
+    onQuery({ keyword: value });
   };
 
   const handleCategoryFilter = (value: string) => {
     setCategoryFilter(value);
     // Don't send "all" to the API, send empty string instead
-    onQuery({ category: value === "all" ? "" : value, page: 1 });
+    onQuery({ category: value === "all" ? "" : value });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "decimal",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+  // Recursive component to render tree nodes
+  const TreeNode = ({
+    node,
+    level = 0,
+  }: {
+    node: TreeNode;
+    level?: number;
+  }) => {
+    const hasChildren = node.children.length > 0;
+    const isExpanded = expandedNodes.has(node.id);
+    const indent = level * 20;
+
+    return (
+      <div className="w-full">
+        <div
+          className="flex items-center gap-2 py-2 px-3 hover:bg-gray-50 border-b border-[#F2F1ED] transition-colors"
+          style={{ paddingLeft: `${12 + indent}px` }}
+        >
+          {hasChildren ? (
+            <button
+              onClick={() => toggleNode(node.id)}
+              className="flex items-center justify-center w-5 h-5 rounded hover:bg-gray-200 transition-colors"
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-3.5 w-3.5 text-gray-600" />
+              ) : (
+                <ChevronRight className="h-3.5 w-3.5 text-gray-600" />
+              )}
+            </button>
+          ) : (
+            <div className="w-5" />
+          )}
+          <div className="flex-1 flex items-center gap-4 min-w-0">
+            <div className="font-medium text-xs text-gray-900 min-w-[100px]">
+              {node.code}
+            </div>
+            <div className="flex-1 text-xs text-gray-700 min-w-0 truncate">
+              {node.name}
+            </div>
+            <div className="flex items-center gap-1.5 min-w-[80px] justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleEditAccount(node)}
+                disabled={loading}
+                className="h-7 w-7 p-0"
+              >
+                <Edit className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDeleteAccount(node.id)}
+                className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+        {hasChildren && isExpanded && (
+          <div>
+            {node.children.map((child) => (
+              <TreeNode key={child.id} node={child} level={level + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -202,83 +340,54 @@ export default function ChartOfAccountsPage() {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={expandAll}
+              className="text-xs"
+            >
+              Expand All
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={collapseAll}
+              className="text-xs"
+            >
+              Collapse All
+            </Button>
+          </div>
         </div>
 
         <div className="border border-[#F2F1ED] rounded-lg overflow-hidden bg-white shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Code</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead className="text-right">Balance</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                    <p className="mt-2 text-xs text-gray-500">Loading accounts...</p>
-                  </TableCell>
-                </TableRow>
-              ) : accounts.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    <p className="text-xs text-gray-500">No accounts found</p>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                accounts.map((account) => (
-                  <TableRow key={account.id}>
-                    <TableCell className="font-medium text-xs">
-                      {account.code}
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {account.parent_id && (
-                        <span className="text-gray-400 mr-2">└─</span>
-                      )}
-                      {account.name}
-                    </TableCell>
-                    <TableCell>
-                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded">
-                        {account.category}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-xs">
-                      {formatCurrency(account.balance)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1.5">
-                        <Button
-                          variant="outline"
-                          size="default"
-                          onClick={() => handleEditAccount(account)}
-                          disabled={loading}
-                        >
-                          <Edit className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="default"
-                          onClick={() => handleDeleteAccount(account.id)}
-                          className="text-red-600 hover:text-red-700"
-                          disabled={deleteLoading}
-                        >
-                          {deleteLoading ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
-                          )}
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          {/* Header */}
+          <div className="bg-gray-50 border-b border-[#F2F1ED] px-3 py-2">
+            <div className="flex items-center gap-4 text-xs font-semibold text-gray-700">
+              <div className="w-5" />
+              <div className="font-medium min-w-[100px]">Code</div>
+              <div className="flex-1">Name</div>
+              <div className="min-w-[80px] text-right">Actions</div>
+            </div>
+          </div>
+
+          {/* Tree List */}
+          <div className="divide-y divide-[#F2F1ED]">
+            {loading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                <p className="mt-2 text-xs text-gray-500">Loading accounts...</p>
+              </div>
+            ) : treeData.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-xs text-gray-500">No accounts found</p>
+              </div>
+            ) : (
+              treeData.map((node) => (
+                <TreeNode key={node.id} node={node} level={0} />
+              ))
+            )}
+          </div>
         </div>
       </div>
 
@@ -350,6 +459,35 @@ export default function ChartOfAccountsPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="parent_id" className="text-xs font-medium">
+                Parent Account
+              </Label>
+              <Select
+                value={formData.parent_id || ""}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parent_id: value || null })
+                }
+              >
+                <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
+                  <SelectValue placeholder="Select parent account (optional)" />
+                </SelectTrigger>
+                <SelectContent className="border-[#F2F1ED]">
+                  <SelectItem value="" className="text-xs">None (Top Level)</SelectItem>
+                  {accounts
+                    .filter((acc) => !editingAccount || acc.id !== editingAccount.id)
+                    .map((account) => (
+                      <SelectItem key={account.id} value={account.id} className="text-xs">
+                        {account.code} - {account.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                Select a parent account to create a child account
+              </p>
             </div>
 
             <div className="space-y-1.5">

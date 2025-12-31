@@ -76,14 +76,13 @@ const menuItems = [
   },
   {
     title: "Inventories",
+    url: "/dashboard/inventories",
     icon: Package,
-    items: [
-      {
-        title: "Productions",
-        url: "/dashboard/productions",
-        icon: Factory,
-      },
-    ],
+  },
+  {
+    title: "Productions",
+    url: "/dashboard/productions",
+    icon: Factory,
   },
   {
     title: "Suppliers",

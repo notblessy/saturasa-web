@@ -18,11 +18,21 @@ interface Supplier {
   deleted_at?: string | null;
 }
 
-interface SuppliersResponse {
-  records: Supplier[];
-  total: number;
-  page: number;
-  size: number;
+interface WithPagingResponse<T> {
+  records: T[];
+  page_summary: {
+    total: number;
+    page: number;
+    size: number;
+    hasNext: boolean;
+  };
+}
+
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+  success: boolean;
 }
 
 export const useSuppliers = () => {
@@ -39,7 +49,9 @@ export const useSuppliers = () => {
   const [keyword, setKeyword] = useState("");
 
   const pathKey = `v1/suppliers?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}`;
-  const { data, error, isValidating } = useSWR<SuppliersResponse>(pathKey);
+  const { data, error, isValidating } = useSWR<
+    ApiResponse<WithPagingResponse<Supplier>>
+  >(pathKey, fetcher, {});
 
   const onAdd = useCallback(
     async (data: Partial<Supplier>) => {
@@ -164,7 +176,14 @@ export const useSuppliers = () => {
   );
 
   return {
-    data,
+    data: data?.data
+      ? {
+          records: data.data.records,
+          total: data.data.page_summary.total,
+          page: data.data.page_summary.page,
+          size: data.data.page_summary.size,
+        }
+      : undefined,
     error,
     isValidating,
     loading,
@@ -179,7 +198,9 @@ export const useSuppliers = () => {
 
 export const useSupplierOptions = () => {
   const { user } = useAuth();
-  const { data, error, isValidating } = useSWR<ApiResponse<SuppliersResponse>>(
+  const { data, error, isValidating } = useSWR<
+    ApiResponse<WithPagingResponse<Supplier>>
+  >(
     user?.company_id
       ? `v1/suppliers?company_id=${user.company_id}&size=1000`
       : null,

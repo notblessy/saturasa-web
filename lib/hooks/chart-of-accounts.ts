@@ -28,13 +28,12 @@ export const useChartOfAccounts = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
 
-  const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
   const [sort, setSort] = useState("code");
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
 
-  const pathKey = `v1/chart-of-accounts?company_id=${user?.company_id}&page=${page}&size=${size}&sort=${sort}&keyword=${keyword}&category=${category}`;
+  // Fetch all accounts without pagination
+  const pathKey = `v1/chart-of-accounts?company_id=${user?.company_id}&sort=${sort}&keyword=${keyword}&category=${category}`;
   const { data, error, isValidating } = useSWR<
     ApiResponse<WithPagingResponse<ChartOfAccount>>
   >(pathKey, fetcher, {});
@@ -79,11 +78,7 @@ export const useChartOfAccounts = () => {
   const onQuery = useCallback(
     (props: Record<string, any>) => {
       for (const [key, value] of Object.entries(props)) {
-        if (key === "page") {
-          setPage(value);
-        } else if (key === "size") {
-          setSize(value);
-        } else if (key === "sort") {
+        if (key === "sort") {
           setSort(value);
         } else if (key === "keyword") {
           setKeyword(value);
@@ -92,7 +87,7 @@ export const useChartOfAccounts = () => {
         }
       }
     },
-    [setPage, setSize, setSort, setKeyword, setCategory]
+    [setSort, setKeyword, setCategory]
   );
 
   const onEdit = useCallback(
