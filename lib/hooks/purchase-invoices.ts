@@ -290,6 +290,9 @@ export const usePurchaseInvoices = () => {
 
 // Hook for fetching a single purchase by ID
 export const usePurchaseInvoice = (purchaseId: string | null) => {
+  const toast = useToast();
+  const [statusLoading, setStatusLoading] = useState(false);
+
   const {
     data,
     error,
@@ -304,10 +307,47 @@ export const usePurchaseInvoice = (purchaseId: string | null) => {
     }
   );
 
+  const onUpdateStatus = useCallback(
+    async (status: string) => {
+      if (!purchaseId) return;
+      try {
+        setStatusLoading(true);
+        const { data: res } = await api.patch(`v1/purchases/${purchaseId}/status`, {
+          status,
+        });
+        if (res.success) {
+          mutatePurchase();
+          toast({
+            title: "Success",
+            message: "Purchase invoice status updated successfully",
+            color: "orange",
+          });
+        } else {
+          toast({
+            title: "Error",
+            message: res.message || "Something went wrong",
+            color: "red",
+          });
+        }
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          message: error?.response?.data?.message || "Something went wrong",
+          color: "red",
+        });
+      } finally {
+        setStatusLoading(false);
+      }
+    },
+    [purchaseId, mutatePurchase, toast]
+  );
+
   return {
     purchase: data?.data || null,
     isLoading: isValidating && !error && !data,
     error,
+    statusLoading,
+    onUpdateStatus,
     mutatePurchase,
   };
 };

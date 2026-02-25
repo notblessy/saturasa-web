@@ -167,12 +167,40 @@ export const useMeasurementUnits = () => {
 };
 
 export const useMeasurementUnitOptions = () => {
+  const { user } = useAuth();
+  const toast = useToast();
+  const pathKey = `v1/measurement-units/options`;
   const { data, error, isValidating } = useSWR<ApiResponse<MeasurementUnit[]>>(
-    `v1/measurement-units/options`
+    pathKey
+  );
+
+  const onQuickCreate = useCallback(
+    async (name: string, symbol: string): Promise<boolean> => {
+      try {
+        const { data: res } = await api.post("v1/measurement-units", {
+          name,
+          symbol,
+          company_id: user?.company_id,
+        });
+        if (res.success) {
+          mutate(pathKey);
+          toast({ title: "Success", message: "Measurement unit created", color: "orange" });
+          return true;
+        } else {
+          toast({ title: "Error", message: res.message, color: "red" });
+          return false;
+        }
+      } catch {
+        toast({ title: "Error", message: "Failed to create measurement unit", color: "red" });
+        return false;
+      }
+    },
+    [pathKey, toast, user?.company_id]
   );
 
   return {
     data: data?.data ? data?.data : [],
     loading: (!error && !data) || isValidating,
+    onQuickCreate,
   };
 };

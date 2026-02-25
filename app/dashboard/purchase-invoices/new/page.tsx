@@ -23,6 +23,7 @@ import {
   PurchaseItemRequest,
 } from "@/lib/hooks/purchase-invoices";
 import { useSupplierOptions } from "@/lib/hooks/suppliers";
+import { QuickCreateDialog } from "@/components/quick-create-dialog";
 import { useProductOptions } from "@/lib/hooks/products";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
 import { useBranchOptions } from "@/lib/hooks/branches";
@@ -31,7 +32,7 @@ import {
   useDocumentTemplates,
 } from "@/lib/hooks/invoice-templates";
 import { useAuth } from "@/lib/context/auth";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   Card,
@@ -82,7 +83,8 @@ export default function NewPurchaseInvoicePage() {
   const router = useRouter();
   const { user } = useAuth();
   const { loading, onAdd } = usePurchaseInvoices();
-  const { data: suppliers, loading: suppliersLoading } = useSupplierOptions();
+  const { data: suppliers, loading: suppliersLoading, onQuickCreate: onQuickCreateSupplier } = useSupplierOptions();
+  const [showCreateSupplier, setShowCreateSupplier] = useState(false);
   const { data: products, loading: productsLoading } = useProductOptions();
   const { data: measurementUnits, loading: unitsLoading } =
     useMeasurementUnitOptions();
@@ -362,28 +364,39 @@ export default function NewPurchaseInvoicePage() {
                 <Label htmlFor="supplier_id" className="text-xs font-medium">
                   Supplier <span className="text-red-500">*</span>
                 </Label>
-                <Controller
-                  name="supplier_id"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-8">
-                        <SelectValue placeholder="Choose supplier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {suppliers.map((supplier) => (
-                          <SelectItem
-                            key={supplier.id}
-                            value={supplier.id}
-                            className="text-sm"
-                          >
-                            {supplier.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                <div className="flex gap-1.5">
+                  <Controller
+                    name="supplier_id"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="Choose supplier" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {suppliers.map((supplier) => (
+                            <SelectItem
+                              key={supplier.id}
+                              value={supplier.id}
+                              className="text-sm"
+                            >
+                              {supplier.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-8 px-2 shrink-0"
+                    onClick={() => setShowCreateSupplier(true)}
+                    title="Create new supplier"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
                 {form.formState.errors.supplier_id && (
                   <p className="text-xs text-red-500">
                     {form.formState.errors.supplier_id.message}
@@ -743,6 +756,21 @@ export default function NewPurchaseInvoicePage() {
           </Button>
         </div>
       </form>
+
+      <QuickCreateDialog
+        open={showCreateSupplier}
+        onOpenChange={setShowCreateSupplier}
+        title="Create New Supplier"
+        description="Quickly add a new supplier. You can edit the full details later."
+        fields={[
+          { name: "name", label: "Supplier Name", placeholder: "e.g. PT Sumber Makmur", required: true },
+          { name: "contact_name", label: "Contact Person", placeholder: "e.g. John Doe", required: false },
+          { name: "contact_number", label: "Contact Number", placeholder: "e.g. 08123456789", required: false },
+        ]}
+        onSubmit={async (values) => {
+          return onQuickCreateSupplier(values.name, values.contact_name || "", values.contact_number || "");
+        }}
+      />
     </div>
   );
 }

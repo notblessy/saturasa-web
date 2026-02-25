@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/saturasui/table";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, CreditCard } from "lucide-react";
 import { usePurchaseInvoice } from "@/lib/hooks/purchase-invoices";
 import { Badge } from "@/components/saturasui/badge";
 import {
@@ -28,13 +28,14 @@ const statusColors: Record<string, string> = {
   canceled: "bg-gray-100 text-gray-800",
   waiting_for_payment: "bg-blue-100 text-blue-800",
   payment_partial: "bg-orange-100 text-orange-800",
+  paid: "bg-emerald-100 text-emerald-800",
 };
 
 export default function PurchaseInvoiceDetailPage() {
   const params = useParams();
   const router = useRouter();
   const purchaseInvoiceId = params.id as string;
-  const { purchase, isLoading } = usePurchaseInvoice(purchaseInvoiceId);
+  const { purchase, isLoading, statusLoading, onUpdateStatus } = usePurchaseInvoice(purchaseInvoiceId);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -139,6 +140,27 @@ export default function PurchaseInvoiceDetailPage() {
           >
             {purchase.status.replace(/_/g, " ").toUpperCase()}
           </Badge>
+          {purchase.status === "pending" && (
+            <Button
+              variant="outline"
+              onClick={() => onUpdateStatus("approved")}
+              disabled={statusLoading}
+              className="text-green-700 border-green-300 hover:bg-green-50"
+            >
+              <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+              {statusLoading ? "Processing..." : "Approve"}
+            </Button>
+          )}
+          {(purchase.status === "approved" || purchase.status === "waiting_for_payment" || purchase.status === "payment_partial") && (
+            <Button
+              onClick={() => onUpdateStatus("paid")}
+              disabled={statusLoading}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+              {statusLoading ? "Processing..." : "Mark as Paid"}
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/purchase-invoices")}

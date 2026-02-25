@@ -19,16 +19,21 @@ import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
 import { Plus, Trash2, Loader2 } from "lucide-react";
+import { NumericFormat } from "react-number-format";
 import { useProducts, ProductSpecification } from "@/lib/hooks/products";
 import { useCategoryOptions } from "@/lib/hooks/categories";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
+import { QuickCreateDialog } from "@/components/quick-create-dialog";
 
 export default function NewProductPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const { loading, onAdd } = useProducts();
-  const { data: categories } = useCategoryOptions();
-  const { data: measurementUnits } = useMeasurementUnitOptions();
+  const { data: categories, onQuickCreate: onQuickCreateCategory } = useCategoryOptions();
+  const { data: measurementUnits, onQuickCreate: onQuickCreateUnit } = useMeasurementUnitOptions();
+
+  const [showCreateCategory, setShowCreateCategory] = useState(false);
+  const [showCreateUnit, setShowCreateUnit] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -161,28 +166,39 @@ export default function NewProductPage() {
                 <Label htmlFor="category" className="text-xs font-medium">
                   Category <span className="text-red-500">*</span>
                 </Label>
-                <Select
-                  value={formData.category_id}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, category_id: value })
-                  }
-                  required
-                >
-                  <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent className="border-[#F2F1ED]">
-                    {categories?.map((category) => (
-                      <SelectItem
-                        key={category.id}
-                        value={category.id}
-                        className="text-xs"
-                      >
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-1.5">
+                  <Select
+                    value={formData.category_id}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, category_id: value })
+                    }
+                    required
+                  >
+                    <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="border-[#F2F1ED]">
+                      {categories?.map((category) => (
+                        <SelectItem
+                          key={category.id}
+                          value={category.id}
+                          className="text-xs"
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-8 px-2 shrink-0"
+                    onClick={() => setShowCreateCategory(true)}
+                    title="Create new category"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -292,39 +308,52 @@ export default function NewProductPage() {
                     <Label className="text-xs font-medium">
                       Measurement Unit <span className="text-red-500">*</span>
                     </Label>
-                    <Select
-                      value={spec.measurement_unit_id}
-                      onValueChange={(value) =>
-                        updateSpecification(index, "measurement_unit_id", value)
-                      }
-                      required
-                    >
-                      <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                        <SelectValue placeholder="Select unit" />
-                      </SelectTrigger>
-                      <SelectContent className="border-[#F2F1ED]">
-                        {measurementUnits.map((unit) => (
-                          <SelectItem
-                            key={unit.id}
-                            value={unit.id}
-                            className="text-xs"
-                          >
-                            {unit.name} ({unit.symbol})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-1.5">
+                      <Select
+                        value={spec.measurement_unit_id}
+                        onValueChange={(value) =>
+                          updateSpecification(index, "measurement_unit_id", value)
+                        }
+                        required
+                      >
+                        <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
+                          <SelectValue placeholder="Select unit" />
+                        </SelectTrigger>
+                        <SelectContent className="border-[#F2F1ED]">
+                          {measurementUnits.map((unit) => (
+                            <SelectItem
+                              key={unit.id}
+                              value={unit.id}
+                              className="text-xs"
+                            >
+                              {unit.name} ({unit.symbol})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-8 px-2 shrink-0"
+                        onClick={() => setShowCreateUnit(true)}
+                        title="Create new unit"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium">Base Price</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
+                    <NumericFormat
                       value={spec.base_price}
-                      onChange={(e) =>
-                        updateSpecification(index, "base_price", e.target.value)
+                      onValueChange={(values) =>
+                        updateSpecification(index, "base_price", values.value)
                       }
+                      thousandSeparator=","
+                      decimalScale={2}
+                      allowNegative={false}
                       placeholder="0.00"
+                      className="flex h-8 w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -334,18 +363,16 @@ export default function NewProductPage() {
                     <Label className="text-xs font-medium">
                       Conversion Factor
                     </Label>
-                    <Input
-                      type="number"
-                      step="0.0001"
+                    <NumericFormat
                       value={spec.conversion_factor}
-                      onChange={(e) =>
-                        updateSpecification(
-                          index,
-                          "conversion_factor",
-                          e.target.value
-                        )
+                      onValueChange={(values) =>
+                        updateSpecification(index, "conversion_factor", values.value)
                       }
+                      thousandSeparator=","
+                      decimalScale={4}
+                      allowNegative={false}
                       placeholder="1.0"
+                      className="flex h-8 w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -475,6 +502,29 @@ export default function NewProductPage() {
           </Button>
         </div>
       </form>
+
+      <QuickCreateDialog
+        open={showCreateCategory}
+        onOpenChange={setShowCreateCategory}
+        title="Create Category"
+        description="Add a new product category"
+        fields={[
+          { name: "name", label: "Category Name", placeholder: "Enter category name", required: true },
+        ]}
+        onSubmit={async (data) => onQuickCreateCategory(data.name)}
+      />
+
+      <QuickCreateDialog
+        open={showCreateUnit}
+        onOpenChange={setShowCreateUnit}
+        title="Create Measurement Unit"
+        description="Add a new measurement unit"
+        fields={[
+          { name: "name", label: "Unit Name", placeholder: "e.g. Kilogram", required: true },
+          { name: "symbol", label: "Symbol", placeholder: "e.g. kg", required: true },
+        ]}
+        onSubmit={async (data) => onQuickCreateUnit(data.name, data.symbol)}
+      />
     </div>
   );
 }

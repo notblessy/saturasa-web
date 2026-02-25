@@ -204,19 +204,47 @@ export const useSuppliers = () => {
 
 export const useSupplierOptions = () => {
   const { user } = useAuth();
+  const toast = useToast();
+  const pathKey = user?.company_id
+    ? `v1/suppliers?company_id=${user.company_id}&size=1000`
+    : null;
   const { data, error, isValidating } = useSWR<
     ApiResponse<WithPagingResponse<Supplier>>
   >(
-    user?.company_id
-      ? `v1/suppliers?company_id=${user.company_id}&size=1000`
-      : null,
+    pathKey,
     fetcher as (
       url: string
     ) => Promise<ApiResponse<WithPagingResponse<Supplier>>>
   );
 
+  const onQuickCreate = useCallback(
+    async (name: string, contactName: string, contactNumber: string): Promise<boolean> => {
+      try {
+        const { data: res } = await api.post("v1/suppliers", {
+          name,
+          contact_name: contactName,
+          contact_number: contactNumber,
+          company_id: user?.company_id,
+        });
+        if (res.success) {
+          mutate(pathKey);
+          toast({ title: "Success", message: "Supplier created", color: "orange" });
+          return true;
+        } else {
+          toast({ title: "Error", message: res.message, color: "red" });
+          return false;
+        }
+      } catch {
+        toast({ title: "Error", message: "Failed to create supplier", color: "red" });
+        return false;
+      }
+    },
+    [pathKey, toast, user?.company_id]
+  );
+
   return {
     data: data?.data?.records || [],
     loading: (!error && !data) || isValidating,
+    onQuickCreate,
   };
 };

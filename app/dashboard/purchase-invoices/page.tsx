@@ -33,6 +33,7 @@ const statusColors: Record<string, string> = {
   canceled: "bg-gray-100 text-gray-800",
   waiting_for_payment: "bg-blue-100 text-blue-800",
   payment_partial: "bg-orange-100 text-orange-800",
+  paid: "bg-emerald-100 text-emerald-800",
 };
 
 export default function PurchaseInvoicesPage() {
@@ -180,6 +181,7 @@ export default function PurchaseInvoicesPage() {
                 Waiting for Payment
               </SelectItem>
               <SelectItem value="payment_partial">Payment Partial</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -285,6 +287,7 @@ export default function PurchaseInvoicesPage() {
                           <SelectItem value="payment_partial">
                             Payment Partial
                           </SelectItem>
+                          <SelectItem value="paid">Paid</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>

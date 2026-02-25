@@ -170,12 +170,39 @@ export const useCategories = () => {
 };
 
 export const useCategoryOptions = () => {
+  const { user } = useAuth();
+  const toast = useToast();
+  const pathKey = `v1/categories/options`;
   const { data, error, isValidating } = useSWR<ApiResponse<Category[]>>(
-    `v1/categories/options`
+    pathKey
+  );
+
+  const onQuickCreate = useCallback(
+    async (name: string): Promise<boolean> => {
+      try {
+        const { data: res } = await api.post("v1/categories", {
+          name,
+          company_id: user?.company_id,
+        });
+        if (res.success) {
+          mutate(pathKey);
+          toast({ title: "Success", message: "Category created", color: "orange" });
+          return true;
+        } else {
+          toast({ title: "Error", message: res.message, color: "red" });
+          return false;
+        }
+      } catch {
+        toast({ title: "Error", message: "Failed to create category", color: "red" });
+        return false;
+      }
+    },
+    [pathKey, toast, user?.company_id]
   );
 
   return {
     data: data?.data ? data?.data : null,
     loading: (!error && !data) || isValidating,
+    onQuickCreate,
   };
 };
