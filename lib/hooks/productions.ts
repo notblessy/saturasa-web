@@ -133,7 +133,17 @@ export const useProductions = () => {
             message: "Production created successfully",
             color: "orange",
           });
-          return { success: true };
+          // Show stock warnings if any
+          if (res.warnings && res.warnings.length > 0) {
+            for (const warning of res.warnings) {
+              toast({
+                title: "Stock Warning",
+                message: `Insufficient stock: ${warning}`,
+                color: "red",
+              });
+            }
+          }
+          return { success: true, warnings: res.warnings };
         } else {
           toast({
             title: "Error",

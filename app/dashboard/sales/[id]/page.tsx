@@ -11,8 +11,8 @@ import {
   TableRow,
 } from "@/components/saturasui/table";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import { ArrowLeft, Loader2, CheckCircle, CreditCard } from "lucide-react";
-import { usePurchaseInvoice } from "@/lib/hooks/purchase-invoices";
+import { ArrowLeft, Loader2, CheckCircle, XCircle } from "lucide-react";
+import { useSale } from "@/lib/hooks/sales";
 import { Badge } from "@/components/saturasui/badge";
 import {
   Card,
@@ -23,19 +23,15 @@ import {
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
-  approved: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
+  completed: "bg-green-100 text-green-800",
   canceled: "bg-gray-100 text-gray-800",
-  waiting_for_payment: "bg-blue-100 text-blue-800",
-  payment_partial: "bg-orange-100 text-orange-800",
-  paid: "bg-emerald-100 text-emerald-800",
 };
 
-export default function PurchaseInvoiceDetailPage() {
+export default function SaleDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const purchaseInvoiceId = params.id as string;
-  const { purchase, isLoading, statusLoading, onUpdateStatus } = usePurchaseInvoice(purchaseInvoiceId);
+  const saleId = params.id as string;
+  const { sale, isLoading, statusLoading, onUpdateStatus } = useSale(saleId);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -53,16 +49,6 @@ export default function PurchaseInvoiceDetailPage() {
     });
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString("id-ID", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto space-y-4">
@@ -73,28 +59,25 @@ export default function PurchaseInvoiceDetailPage() {
     );
   }
 
-  if (!purchase) {
+  if (!sale) {
     return (
       <div className="max-w-6xl mx-auto space-y-4">
         <BreadcrumbNav
           items={[
             { label: "Dashboard", href: "/dashboard" },
-            {
-              label: "Purchases",
-              href: "/dashboard/purchase-invoices",
-            },
+            { label: "Sales", href: "/dashboard/sales" },
             { label: "Detail" },
           ]}
         />
         <div className="text-center py-12">
-          <p className="text-xs text-gray-500">Purchase not found</p>
+          <p className="text-xs text-gray-500">Sale not found</p>
           <Button
             variant="outline"
-            onClick={() => router.push("/dashboard/purchase-invoices")}
+            onClick={() => router.push("/dashboard/sales")}
             className="mt-4"
           >
             <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
-            Back to Purchases
+            Back to Sales
           </Button>
         </div>
       </div>
@@ -106,28 +89,26 @@ export default function PurchaseInvoiceDetailPage() {
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchases", href: "/dashboard/purchase-invoices" },
+          { label: "Sales", href: "/dashboard/sales" },
           { label: "Detail" },
         ]}
       />
 
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">
-            Purchase Detail
-          </h1>
+          <h1 className="text-lg font-semibold text-gray-900">Sales Detail</h1>
           <div className="flex items-center gap-3 mt-1">
             <p className="text-gray-600 text-xs">
-              Invoice:{" "}
+              Customer:{" "}
               <span className="font-semibold text-gray-900">
-                {purchase.invoice_number}
+                {sale.customer?.name || "-"}
               </span>
             </p>
-            <span className="text-gray-300">•</span>
+            <span className="text-gray-300">|</span>
             <p className="text-gray-600 text-xs">
               Created:{" "}
               <span className="font-medium">
-                {formatDate(purchase.created_at)}
+                {formatDate(sale.created_at)}
               </span>
             </p>
           </div>
@@ -135,35 +116,36 @@ export default function PurchaseInvoiceDetailPage() {
         <div className="flex items-center gap-1.5">
           <Badge
             className={
-              statusColors[purchase.status] || "bg-gray-100 text-gray-800"
+              statusColors[sale.status] || "bg-gray-100 text-gray-800"
             }
           >
-            {purchase.status.replace(/_/g, " ").toUpperCase()}
+            {sale.status.replace(/_/g, " ").toUpperCase()}
           </Badge>
-          {purchase.status === "pending" && (
-            <Button
-              variant="outline"
-              onClick={() => onUpdateStatus("approved")}
-              disabled={statusLoading}
-              className="text-green-700 border-green-300 hover:bg-green-50"
-            >
-              <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-              {statusLoading ? "Processing..." : "Approve"}
-            </Button>
-          )}
-          {(purchase.status === "approved" || purchase.status === "waiting_for_payment" || purchase.status === "payment_partial") && (
-            <Button
-              onClick={() => onUpdateStatus("paid")}
-              disabled={statusLoading}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              <CreditCard className="h-3.5 w-3.5 mr-1.5" />
-              {statusLoading ? "Processing..." : "Mark as Paid"}
-            </Button>
+          {sale.status === "pending" && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => onUpdateStatus("completed")}
+                disabled={statusLoading}
+                className="text-green-700 border-green-300 hover:bg-green-50"
+              >
+                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                {statusLoading ? "Processing..." : "Complete"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => onUpdateStatus("canceled")}
+                disabled={statusLoading}
+                className="text-gray-700 border-gray-300 hover:bg-gray-50"
+              >
+                <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                {statusLoading ? "Processing..." : "Cancel"}
+              </Button>
+            </>
           )}
           <Button
             variant="outline"
-            onClick={() => router.push("/dashboard/purchase-invoices")}
+            onClick={() => router.push("/dashboard/sales")}
           >
             <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
             Back
@@ -174,7 +156,7 @@ export default function PurchaseInvoiceDetailPage() {
       <Card>
         <CardHeader className="bg-[#E8E8E3] border-b border-[#D4D4CF] p-3">
           <CardTitle className="text-xs font-semibold">
-            Purchase Information
+            Sales Information
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -183,10 +165,26 @@ export default function PurchaseInvoiceDetailPage() {
               <TableBody>
                 <TableRow className="border-b border-[#F2F1ED]">
                   <TableCell className="w-1/3 font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
-                    Invoice Number
+                    Customer
                   </TableCell>
                   <TableCell className="font-semibold text-gray-900 text-xs py-2 px-3">
-                    {purchase.invoice_number}
+                    {sale.customer?.name || "-"}
+                  </TableCell>
+                </TableRow>
+                <TableRow className="border-b border-[#F2F1ED]">
+                  <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
+                    Branch
+                  </TableCell>
+                  <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
+                    {sale.branch?.name || "-"}
+                  </TableCell>
+                </TableRow>
+                <TableRow className="border-b border-[#F2F1ED]">
+                  <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
+                    Sales Date
+                  </TableCell>
+                  <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
+                    {sale.sales_date ? formatDate(sale.sales_date) : "-"}
                   </TableCell>
                 </TableRow>
                 <TableRow className="border-b border-[#F2F1ED]">
@@ -196,48 +194,20 @@ export default function PurchaseInvoiceDetailPage() {
                   <TableCell className="text-xs py-2 px-3">
                     <Badge
                       className={`${
-                        statusColors[purchase.status] ||
+                        statusColors[sale.status] ||
                         "bg-gray-100 text-gray-800"
                       } text-xs`}
                     >
-                      {purchase.status.replace(/_/g, " ").toUpperCase()}
+                      {sale.status.replace(/_/g, " ").toUpperCase()}
                     </Badge>
-                  </TableCell>
-                </TableRow>
-                <TableRow className="border-b border-[#F2F1ED]">
-                  <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
-                    Supplier
-                  </TableCell>
-                  <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
-                    {purchase.supplier?.name || "-"}
-                  </TableCell>
-                </TableRow>
-                <TableRow className="border-b border-[#F2F1ED]">
-                  <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
-                    Branch
-                  </TableCell>
-                  <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
-                    {purchase.branch?.name || "-"}
-                  </TableCell>
-                </TableRow>
-                <TableRow className="border-b border-[#F2F1ED]">
-                  <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
-                    Invoice Date
-                  </TableCell>
-                  <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
-                    {purchase.invoice_date
-                      ? formatDate(purchase.invoice_date)
-                      : "-"}
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
-                    Delivery Date
+                    Notes
                   </TableCell>
                   <TableCell className="font-medium text-gray-900 text-xs py-2 px-3">
-                    {purchase.delivery_date
-                      ? formatDate(purchase.delivery_date)
-                      : "-"}
+                    {sale.notes || "-"}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -250,10 +220,10 @@ export default function PurchaseInvoiceDetailPage() {
         <CardHeader className="bg-[#E8E8E3] border-b border-[#D4D4CF] p-3">
           <div className="flex justify-between items-center">
             <CardTitle className="text-xs font-semibold">
-              Purchase Items
+              Sales Items
             </CardTitle>
             <span className="text-xs text-gray-500 font-medium">
-              {purchase.purchase_items?.length || 0} item(s)
+              {sale.sales_items?.length || 0} item(s)
             </span>
           </div>
         </CardHeader>
@@ -264,9 +234,6 @@ export default function PurchaseInvoiceDetailPage() {
                 <TableRow className="hover:bg-transparent h-10">
                   <TableHead className="font-semibold text-xs py-2 px-3">
                     Product
-                  </TableHead>
-                  <TableHead className="font-semibold text-xs py-2 px-3">
-                    Description
                   </TableHead>
                   <TableHead className="font-semibold text-xs text-center py-2 px-3">
                     Quantity
@@ -289,9 +256,8 @@ export default function PurchaseInvoiceDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {purchase.purchase_items &&
-                purchase.purchase_items.length > 0 ? (
-                  purchase.purchase_items.map((item, index) => (
+                {sale.sales_items && sale.sales_items.length > 0 ? (
+                  sale.sales_items.map((item, index) => (
                     <TableRow
                       key={item.id || index}
                       className="hover:bg-[#F7F7F4] transition-colors border-b border-[#F2F1ED]"
@@ -308,9 +274,6 @@ export default function PurchaseInvoiceDetailPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-gray-500 text-xs py-2 px-3">
-                        -
-                      </TableCell>
                       <TableCell className="font-semibold text-gray-900 text-center text-xs py-2 px-3">
                         {item.quantity}
                       </TableCell>
@@ -325,10 +288,10 @@ export default function PurchaseInvoiceDetailPage() {
                         {formatCurrency(item.price)}
                       </TableCell>
                       <TableCell className="text-gray-500 text-xs text-right py-2 px-3">
-                        -
+                        {item.discount > 0 ? `${item.discount}%` : "-"}
                       </TableCell>
                       <TableCell className="text-gray-500 text-xs text-right py-2 px-3">
-                        -
+                        {item.tax > 0 ? formatCurrency(item.tax) : "-"}
                       </TableCell>
                       <TableCell className="text-right font-bold text-gray-900 text-xs py-2 px-3">
                         {formatCurrency(item.sub_total)}
@@ -337,28 +300,27 @@ export default function PurchaseInvoiceDetailPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       <p className="text-gray-500 text-xs">No items found</p>
                     </TableCell>
                   </TableRow>
                 )}
               </TableBody>
-              {purchase.purchase_items &&
-                purchase.purchase_items.length > 0 && (
-                  <tfoot>
-                    <TableRow className="bg-[#F7F7F4] border-t-2 border-[#F2F1ED] h-10">
-                      <TableCell
-                        colSpan={7}
-                        className="text-right font-bold text-gray-900  text-xs"
-                      >
-                        Grand Total:
-                      </TableCell>
-                      <TableCell className="text-right font-bold text-xs text-gray-900">
-                        {formatCurrency(purchase.grand_total)}
-                      </TableCell>
-                    </TableRow>
-                  </tfoot>
-                )}
+              {sale.sales_items && sale.sales_items.length > 0 && (
+                <tfoot>
+                  <TableRow className="bg-[#F7F7F4] border-t-2 border-[#F2F1ED] h-10">
+                    <TableCell
+                      colSpan={6}
+                      className="text-right font-bold text-gray-900 text-xs"
+                    >
+                      Grand Total:
+                    </TableCell>
+                    <TableCell className="text-right font-bold text-xs text-gray-900">
+                      {formatCurrency(sale.grand_total)}
+                    </TableCell>
+                  </TableRow>
+                </tfoot>
+              )}
             </Table>
           </div>
         </CardContent>

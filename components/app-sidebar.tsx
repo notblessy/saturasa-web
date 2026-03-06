@@ -38,6 +38,14 @@ import {
   FileText,
   ShoppingCart,
   ReceiptText,
+  UserCog,
+  BarChart3,
+  TrendingUp,
+  ArrowLeftRight,
+  CreditCard,
+  Activity,
+  UsersRound,
+  Shield,
 } from "lucide-react";
 import { useSidebar } from "@/components/saturasui/sidebar";
 import { cn } from "@/lib/utils";
@@ -70,14 +78,24 @@ const menuItems = [
     ],
   },
   {
-    title: "Purchase Invoices",
+    title: "Purchases",
     url: "/dashboard/purchase-invoices",
     icon: ReceiptText,
+  },
+  {
+    title: "Sales",
+    url: "/dashboard/sales",
+    icon: DollarSign,
   },
   {
     title: "Inventories",
     url: "/dashboard/inventories",
     icon: Package,
+  },
+  {
+    title: "Transfers",
+    url: "/dashboard/transfers",
+    icon: ArrowLeftRight,
   },
   {
     title: "Productions",
@@ -90,6 +108,37 @@ const menuItems = [
     icon: Users,
   },
   {
+    title: "Customers",
+    url: "/dashboard/customers",
+    icon: ShoppingCart,
+  },
+  {
+    title: "Reports",
+    icon: BarChart3,
+    items: [
+      {
+        title: "Inventory Valuation",
+        url: "/dashboard/reports/inventory-valuation",
+        icon: TrendingUp,
+      },
+      {
+        title: "Stock Movements",
+        url: "/dashboard/reports/stock-movements",
+        icon: ArrowLeftRight,
+      },
+      {
+        title: "Purchase Summary",
+        url: "/dashboard/reports/purchase-summary",
+        icon: CreditCard,
+      },
+      {
+        title: "Production Summary",
+        url: "/dashboard/reports/production-summary",
+        icon: Activity,
+      },
+    ],
+  },
+  {
     title: "Settings",
     icon: Settings,
     items: [
@@ -97,6 +146,21 @@ const menuItems = [
         title: "General",
         url: "/dashboard/settings",
         icon: Settings2,
+      },
+      {
+        title: "Users",
+        url: "/dashboard/settings/users",
+        icon: UsersRound,
+      },
+      {
+        title: "Roles",
+        url: "/dashboard/settings/roles",
+        icon: Shield,
+      },
+      {
+        title: "Staff & Positions",
+        url: "/dashboard/settings/staff",
+        icon: UserCog,
       },
       {
         title: "Chart of Accounts",

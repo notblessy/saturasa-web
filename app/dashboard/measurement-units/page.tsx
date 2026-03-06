@@ -1,188 +1,302 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { Label } from "@/components/ui/label"
-import { BreadcrumbNav } from "@/components/breadcrumb-nav"
-import { Plus, Edit, Trash2, Search } from "lucide-react"
-import { useTranslation } from "@/lib/hooks/use-translation"
-
-interface MeasurementUnit {
-  id: string
-  name: string
-  label: string
-}
-
-const mockUnits: MeasurementUnit[] = [
-  { id: "1", name: "kilogram", label: "kg" },
-  { id: "2", name: "gram", label: "g" },
-  { id: "3", name: "liter", label: "L" },
-  { id: "4", name: "milliliter", label: "mL" },
-  { id: "5", name: "piece", label: "pcs" },
-]
+import { useState } from "react";
+import { Button } from "@/components/saturasui/button";
+import { Input } from "@/components/saturasui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/saturasui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Label } from "@/components/saturasui/label";
+import { BreadcrumbNav } from "@/components/breadcrumb-nav";
+import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
+import { useTranslation } from "@/lib/hooks/use-translation";
+import {
+  MeasurementUnit,
+  useMeasurementUnits,
+} from "@/lib/hooks/measurement_units";
 
 export default function MeasurementUnitsPage() {
-  const { t } = useTranslation()
-  const [units, setUnits] = useState<MeasurementUnit[]>(mockUnits)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [editingUnit, setEditingUnit] = useState<MeasurementUnit | null>(null)
-  const [formData, setFormData] = useState({ name: "", label: "" })
+  const { t } = useTranslation();
+  const {
+    data: unitsData,
+    loading,
+    deleteLoading,
+    editLoading,
+    onAdd,
+    onQuery,
+    onEdit,
+    onDelete,
+  } = useMeasurementUnits();
 
-  const filteredUnits = units.filter(
-    (unit) =>
-      unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      unit.label.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<MeasurementUnit | null>(null);
+  const [formData, setFormData] = useState({ name: "", symbol: "" });
+
+  const units = unitsData?.records || [];
+  // The API returns page_summary but the global type declares page_meta
+  const pageSummary = (unitsData as any)?.page_summary as
+    | { total: number; page: number; size: number; hasNext: boolean }
+    | undefined;
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    onQuery({ keyword: value, page: 1 });
+  };
 
   const handleAddUnit = () => {
-    setEditingUnit(null)
-    setFormData({ name: "", label: "" })
-    setIsSheetOpen(true)
-  }
+    setEditingUnit(null);
+    setFormData({ name: "", symbol: "" });
+    setIsSheetOpen(true);
+  };
 
   const handleEditUnit = (unit: MeasurementUnit) => {
-    setEditingUnit(unit)
-    setFormData({ name: unit.name, label: unit.label })
-    setIsSheetOpen(true)
-  }
+    setEditingUnit(unit);
+    setFormData({ name: unit.name, symbol: unit.symbol });
+    setIsSheetOpen(true);
+  };
 
-  const handleDeleteUnit = (id: string) => {
-    setUnits(units.filter((u) => u.id !== id))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (editingUnit) {
-      setUnits(units.map((u) => (u.id === editingUnit.id ? { ...u, ...formData } : u)))
-    } else {
-      const newUnit: MeasurementUnit = {
-        id: Date.now().toString(),
-        ...formData,
-      }
-      setUnits([...units, newUnit])
+  const handleDeleteUnit = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this measurement unit?")) {
+      await onDelete(id);
     }
-    setIsSheetOpen(false)
-    setFormData({ name: "", label: "" })
-  }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingUnit) {
+      await onEdit({
+        ...editingUnit,
+        name: formData.name,
+        symbol: formData.symbol,
+      });
+    } else {
+      await onAdd({ name: formData.name, symbol: formData.symbol });
+    }
+    setIsSheetOpen(false);
+    setFormData({ name: "", symbol: "" });
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       <BreadcrumbNav
         items={[
           { label: t.common.inventories, href: "/dashboard" },
-          { label: "Product Settings", href: "/dashboard" },
+          { label: t.productSettings.title, href: "/dashboard/product-settings" },
           { label: t.measurementUnits.title },
         ]}
       />
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t.measurementUnits.title}</h1>
-          <p className="text-gray-600 mt-2">{t.measurementUnits.subtitle}</p>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {t.measurementUnits.title}
+          </h1>
+          <p className="text-xs text-gray-600 mt-1">
+            {t.measurementUnits.subtitle}
+          </p>
         </div>
         <Button
           onClick={handleAddUnit}
+          disabled={loading}
           className="bg-primary hover:bg-primary/90"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+          ) : (
+            <Plus className="h-3.5 w-3.5 mr-1.5" />
+          )}
           {t.measurementUnits.addUnit}
         </Button>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">{t.measurementUnits.measurementUnitsList}</h2>
           <div className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
             <Input
               placeholder={t.measurementUnits.searchPlaceholder}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-9"
             />
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#F7F7F4] shadow-sm">
+        <div className="border border-[#F2F1ED] rounded-md overflow-hidden bg-white shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent h-10">
                 <TableHead>{t.measurementUnits.name}</TableHead>
-                <TableHead>{t.measurementUnits.label}</TableHead>
-                <TableHead className="text-right">{t.measurementUnits.actions}</TableHead>
+                <TableHead>Symbol</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead className="text-right">
+                  {t.measurementUnits.actions}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUnits.map((unit) => (
-                <TableRow key={unit.id}>
-                  <TableCell className="font-medium">{unit.name}</TableCell>
-                  <TableCell>{unit.label}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditUnit(unit)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteUnit(unit.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8">
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    <p className="mt-2 text-xs text-gray-500">
+                      Loading measurement units...
+                    </p>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : units.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8">
+                    <p className="text-xs text-gray-500">
+                      No measurement units found
+                    </p>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                units.map((unit) => (
+                  <TableRow key={unit.id} className="h-10">
+                    <TableCell className="font-medium text-xs">
+                      {unit.name}
+                    </TableCell>
+                    <TableCell className="text-xs">{unit.symbol}</TableCell>
+                    <TableCell className="text-xs">
+                      {new Date(unit.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="default"
+                          onClick={() => handleEditUnit(unit)}
+                          disabled={editLoading}
+                        >
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="default"
+                          onClick={() => handleDeleteUnit(unit.id)}
+                          className="text-red-600 hover:text-red-700"
+                          disabled={deleteLoading}
+                        >
+                          {deleteLoading ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination */}
+        {pageSummary && (
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-gray-600">
+              Showing {units.length} of {pageSummary.total} units
+            </p>
+            <div className="flex gap-1.5">
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => onQuery({ page: pageSummary.page - 1 })}
+                disabled={pageSummary.page <= 1}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => onQuery({ page: pageSummary.page + 1 })}
+                disabled={!pageSummary.hasNext}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{editingUnit ? t.measurementUnits.editMeasurementUnit : t.measurementUnits.addNewMeasurementUnit}</SheetTitle>
+            <SheetTitle>
+              {editingUnit
+                ? t.measurementUnits.editMeasurementUnit
+                : t.measurementUnits.addNewMeasurementUnit}
+            </SheetTitle>
             <SheetDescription>
-              {editingUnit ? t.measurementUnits.updateMeasurementUnitInfo : t.measurementUnits.createNewMeasurementUnit}
+              {editingUnit
+                ? t.measurementUnits.updateMeasurementUnitInfo
+                : t.measurementUnits.createNewMeasurementUnit}
             </SheetDescription>
           </SheetHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t.measurementUnits.unitName}</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-medium">
+                {t.measurementUnits.unitName}
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder={t.measurementUnits.enterUnitName}
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="label">{t.measurementUnits.unitLabel}</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="symbol" className="text-xs font-medium">
+                Symbol
+              </Label>
               <Input
-                id="label"
-                value={formData.label}
-                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                placeholder={t.measurementUnits.enterUnitLabel}
+                id="symbol"
+                value={formData.symbol}
+                onChange={(e) =>
+                  setFormData({ ...formData, symbol: e.target.value })
+                }
+                placeholder="Enter symbol (e.g., kg)"
                 required
               />
             </div>
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90"
+              disabled={loading || editLoading}
             >
-              {editingUnit ? t.measurementUnits.updateUnit : t.measurementUnits.addUnit}
+              {loading || editLoading ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                  {editingUnit ? "Updating..." : "Adding..."}
+                </>
+              ) : editingUnit ? (
+                t.measurementUnits.updateUnit
+              ) : (
+                t.measurementUnits.addUnit
+              )}
             </Button>
           </form>
         </SheetContent>
       </Sheet>
     </div>
-  )
+  );
 }

@@ -17,23 +17,15 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import {
-  usePurchaseInvoices,
-  PurchaseRequest,
-  PurchaseItemRequest,
-} from "@/lib/hooks/purchase-invoices";
-import { useSupplierOptions } from "@/lib/hooks/suppliers";
+import { useSales, SalesRequest } from "@/lib/hooks/sales";
+import { useCustomerOptions } from "@/lib/hooks/customers";
 import { QuickCreateDialog } from "@/components/quick-create-dialog";
 import { useProductOptions } from "@/lib/hooks/products";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
 import { useBranchOptions } from "@/lib/hooks/branches";
-import {
-  useDocumentTemplateByType,
-  useDocumentTemplates,
-} from "@/lib/hooks/invoice-templates";
 import { useAuth } from "@/lib/context/auth";
-import { RefreshCw, Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -48,23 +40,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/saturasui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 const itemSchema = z.object({
   product_id: z.string().min(1, "Product is required"),
-  description: z.string().optional(),
   quantity: z.number().min(0.01, "Quantity must be greater than 0"),
   unit_id: z.string().nullable().optional(),
-  discount: z.number().min(0).max(100).default(0),
   price: z.number().min(0.01, "Price must be greater than 0"),
+  discount: z.number().min(0).max(100).default(0),
   tax: z.number().min(0).default(0),
 });
 
 const formSchema = z.object({
-  invoice_number: z.string().min(1, "Invoice number is required"),
-  supplier_id: z.string().min(1, "Supplier is required"),
-  invoice_date: z.string().min(1, "Invoice date is required"),
-  delivery_date: z.string().min(1, "Delivery date is required"),
+  customer_id: z.string().min(1, "Customer is required"),
   branch_id: z.string().min(1, "Branch is required"),
+  sales_date: z.string().min(1, "Sales date is required"),
+  notes: z.string().optional(),
   items: z.array(itemSchema).min(1, "At least one item is required"),
 });
 
@@ -79,82 +70,31 @@ const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
-export default function NewPurchaseInvoicePage() {
+export default function NewSalePage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { loading, onAdd } = usePurchaseInvoices();
-  const { data: suppliers, loading: suppliersLoading, onQuickCreate: onQuickCreateSupplier } = useSupplierOptions();
-  const [showCreateSupplier, setShowCreateSupplier] = useState(false);
+  const { loading, onAdd } = useSales();
+  const {
+    data: customers,
+    loading: customersLoading,
+    onQuickCreate: onQuickCreateCustomer,
+  } = useCustomerOptions();
+  const [showCreateCustomer, setShowCreateCustomer] = useState(false);
   const { data: products, loading: productsLoading } = useProductOptions();
   const { data: measurementUnits, loading: unitsLoading } =
     useMeasurementUnitOptions();
   const { data: branches, loading: branchesLoading } = useBranchOptions();
-  const { template } = useDocumentTemplateByType("INVOICE");
-  const { onGeneratePreview, onIncrementSequence } = useDocumentTemplates();
-  const [generatingInvoice, setGeneratingInvoice] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      invoice_number: "",
-      supplier_id: "",
-      invoice_date: new Date().toISOString().split("T")[0],
-      delivery_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0],
+      customer_id: "",
       branch_id: "",
+      sales_date: new Date().toISOString().split("T")[0],
+      notes: "",
       items: [],
     },
   });
-
-  const invoiceDate = form.watch("invoice_date");
-  const branchId = form.watch("branch_id");
-
-  // Auto-generate invoice number when branch and date are selected
-  useEffect(() => {
-    if (
-      template &&
-      branchId &&
-      invoiceDate &&
-      !form.getValues("invoice_number")
-    ) {
-      generateInvoiceNumber();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [template?.id, branchId, invoiceDate]);
-
-  const generateInvoiceNumber = async () => {
-    if (!template || !branchId || !invoiceDate) {
-      return;
-    }
-
-    setGeneratingInvoice(true);
-    try {
-      const selectedBranch = branches.find((b) => b.id === branchId);
-      // Use first 3 characters of branch name as code, or default to "BR"
-      const branchCode =
-        selectedBranch?.name
-          ?.substring(0, 3)
-          .toUpperCase()
-          .replace(/\s/g, "") || "BR";
-      // Use "COMP" as default company code (can be enhanced later with actual company code)
-      const companyCode = "COMP";
-
-      const result = await onGeneratePreview(template.id, {
-        company_code: companyCode,
-        branch_code: branchCode,
-        issued_date: invoiceDate,
-      });
-
-      if (result?.document_number) {
-        form.setValue("invoice_number", result.document_number);
-      }
-    } catch (error) {
-      console.error("Failed to generate invoice number:", error);
-    } finally {
-      setGeneratingInvoice(false);
-    }
-  };
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -172,7 +112,7 @@ export default function NewPurchaseInvoicePage() {
     if (!product || !product.specifications) return [];
 
     return product.specifications
-      .filter((spec) => spec.is_purchase_unit || spec.is_base_unit)
+      .filter((spec) => spec.is_sales_unit || spec.is_base_unit)
       .map((spec) => ({
         id: spec.measurement_unit_id,
         name: spec.measurement_unit?.name || "",
@@ -199,43 +139,27 @@ export default function NewPurchaseInvoicePage() {
   };
 
   const handleSubmit = async (values: FormValues) => {
-    // Convert date-only strings to ISO datetime strings (RFC3339 format)
-    const invoiceDate = values.invoice_date
-      ? new Date(values.invoice_date + "T00:00:00").toISOString()
-      : null;
-    const deliveryDate = values.delivery_date
-      ? new Date(values.delivery_date + "T00:00:00").toISOString()
+    const salesDate = values.sales_date
+      ? new Date(values.sales_date + "T00:00:00").toISOString()
       : null;
 
-    const purchaseData: PurchaseRequest = {
+    const salesData: SalesRequest = {
       branch_id: values.branch_id,
-      supplier_id: values.supplier_id,
-      invoice_number: values.invoice_number,
-      invoice_date: invoiceDate,
-      delivery_date: deliveryDate,
+      customer_id: values.customer_id,
+      sales_date: salesDate,
+      notes: values.notes || "",
       items: values.items.map((item) => ({
         product_id: item.product_id,
-        description: item.description || "",
         quantity: item.quantity,
         unit_id: item.unit_id || null,
-        discount: item.discount,
         price: item.price,
+        discount: item.discount,
         tax: item.tax,
       })),
     };
 
-    // Check if invoice number was generated from template
-    const wasGenerated =
-      template && values.invoice_number && values.invoice_number !== "";
-
     try {
-      await onAdd(purchaseData);
-
-      // Increment document sequence after successful creation
-      // Note: onAdd navigates away on success, so this will only run if creation succeeds
-      if (wasGenerated && template) {
-        await onIncrementSequence(template.id);
-      }
+      await onAdd(salesData);
     } catch (error) {
       // Error handling is done in onAdd
     }
@@ -244,11 +168,10 @@ export default function NewPurchaseInvoicePage() {
   const addItem = () => {
     append({
       product_id: "",
-      description: "",
       quantity: 0,
       unit_id: null,
-      discount: 0,
       price: 0,
+      discount: 0,
       tax: 0,
     });
   };
@@ -260,25 +183,22 @@ export default function NewPurchaseInvoicePage() {
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchases", href: "/dashboard/purchase-invoices" },
-          { label: "New Purchase" },
+          { label: "Sales", href: "/dashboard/sales" },
+          { label: "New Sale" },
         ]}
       />
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">
-            Create Purchase
-          </h1>
+          <h1 className="text-lg font-semibold text-gray-900">Create Sale</h1>
           <p className="text-xs text-gray-600 mt-1">
-            Record a new purchase from your supplier. Fill in the
-            supplier details, invoice information, and add the items you're
-            purchasing.
+            Record a new sale to your customer. Fill in the customer details,
+            sale information, and add the items you are selling.
           </p>
         </div>
         <Button
           variant="outline"
-          onClick={() => router.push("/dashboard/purchase-invoices")}
+          onClick={() => router.push("/dashboard/sales")}
         >
           Back to List
         </Button>
@@ -287,17 +207,17 @@ export default function NewPurchaseInvoicePage() {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Supplier & Invoice Details</CardTitle>
+            <CardTitle>Customer & Sale Details</CardTitle>
             <p className="text-xs text-gray-600 mt-1">
-              Enter the supplier information and invoice details for this
-              purchase.
+              Enter the customer information and sale details for this
+              transaction.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="branch_id" className="text-xs font-medium">
-                  Delivery Branch <span className="text-red-500">*</span>
+                  Branch <span className="text-red-500">*</span>
                 </Label>
                 <Controller
                   name="branch_id"
@@ -305,7 +225,7 @@ export default function NewPurchaseInvoicePage() {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="h-8">
-                        <SelectValue placeholder="Select delivery branch" />
+                        <SelectValue placeholder="Select branch" />
                       </SelectTrigger>
                       <SelectContent>
                         {branches.map((branch) => (
@@ -328,59 +248,26 @@ export default function NewPurchaseInvoicePage() {
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="invoice_number" className="text-xs font-medium">
-                  Invoice Number <span className="text-red-500">*</span>
-                </Label>
-                <div className="flex gap-1.5">
-                  <Input
-                    id="invoice_number"
-                    {...form.register("invoice_number")}
-                    placeholder="Enter invoice number or generate automatically"
-                    className="flex-1"
-                  />
-                  {template && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={generateInvoiceNumber}
-                      disabled={!branchId || !invoiceDate || generatingInvoice}
-                      title="Generate invoice number from template"
-                    >
-                      {generatingInvoice ? (
-                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <RefreshCw className="h-3.5 w-3.5" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-                {form.formState.errors.invoice_number && (
-                  <p className="text-xs text-red-500">
-                    {form.formState.errors.invoice_number.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="supplier_id" className="text-xs font-medium">
-                  Supplier <span className="text-red-500">*</span>
+                <Label htmlFor="customer_id" className="text-xs font-medium">
+                  Customer <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex gap-1.5">
                   <Controller
-                    name="supplier_id"
+                    name="customer_id"
                     control={form.control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger className="h-8">
-                          <SelectValue placeholder="Choose supplier" />
+                          <SelectValue placeholder="Choose customer" />
                         </SelectTrigger>
                         <SelectContent>
-                          {suppliers.map((supplier) => (
+                          {customers.map((customer) => (
                             <SelectItem
-                              key={supplier.id}
-                              value={supplier.id}
+                              key={customer.id}
+                              value={customer.id}
                               className="text-sm"
                             >
-                              {supplier.name}
+                              {customer.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -391,47 +278,43 @@ export default function NewPurchaseInvoicePage() {
                     type="button"
                     variant="outline"
                     className="h-8 px-2 shrink-0"
-                    onClick={() => setShowCreateSupplier(true)}
-                    title="Create new supplier"
+                    onClick={() => setShowCreateCustomer(true)}
+                    title="Create new customer"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-                {form.formState.errors.supplier_id && (
+                {form.formState.errors.customer_id && (
                   <p className="text-xs text-red-500">
-                    {form.formState.errors.supplier_id.message}
+                    {form.formState.errors.customer_id.message}
                   </p>
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="invoice_date" className="text-xs font-medium">
-                  Invoice Date <span className="text-red-500">*</span>
+                <Label htmlFor="sales_date" className="text-xs font-medium">
+                  Sales Date <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="invoice_date"
+                  id="sales_date"
                   type="date"
-                  {...form.register("invoice_date")}
+                  {...form.register("sales_date")}
                 />
-                {form.formState.errors.invoice_date && (
+                {form.formState.errors.sales_date && (
                   <p className="text-xs text-red-500">
-                    {form.formState.errors.invoice_date.message}
+                    {form.formState.errors.sales_date.message}
                   </p>
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="delivery_date" className="text-xs font-medium">
-                  Expected Delivery Date <span className="text-red-500">*</span>
+                <Label htmlFor="notes" className="text-xs font-medium">
+                  Notes
                 </Label>
-                <Input
-                  id="delivery_date"
-                  type="date"
-                  {...form.register("delivery_date")}
+                <Textarea
+                  id="notes"
+                  {...form.register("notes")}
+                  placeholder="Optional notes for this sale"
+                  className="h-8 min-h-[2rem] resize-none"
                 />
-                {form.formState.errors.delivery_date && (
-                  <p className="text-xs text-red-500">
-                    {form.formState.errors.delivery_date.message}
-                  </p>
-                )}
               </div>
             </div>
           </CardContent>
@@ -441,10 +324,9 @@ export default function NewPurchaseInvoicePage() {
           <CardHeader>
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle>Purchase Items</CardTitle>
+                <CardTitle>Sale Items</CardTitle>
                 <p className="text-xs text-gray-600 mt-1">
-                  Add the products, ingredients, or items you're purchasing from
-                  the supplier.
+                  Add the products or items you are selling to the customer.
                 </p>
               </div>
               <Button type="button" onClick={addItem} variant="outline">
@@ -455,10 +337,11 @@ export default function NewPurchaseInvoicePage() {
           <CardContent>
             {fields.length === 0 ? (
               <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
-                <p className="text-sm text-gray-500 mb-1">No items added yet</p>
+                <p className="text-sm text-gray-500 mb-1">
+                  No items added yet
+                </p>
                 <p className="text-xs text-gray-400">
-                  Click "Add Item" above to start adding products to this
-                  purchase
+                  Click "Add Item" above to start adding products to this sale
                 </p>
               </div>
             ) : (
@@ -468,9 +351,6 @@ export default function NewPurchaseInvoicePage() {
                     <TableRow className="hover:bg-transparent h-7">
                       <TableHead className="font-medium text-xs py-2 px-3">
                         Product
-                      </TableHead>
-                      <TableHead className="font-medium text-xs py-2 px-3">
-                        Description
                       </TableHead>
                       <TableHead className="font-medium text-xs py-2 px-3">
                         Quantity
@@ -542,13 +422,6 @@ export default function NewPurchaseInvoicePage() {
                                 }
                               </p>
                             )}
-                          </TableCell>
-                          <TableCell className="py-1.5 px-2">
-                            <Input
-                              {...form.register(`items.${index}.description`)}
-                              placeholder="Description"
-                              className="w-[150px] h-7"
-                            />
                           </TableCell>
                           <TableCell className="py-1.5 px-2">
                             <Controller
@@ -746,29 +619,48 @@ export default function NewPurchaseInvoicePage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/dashboard/purchase-invoices")}
+            onClick={() => router.push("/dashboard/sales")}
             disabled={loading}
           >
             Cancel
           </Button>
           <Button type="submit" disabled={loading} className="min-w-[180px]">
-            {loading ? "Processing..." : "Create Purchase"}
+            {loading ? "Processing..." : "Create Sale"}
           </Button>
         </div>
       </form>
 
       <QuickCreateDialog
-        open={showCreateSupplier}
-        onOpenChange={setShowCreateSupplier}
-        title="Create New Supplier"
-        description="Quickly add a new supplier. You can edit the full details later."
+        open={showCreateCustomer}
+        onOpenChange={setShowCreateCustomer}
+        title="Create New Customer"
+        description="Quickly add a new customer. You can edit the full details later."
         fields={[
-          { name: "name", label: "Supplier Name", placeholder: "e.g. PT Sumber Makmur", required: true },
-          { name: "contact_name", label: "Contact Person", placeholder: "e.g. John Doe", required: false },
-          { name: "contact_number", label: "Contact Number", placeholder: "e.g. 08123456789", required: false },
+          {
+            name: "name",
+            label: "Customer Name",
+            placeholder: "e.g. PT Pelanggan Utama",
+            required: true,
+          },
+          {
+            name: "contact_name",
+            label: "Contact Person",
+            placeholder: "e.g. Jane Doe",
+            required: false,
+          },
+          {
+            name: "contact_number",
+            label: "Contact Number",
+            placeholder: "e.g. 08123456789",
+            required: false,
+          },
         ]}
         onSubmit={async (values) => {
-          return onQuickCreateSupplier(values.name, values.contact_name || "", values.contact_number || "");
+          return onQuickCreateCustomer(
+            values.name,
+            values.contact_name || "",
+            values.contact_number || ""
+          );
         }}
       />
     </div>

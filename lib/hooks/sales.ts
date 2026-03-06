@@ -6,82 +6,55 @@ import { useAuth } from "../context/auth";
 import { fetcher } from "@/lib/utils/api";
 import { useRouter } from "next/navigation";
 
-// Types matching backend Purchase model exactly
-export interface PurchaseItem {
+export interface SalesItem {
   id: string;
-  company_id: string;
-  purchase_id: string;
+  sales_id: string;
   product_id: string;
   measurement_unit_id: string;
   quantity: number;
   price: number;
+  discount: number;
+  tax: number;
   sub_total: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string | null;
-  product?: {
-    id: string;
-    name: string;
-    slug?: string;
-    category?: {
-      id: string;
-      name: string;
-    };
-  };
-  measurement_unit?: {
-    id: string;
-    name: string;
-    symbol: string;
-  };
+  product?: { id: string; name: string; category?: { id: string; name: string } };
+  measurement_unit?: { id: string; name: string; symbol: string };
 }
 
-export interface Purchase {
+export interface Sale {
   id: string;
   company_id: string;
   branch_id: string;
-  supplier_id: string;
-  invoice_number: string;
-  invoice_date: string | null;
-  delivery_date: string | null;
+  customer_id: string;
+  sales_date: string | null;
   status: string;
-  payment_method?: string | null;
   grand_total: number;
+  notes: string;
   created_at: string;
   updated_at: string;
-  deleted_at?: string | null;
-  supplier?: {
-    id: string;
-    name: string;
-  };
-  branch?: {
-    id: string;
-    name: string;
-  };
-  purchase_items?: PurchaseItem[];
+  customer?: { id: string; name: string };
+  branch?: { id: string; name: string };
+  sales_items?: SalesItem[];
 }
 
-// Request types for creating/updating purchases
-export interface PurchaseRequest {
+export interface SalesRequest {
   branch_id: string;
-  supplier_id: string;
-  invoice_number?: string;
-  invoice_date?: string | null;
-  delivery_date?: string | null;
-  items: PurchaseItemRequest[];
+  customer_id: string;
+  sales_date?: string | null;
+  notes?: string;
+  items: SalesItemRequest[];
 }
 
-export interface PurchaseItemRequest {
+export interface SalesItemRequest {
   product_id: string;
   unit_id?: string | null;
   quantity: number;
   price: number;
-  description?: string;
   discount: number;
   tax: number;
 }
 
-interface PurchasesResponse {
-  records: Purchase[];
+interface SalesResponse {
+  records: Sale[];
   page_summary: {
     total: number;
     page: number;
@@ -90,7 +63,7 @@ interface PurchasesResponse {
   };
 }
 
-export const usePurchaseInvoices = () => {
+export const useSales = () => {
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuth();
@@ -107,28 +80,28 @@ export const usePurchaseInvoices = () => {
   const [status, setStatus] = useState("");
 
   const pathKey = user?.company_id
-    ? `v1/purchases?page=${page}&size=${size}&sort=${sort}&keyword=${keyword}&status=${status}`
+    ? `v1/sales?page=${page}&size=${size}&sort=${sort}&keyword=${keyword}&status=${status}`
     : null;
-  const { data, error, isValidating } = useSWR<ApiResponse<PurchasesResponse>>(
+  const { data, error, isValidating } = useSWR<ApiResponse<SalesResponse>>(
     pathKey,
     fetcher,
     {}
   );
 
   const onAdd = useCallback(
-    async (data: PurchaseRequest) => {
+    async (data: SalesRequest) => {
       setLoading(true);
       try {
-        const { data: res } = await api.post("v1/purchases", data);
+        const { data: res } = await api.post("v1/sales", data);
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Purchase created successfully",
+            message: "Sale created successfully",
             color: "orange",
           });
-          router.push("/dashboard/purchase-invoices");
+          router.push("/dashboard/sales");
         } else {
           toast({
             title: "Error",
@@ -166,19 +139,19 @@ export const usePurchaseInvoices = () => {
   }, []);
 
   const onEdit = useCallback(
-    async (id: string, data: PurchaseRequest) => {
+    async (id: string, data: SalesRequest) => {
       try {
         setEditLoading(true);
-        const { data: res } = await api.put(`v1/purchases/${id}`, data);
+        const { data: res } = await api.put(`v1/sales/${id}`, data);
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Purchase updated successfully",
+            message: "Sale updated successfully",
             color: "orange",
           });
-          router.push("/dashboard/purchase-invoices");
+          router.push("/dashboard/sales");
         } else {
           toast({
             title: "Error",
@@ -204,13 +177,13 @@ export const usePurchaseInvoices = () => {
       try {
         setDeleteLoading(true);
 
-        const { data: res } = await api.delete(`v1/purchases/${id}`);
+        const { data: res } = await api.delete(`v1/sales/${id}`);
 
         if (res.success) {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Purchase deleted successfully",
+            message: "Sale deleted successfully",
             color: "orange",
           });
         } else {
@@ -238,7 +211,7 @@ export const usePurchaseInvoices = () => {
       try {
         setStatusLoading(true);
 
-        const { data: res } = await api.patch(`v1/purchases/${id}/status`, {
+        const { data: res } = await api.patch(`v1/sales/${id}/status`, {
           status,
         });
 
@@ -246,7 +219,7 @@ export const usePurchaseInvoices = () => {
           mutate(pathKey);
           toast({
             title: "Success",
-            message: "Purchase status updated successfully",
+            message: "Sale status updated successfully",
             color: "orange",
           });
         } else {
@@ -288,8 +261,8 @@ export const usePurchaseInvoices = () => {
   };
 };
 
-// Hook for fetching a single purchase by ID
-export const usePurchaseInvoice = (purchaseId: string | null) => {
+// Hook for fetching a single sale by ID
+export const useSale = (salesId: string | null) => {
   const toast = useToast();
   const [statusLoading, setStatusLoading] = useState(false);
 
@@ -297,9 +270,9 @@ export const usePurchaseInvoice = (purchaseId: string | null) => {
     data,
     error,
     isValidating,
-    mutate: mutatePurchase,
-  } = useSWR<ApiResponse<Purchase>>(
-    purchaseId ? `v1/purchases/${purchaseId}` : null,
+    mutate: mutateSale,
+  } = useSWR<ApiResponse<Sale>>(
+    salesId ? `v1/sales/${salesId}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -309,17 +282,17 @@ export const usePurchaseInvoice = (purchaseId: string | null) => {
 
   const onUpdateStatus = useCallback(
     async (status: string) => {
-      if (!purchaseId) return;
+      if (!salesId) return;
       try {
         setStatusLoading(true);
-        const { data: res } = await api.patch(`v1/purchases/${purchaseId}/status`, {
+        const { data: res } = await api.patch(`v1/sales/${salesId}/status`, {
           status,
         });
         if (res.success) {
-          mutatePurchase();
+          mutateSale();
           toast({
             title: "Success",
-            message: "Purchase status updated successfully",
+            message: "Sale status updated successfully",
             color: "orange",
           });
         } else {
@@ -339,15 +312,15 @@ export const usePurchaseInvoice = (purchaseId: string | null) => {
         setStatusLoading(false);
       }
     },
-    [purchaseId, mutatePurchase, toast]
+    [salesId, mutateSale, toast]
   );
 
   return {
-    purchase: data?.data || null,
+    sale: data?.data || null,
     isLoading: isValidating && !error && !data,
     error,
     statusLoading,
     onUpdateStatus,
-    mutatePurchase,
+    mutateSale,
   };
 };

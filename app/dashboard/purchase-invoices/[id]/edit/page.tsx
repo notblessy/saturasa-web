@@ -289,14 +289,14 @@ export default function EditPurchaseInvoicePage() {
     return (
       <div className="max-w-6xl mx-auto space-y-4 pb-8">
         <div className="text-center py-12">
-          <p className="text-gray-500">Purchase invoice not found</p>
+          <p className="text-gray-500">Purchase not found</p>
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/purchase-invoices")}
             className="mt-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Purchase Invoices
+            Back to Purchases
           </Button>
         </div>
       </div>
@@ -308,18 +308,18 @@ export default function EditPurchaseInvoicePage() {
       <BreadcrumbNav
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Purchase Invoices", href: "/dashboard/purchase-invoices" },
-          { label: "Edit Purchase Invoice" },
+          { label: "Purchases", href: "/dashboard/purchase-invoices" },
+          { label: "Edit Purchase" },
         ]}
       />
 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-gray-900">
-            Edit Purchase Invoice
+            Edit Purchase
           </h1>
           <p className="text-xs text-gray-600 mt-1">
-            Update the purchase invoice details and items below.
+            Update the purchase details and items below.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -368,7 +368,7 @@ export default function EditPurchaseInvoicePage() {
             <CardTitle>Supplier & Invoice Details</CardTitle>
             <p className="text-xs text-gray-600 mt-1">
               Enter the supplier information and invoice details for this
-              purchase invoice.
+              purchase.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -548,7 +548,7 @@ export default function EditPurchaseInvoicePage() {
                 <p className="text-sm text-gray-500 mb-1">No items added yet</p>
                 <p className="text-xs text-gray-400">
                   Click "Add Item" above to start adding products to this
-                  purchase invoice
+                  purchase
                 </p>
               </div>
             ) : (
@@ -824,7 +824,7 @@ export default function EditPurchaseInvoicePage() {
             disabled={editLoading || fields.length === 0}
             className="min-w-[180px]"
           >
-            {editLoading ? "Processing..." : "Update Purchase Invoice"}
+            {editLoading ? "Processing..." : "Update Purchase"}
           </Button>
         </div>
       </form>
