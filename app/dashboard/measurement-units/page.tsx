@@ -26,6 +26,7 @@ import {
   MeasurementUnit,
   useMeasurementUnits,
 } from "@/lib/hooks/measurement_units";
+import { Pagination } from "@/components/saturasui/pagination";
 
 export default function MeasurementUnitsPage() {
   const { t } = useTranslation();
@@ -208,29 +209,16 @@ export default function MeasurementUnitsPage() {
         </div>
 
         {/* Pagination */}
-        {pageSummary && (
-          <div className="flex justify-between items-center">
+        {pageSummary && pageSummary.total > 0 && (
+          <div className="flex items-center justify-between">
             <p className="text-xs text-gray-600">
               Showing {units.length} of {pageSummary.total} units
             </p>
-            <div className="flex gap-1.5">
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: pageSummary.page - 1 })}
-                disabled={pageSummary.page <= 1}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: pageSummary.page + 1 })}
-                disabled={!pageSummary.hasNext}
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination
+              currentPage={pageSummary.page}
+              totalPages={Math.ceil(pageSummary.total / pageSummary.size)}
+              onPageChange={(page: number) => onQuery({ page })}
+            />
           </div>
         )}
       </div>

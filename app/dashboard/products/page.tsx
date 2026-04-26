@@ -18,6 +18,7 @@ import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { useProducts, Product } from "@/lib/hooks/products";
 import { useCategoryOptions } from "@/lib/hooks/categories";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Pagination } from "@/components/saturasui/pagination";
 
 export default function ProductsPage() {
   const { t } = useTranslation();
@@ -216,6 +217,19 @@ export default function ProductsPage() {
             </TableBody>
           </Table>
         </div>
+
+        {productsData.total > 0 && (
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-500">
+              Showing {products.length} of {productsData.total} products
+            </p>
+            <Pagination
+              currentPage={productsData.page}
+              totalPages={Math.ceil(productsData.total / productsData.size)}
+              onPageChange={(page: number) => onQuery({ page })}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

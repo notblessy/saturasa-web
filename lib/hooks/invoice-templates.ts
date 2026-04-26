@@ -287,7 +287,7 @@ export const useDocumentTemplates = () => {
   return {
     data: data?.data || {
       records: [],
-      page_meta: { total: 0, page: 1, size: 10 },
+      page_summary: { total: 0, page: 1, size: 10, hasNext: false },
     },
     error,
     isValidating,

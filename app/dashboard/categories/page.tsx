@@ -30,6 +30,7 @@ import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { useTranslation } from "@/lib/hooks/use-translation";
 import { useCategories, useCategoryOptions } from "@/lib/hooks/categories";
+import { Pagination } from "@/components/saturasui/pagination";
 
 interface Category {
   id: string;
@@ -226,29 +227,16 @@ export default function CategoriesPage() {
         </div>
 
         {/* Pagination */}
-        {pageSummary && (
-          <div className="flex justify-between items-center">
+        {pageSummary && pageSummary.total > 0 && (
+          <div className="flex items-center justify-between">
             <p className="text-xs text-gray-600">
               Showing {categories.length} of {pageSummary.total} categories
             </p>
-            <div className="flex gap-1.5">
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: pageSummary.page - 1 })}
-                disabled={pageSummary.page <= 1}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: pageSummary.page + 1 })}
-                disabled={!pageSummary.hasNext}
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination
+              currentPage={pageSummary.page}
+              totalPages={Math.ceil(pageSummary.total / pageSummary.size)}
+              onPageChange={(page: number) => onQuery({ page })}
+            />
           </div>
         )}
       </div>

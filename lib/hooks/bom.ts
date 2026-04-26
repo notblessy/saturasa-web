@@ -14,10 +14,11 @@ interface ApiResponse<T> {
 
 interface WithPagingResponse<T> {
   records: T[];
-  page_meta: {
+  page_summary: {
     total: number;
     page: number;
     size: number;
+    hasNext: boolean;
   };
 }
 

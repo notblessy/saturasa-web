@@ -51,6 +51,7 @@ import {
   DocumentTemplate,
 } from "@/lib/hooks/invoice-templates";
 import { Badge } from "@/components/saturasui/badge";
+import { Pagination } from "@/components/saturasui/pagination";
 
 const DOCUMENT_TYPES = [
   { value: "INVOICE", label: "Invoice" },
@@ -124,6 +125,9 @@ export default function DocumentTemplatesPage() {
   const [previewResult, setPreviewResult] = useState("");
 
   const templates = templatesData?.records || [];
+  const pageSummary = (templatesData as any)?.page_summary as
+    | { total: number; page: number; size: number; hasNext: boolean }
+    | undefined;
 
   const handleAddToken = (token: string) => {
     let newFormat = formData.format;
@@ -412,6 +416,19 @@ export default function DocumentTemplatesPage() {
             </TableBody>
           </Table>
         </div>
+
+        {pageSummary && pageSummary.total > 0 && (
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-500">
+              Showing {templates.length} of {pageSummary.total} templates
+            </p>
+            <Pagination
+              currentPage={pageSummary.page}
+              totalPages={Math.ceil(pageSummary.total / pageSummary.size)}
+              onPageChange={(page: number) => onQuery({ page })}
+            />
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Sheet */}

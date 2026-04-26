@@ -53,7 +53,7 @@ export default function BOMPage() {
   const { data: measurementUnits } = useMeasurementUnitOptions();
 
   const boms = bomsData?.records || [];
-  const totalRecords = bomsData?.page_meta?.total || 0;
+  const totalRecords = bomsData?.page_summary?.total || 0;
 
   const handleAddBOM = () => {
     router.push("/dashboard/bom/new");

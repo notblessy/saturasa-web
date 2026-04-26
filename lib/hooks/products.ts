@@ -201,7 +201,14 @@ export const useProducts = () => {
   );
 
   return {
-    data: data?.data || { records: [], total: 0, page: 1, size: 5 },
+    data: data?.data
+      ? {
+          records: data.data.records,
+          total: data.data.page_summary.total,
+          page: data.data.page_summary.page,
+          size: data.data.page_summary.size,
+        }
+      : { records: [], total: 0, page: 1, size: 5 },
     error,
     isValidating,
     loading,
