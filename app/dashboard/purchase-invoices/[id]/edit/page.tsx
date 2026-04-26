@@ -185,7 +185,7 @@ export default function EditPurchaseInvoicePage() {
 
   const getProductUnits = (
     productId: string
-  ): Array<{ id: string; name: string; symbol: string }> => {
+  ): Array<{ id: string; name: string; symbol: string; base_price: number }> => {
     const product = selectedProduct(productId);
     if (!product || !product.specifications) return [];
 
@@ -195,7 +195,30 @@ export default function EditPurchaseInvoicePage() {
         id: spec.measurement_unit_id,
         name: spec.measurement_unit?.name || "",
         symbol: spec.measurement_unit?.symbol || "",
+        base_price: Number(spec.base_price) || 0,
       }));
+  };
+
+  const getProductPrice = (productId: string, unitId?: string | null): number => {
+    const product = selectedProduct(productId);
+    if (!product || !product.specifications) return 0;
+    const specs = product.specifications.filter(
+      (spec) => spec.is_purchase_unit || spec.is_base_unit
+    );
+    if (unitId) {
+      const spec = specs.find((s) => s.measurement_unit_id === unitId);
+      return Number(spec?.base_price) || 0;
+    }
+    return Number(specs[0]?.base_price) || 0;
+  };
+
+  const getProductDisplayPrice = (product: import("@/lib/hooks/products").Product): string => {
+    if (!product.specifications) return "";
+    const spec = product.specifications.find(
+      (s) => s.is_purchase_unit || s.is_base_unit
+    );
+    if (!spec?.base_price) return "";
+    return formatCurrency(Number(spec.base_price));
   };
 
   const calculateItemAmount = (item: FormValues["items"][0]): number => {
@@ -599,25 +622,34 @@ export default function EditPurchaseInvoicePage() {
                                   value={field.value}
                                   onValueChange={(value) => {
                                     field.onChange(value);
-                                    form.setValue(
-                                      `items.${index}.unit_id`,
-                                      null
-                                    );
+                                    form.setValue(`items.${index}.unit_id`, null);
+                                    const defaultPrice = getProductPrice(value);
+                                    if (defaultPrice > 0) {
+                                      form.setValue(`items.${index}.price`, defaultPrice);
+                                    }
                                   }}
                                 >
                                   <SelectTrigger className="w-[200px] h-7">
                                     <SelectValue placeholder="Select product" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {products.map((product) => (
-                                      <SelectItem
-                                        key={product.id}
-                                        value={product.id}
-                                        className="text-sm"
-                                      >
-                                        {product.name}
-                                      </SelectItem>
-                                    ))}
+                                    {products.map((product) => {
+                                      const displayPrice = getProductDisplayPrice(product);
+                                      return (
+                                        <SelectItem
+                                          key={product.id}
+                                          value={product.id}
+                                          className="text-sm"
+                                        >
+                                          <span>{product.name}</span>
+                                          {displayPrice && (
+                                            <span className="text-xs text-gray-400 ml-1.5">
+                                              {displayPrice}
+                                            </span>
+                                          )}
+                                        </SelectItem>
+                                      );
+                                    })}
                                   </SelectContent>
                                 </Select>
                               )}
@@ -663,9 +695,15 @@ export default function EditPurchaseInvoicePage() {
                               render={({ field }) => (
                                 <Select
                                   value={field.value || ""}
-                                  onValueChange={(value) =>
-                                    field.onChange(value || null)
-                                  }
+                                  onValueChange={(value) => {
+                                    field.onChange(value || null);
+                                    if (item?.product_id && value) {
+                                      const unitPrice = getProductPrice(item.product_id, value);
+                                      if (unitPrice > 0) {
+                                        form.setValue(`items.${index}.price`, unitPrice);
+                                      }
+                                    }
+                                  }}
                                 >
                                   <SelectTrigger className="w-[120px] h-7">
                                     <SelectValue placeholder="Unit" />
