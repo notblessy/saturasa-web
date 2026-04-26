@@ -20,6 +20,7 @@ import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import { NumericFormat } from "react-number-format";
+import { CurrencyInput } from "@/components/saturasui/currency-input";
 import { useProducts, ProductSpecification } from "@/lib/hooks/products";
 import { useCategoryOptions } from "@/lib/hooks/categories";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
@@ -344,16 +345,12 @@ export default function NewProductPage() {
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium">Base Price</Label>
-                    <NumericFormat
+                    <CurrencyInput
                       value={spec.base_price}
-                      onValueChange={(values) =>
-                        updateSpecification(index, "base_price", values.value)
+                      onChange={(val) =>
+                        updateSpecification(index, "base_price", String(val))
                       }
-                      thousandSeparator=","
-                      decimalScale={2}
-                      allowNegative={false}
-                      placeholder="0.00"
-                      className="flex h-8 w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      className="h-8 text-xs"
                     />
                   </div>
                 </div>

@@ -44,7 +44,7 @@ export const useCompanyUsers = () => {
   const [editLoading, setEditLoading] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(20);
   const [keyword, setKeyword] = useState("");
   const [roleId, setRoleId] = useState("");
 

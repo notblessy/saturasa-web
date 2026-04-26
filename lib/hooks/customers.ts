@@ -45,7 +45,7 @@ export const useCustomers = () => {
   const [editLoading, setEditLoading] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(5);
+  const [size, setSize] = useState(20);
   const [sort, setSort] = useState("-created_at");
   const [keyword, setKeyword] = useState("");
 

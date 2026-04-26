@@ -28,6 +28,7 @@ import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Search, Loader2, Package, Plus, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/saturasui/button";
+import { Pagination } from "@/components/saturasui/pagination";
 import {
   Dialog,
   DialogContent,
@@ -322,26 +323,11 @@ export default function InventoriesPage() {
               Showing {inventories.length} of {inventoriesData.total}{" "}
               inventories
             </p>
-            <div className="flex gap-1.5">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onQuery({ page: inventoriesData.page - 1 })}
-                disabled={inventoriesData.page <= 1}
-                className="text-xs"
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onQuery({ page: inventoriesData.page + 1 })}
-                disabled={inventories.length < inventoriesData.size}
-                className="text-xs"
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination
+              currentPage={inventoriesData.page}
+              totalPages={Math.ceil(inventoriesData.total / inventoriesData.size)}
+              onPageChange={(page) => onQuery({ page })}
+            />
           </div>
         )}
       </div>
@@ -551,29 +537,14 @@ export default function InventoriesPage() {
             movementsData.page_summary.total > 20 && (
               <div className="flex justify-between items-center pt-2">
                 <p className="text-xs text-gray-500">
-                  Page {movementsData.page_summary.page} of{" "}
-                  {Math.ceil(movementsData.page_summary.total / 20)}
+                  Showing {movementsData.page_summary.page} of{" "}
+                  {Math.ceil(movementsData.page_summary.total / 20)} pages
                 </p>
-                <div className="flex gap-1.5">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => setMovementsPage((p) => Math.max(1, p - 1))}
-                    disabled={movementsPage <= 1}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => setMovementsPage((p) => p + 1)}
-                    disabled={!movementsData.page_summary.hasNext}
-                  >
-                    Next
-                  </Button>
-                </div>
+                <Pagination
+                  currentPage={movementsPage}
+                  totalPages={Math.ceil(movementsData.page_summary.total / 20)}
+                  onPageChange={(p) => setMovementsPage(p)}
+                />
               </div>
             )}
         </DialogContent>

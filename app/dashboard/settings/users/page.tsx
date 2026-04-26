@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/saturasui/button";
+import { Pagination } from "@/components/saturasui/pagination";
 import { Input } from "@/components/saturasui/input";
 import {
   Table,
@@ -244,24 +245,11 @@ export default function UsersPage() {
                 <p className="text-xs text-gray-600">
                   Showing {users.length} of {usersData.total} users
                 </p>
-                <div className="flex gap-1.5">
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={() => onQuery({ page: usersData.page - 1 })}
-                    disabled={usersData.page <= 1}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={() => onQuery({ page: usersData.page + 1 })}
-                    disabled={!usersData.hasNext}
-                  >
-                    Next
-                  </Button>
-                </div>
+                <Pagination
+                  currentPage={usersData.page}
+                  totalPages={Math.ceil(usersData.total / usersData.size)}
+                  onPageChange={(page) => onQuery({ page })}
+                />
               </div>
             )}
           </div>

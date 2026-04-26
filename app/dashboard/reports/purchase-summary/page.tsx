@@ -5,7 +5,7 @@ import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Input } from "@/components/saturasui/input";
 import { Button } from "@/components/saturasui/button";
 import { Label } from "@/components/saturasui/label";
-import { Loader2, ShoppingCart, DollarSign } from "lucide-react";
+import { Loader2, ShoppingCart, HandCoins } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -115,7 +115,7 @@ export default function PurchaseSummaryPage() {
                   Total Amount
                 </CardDescription>
                 <CardTitle className="flex items-center gap-2 text-2xl">
-                  <DollarSign className="h-5 w-5 text-primary" />
+                  <HandCoins className="h-5 w-5 text-primary" />
                   {formatCurrency(data.total_amount)}
                 </CardTitle>
               </CardHeader>

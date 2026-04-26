@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/saturasui/button";
+import { Pagination } from "@/components/saturasui/pagination";
 import { Input } from "@/components/saturasui/input";
 import {
   Table,
@@ -264,24 +265,11 @@ export default function RolesPage() {
                 <p className="text-xs text-gray-600">
                   Showing {roles.length} of {rolesData.total} roles
                 </p>
-                <div className="flex gap-1.5">
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={() => onQuery({ page: rolesData.page - 1 })}
-                    disabled={rolesData.page <= 1}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={() => onQuery({ page: rolesData.page + 1 })}
-                    disabled={!rolesData.hasNext}
-                  >
-                    Next
-                  </Button>
-                </div>
+                <Pagination
+                  currentPage={rolesData.page}
+                  totalPages={Math.ceil(rolesData.total / rolesData.size)}
+                  onPageChange={(page) => onQuery({ page })}
+                />
               </div>
             )}
           </div>

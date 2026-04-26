@@ -43,7 +43,7 @@ export const useStaffs = () => {
   const [editLoading, setEditLoading] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(20);
   const [sort, setSort] = useState("-created_at");
   const [keyword, setKeyword] = useState("");
 

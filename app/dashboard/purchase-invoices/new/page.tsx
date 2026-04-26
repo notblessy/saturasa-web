@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { NumericFormat } from "react-number-format";
 import { Button } from "@/components/saturasui/button";
 import { Input } from "@/components/saturasui/input";
+import { CurrencyInput } from "@/components/saturasui/currency-input";
 import {
   Select,
   SelectContent,
@@ -662,17 +663,10 @@ export default function NewPurchaseInvoicePage() {
                               name={`items.${index}.price`}
                               control={form.control}
                               render={({ field }) => (
-                                <NumericFormat
-                                  value={field.value || ""}
-                                  onValueChange={(values) => {
-                                    field.onChange(values.floatValue || 0);
-                                  }}
-                                  thousandSeparator="."
-                                  decimalSeparator=","
-                                  decimalScale={2}
-                                  allowNegative={false}
-                                  customInput={Input}
-                                  className="w-[100px] h-7"
+                                <CurrencyInput
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  className="w-[130px] h-7"
                                 />
                               )}
                             />
@@ -697,7 +691,7 @@ export default function NewPurchaseInvoicePage() {
                                   }}
                                   thousandSeparator="."
                                   decimalSeparator=","
-                                  decimalScale={2}
+                                  decimalScale={0}
                                   allowNegative={false}
                                   max={100}
                                   customInput={Input}
@@ -711,17 +705,10 @@ export default function NewPurchaseInvoicePage() {
                               name={`items.${index}.tax`}
                               control={form.control}
                               render={({ field }) => (
-                                <NumericFormat
-                                  value={field.value || ""}
-                                  onValueChange={(values) => {
-                                    field.onChange(values.floatValue || 0);
-                                  }}
-                                  thousandSeparator="."
-                                  decimalSeparator=","
-                                  decimalScale={2}
-                                  allowNegative={false}
-                                  customInput={Input}
-                                  className="w-[100px] h-7"
+                                <CurrencyInput
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  className="w-[130px] h-7"
                                 />
                               )}
                             />

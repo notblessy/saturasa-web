@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/saturasui/table";
 import { Button } from "@/components/saturasui/button";
+import { Pagination } from "@/components/saturasui/pagination";
 import { Loader2, TrendingUp } from "lucide-react";
 import {
   Card,
@@ -128,30 +129,11 @@ export default function InventoryValuationPage() {
               <p className="text-xs text-gray-600">
                 Showing {records.length} of {data.page_summary.total} items
               </p>
-              <div className="flex gap-1.5">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    onQuery({ page: data.page_summary.page - 1 })
-                  }
-                  disabled={data.page_summary.page <= 1}
-                  className="text-xs"
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    onQuery({ page: data.page_summary.page + 1 })
-                  }
-                  disabled={!data.page_summary.hasNext}
-                  className="text-xs"
-                >
-                  Next
-                </Button>
-              </div>
+              <Pagination
+                currentPage={data.page_summary.page}
+                totalPages={Math.ceil(data.page_summary.total / data.page_summary.size)}
+                onPageChange={(page) => onQuery({ page })}
+              />
             </div>
           )}
         </CardContent>

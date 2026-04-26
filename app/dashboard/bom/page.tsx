@@ -5,6 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/saturasui/button";
+import { Pagination } from "@/components/saturasui/pagination";
 import { Input } from "@/components/saturasui/input";
 import {
   Table,
@@ -217,30 +218,15 @@ export default function BOMPage() {
         </div>
 
         {totalRecords > 0 && (
-          <div className="flex justify-center mt-4">
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-              >
-                Previous
-              </Button>
-              <span className="text-xs">
-                Page {page} of {Math.ceil(totalRecords / size)}
-              </span>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() =>
-                  setPage(Math.min(Math.ceil(totalRecords / size), page + 1))
-                }
-                disabled={page === Math.ceil(totalRecords / size)}
-              >
-                Next
-              </Button>
-            </div>
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-gray-500">
+              Showing {boms.length} of {totalRecords} BOMs
+            </p>
+            <Pagination
+              currentPage={page}
+              totalPages={Math.ceil(totalRecords / size)}
+              onPageChange={(p) => setPage(p)}
+            />
           </div>
         )}
       </div>

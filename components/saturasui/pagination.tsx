@@ -20,39 +20,39 @@ export function Pagination({
 }: PaginationProps) {
   const getPageNumbers = () => {
     const pages: (number | string)[] = []
-    const maxVisible = 5
 
-    if (totalPages <= maxVisible) {
-      // Show all pages if total is less than max visible
+    if (totalPages <= 10) {
+      // Show all pages when 10 or fewer
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i)
       }
-    } else {
-      // Always show first page
-      pages.push(1)
+      return pages
+    }
 
-      if (currentPage <= 3) {
-        // Near the beginning
-        for (let i = 2; i <= 4; i++) {
-          pages.push(i)
-        }
-        pages.push("ellipsis")
-        pages.push(totalPages)
-      } else if (currentPage >= totalPages - 2) {
-        // Near the end
-        pages.push("ellipsis")
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i)
-        }
-      } else {
-        // In the middle
-        pages.push("ellipsis")
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i)
-        }
-        pages.push("ellipsis")
-        pages.push(totalPages)
+    // > 10 pages: smart windowed display
+    if (currentPage <= 4) {
+      // Near beginning: 1 2 3 4 5 ... last
+      for (let i = 1; i <= 5; i++) {
+        pages.push(i)
       }
+      pages.push("ellipsis")
+      pages.push(totalPages)
+    } else if (currentPage >= totalPages - 3) {
+      // Near end: 1 ... last-4 last-3 last-2 last-1 last
+      pages.push(1)
+      pages.push("ellipsis")
+      for (let i = totalPages - 4; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Middle: 1 ... current-1 current current+1 ... last
+      pages.push(1)
+      pages.push("ellipsis")
+      pages.push(currentPage - 1)
+      pages.push(currentPage)
+      pages.push(currentPage + 1)
+      pages.push("ellipsis")
+      pages.push(totalPages)
     }
 
     return pages

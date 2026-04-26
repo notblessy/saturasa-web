@@ -34,7 +34,7 @@ export const useInventories = () => {
   const { user } = useAuth();
 
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(20);
   const [sort, setSort] = useState("");
   const [keyword, setKeyword] = useState("");
   const [branchId, setBranchId] = useState("");

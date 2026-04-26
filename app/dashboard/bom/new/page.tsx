@@ -3,10 +3,11 @@
 import type React from "react";
 
 import { useRouter } from "next/navigation";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useTranslation } from "@/lib/hooks/use-translation";
 import { Button } from "@/components/saturasui/button";
 import { Input } from "@/components/saturasui/input";
+import { CurrencyInput } from "@/components/saturasui/currency-input";
 import {
   Select,
   SelectContent,
@@ -242,17 +243,17 @@ export default function NewBOMPage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="additional_fixed_cost" className="text-xs font-medium">
-                Additional Fixed Cost (Rp)
+                Additional Fixed Cost
               </Label>
-              <Input
-                id="additional_fixed_cost"
-                type="number"
-                step="1"
-                {...form.register("additional_fixed_cost", {
-                  valueAsNumber: true,
-                  min: { value: 0, message: "Cost must be positive" },
-                })}
-                placeholder="0"
+              <Controller
+                name="additional_fixed_cost"
+                control={form.control}
+                render={({ field }) => (
+                  <CurrencyInput
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                )}
               />
               {form.formState.errors.additional_fixed_cost && (
                 <p className="text-xs text-red-500">

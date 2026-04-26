@@ -29,6 +29,7 @@ import {
 import { Plus, Trash2, Loader2, ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NumericFormat } from "react-number-format";
+import { CurrencyInput } from "@/components/saturasui/currency-input";
 
 import { useProducts, useProduct, Product } from "@/lib/hooks/products";
 import { useCategoryOptions } from "@/lib/hooks/categories";
@@ -598,16 +599,12 @@ export default function EditProductPage() {
                           <Label className="text-xs font-medium">
                             Base Price
                           </Label>
-                          <NumericFormat
+                          <CurrencyInput
                             value={form.watch(`specifications.${index}.base_price`)}
-                            onValueChange={(values) =>
-                              form.setValue(`specifications.${index}.base_price`, values.floatValue ?? 0)
+                            onChange={(val) =>
+                              form.setValue(`specifications.${index}.base_price`, val)
                             }
-                            thousandSeparator=","
-                            decimalScale={2}
-                            allowNegative={false}
-                            placeholder="0.00"
-                            className="flex h-8 w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-8 text-xs"
                           />
                         </div>
                       </div>

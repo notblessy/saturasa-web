@@ -32,7 +32,7 @@ import {
   ClipboardList,
   Cog,
   Database,
-  DollarSign,
+  HandCoins,
   Calculator,
   Settings2,
   FileText,
@@ -85,7 +85,7 @@ const menuItems = [
   {
     title: "Sales",
     url: "/dashboard/sales",
-    icon: DollarSign,
+    icon: HandCoins,
   },
   {
     title: "Inventories",

@@ -4,6 +4,7 @@ import type React from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/saturasui/button";
+import { Pagination } from "@/components/saturasui/pagination";
 import { Input } from "@/components/saturasui/input";
 import {
   Table,
@@ -222,24 +223,11 @@ export default function SuppliersPage() {
             <p className="text-xs text-gray-600">
               Showing {suppliers.length} of {suppliersData.total} suppliers
             </p>
-            <div className="flex gap-1.5">
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: suppliersData.page - 1 })}
-                disabled={suppliersData.page <= 1}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={() => onQuery({ page: suppliersData.page + 1 })}
-                disabled={suppliers.length < suppliersData.size}
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination
+              currentPage={suppliersData.page}
+              totalPages={Math.ceil(suppliersData.total / suppliersData.size)}
+              onPageChange={(page) => onQuery({ page })}
+            />
           </div>
         )}
       </div>
