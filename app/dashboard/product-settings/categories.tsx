@@ -18,13 +18,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/saturasui/searchable-select";
 import { Label } from "@/components/saturasui/label";
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { useCategories, useCategoryOptions } from "@/lib/hooks/categories";
@@ -229,8 +223,8 @@ export default function CategoriesComponent() {
               <Label htmlFor="parent" className="text-xs font-medium">
                 Parent Category (Optional)
               </Label>
-              <Select
-                value={formData?.parent_id}
+              <SearchableSelect
+                value={formData?.parent_id || "no_parent"}
                 onValueChange={(value) => {
                   if (value === "no_parent") {
                     setFormData({ ...formData, parent_id: "" });
@@ -238,27 +232,14 @@ export default function CategoriesComponent() {
                     setFormData({ ...formData, parent_id: value });
                   }
                 }}
-              >
-                <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                  <SelectValue placeholder="Select parent category" />
-                </SelectTrigger>
-                <SelectContent className="border-[#F2F1ED]">
-                  <SelectItem value="no_parent" className="text-xs">
-                    No Parent
-                  </SelectItem>
-                  {categoryOptions
+                options={[
+                  { value: "no_parent", label: "No Parent" },
+                  ...(categoryOptions
                     ?.filter((cat) => cat.id !== editingCategory?.id)
-                    ?.map((category) => (
-                      <SelectItem
-                        key={category.id}
-                        value={category.id}
-                        className="text-xs"
-                      >
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+                    ?.map((cat) => ({ value: cat.id, label: cat.name })) ?? []),
+                ]}
+                placeholder="Select parent category"
+              />
             </div>
             <Button
               type="submit"

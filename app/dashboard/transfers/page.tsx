@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/saturasui/searchable-select";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Badge } from "@/components/saturasui/badge";
 import { Pagination } from "@/components/saturasui/pagination";
@@ -448,23 +449,12 @@ export default function TransfersPage() {
                 >
                   <div className="flex-1 space-y-1.5">
                     <Label className="text-xs text-gray-500">Product</Label>
-                    <Select
+                    <SearchableSelect
                       value={item.product_id}
-                      onValueChange={(value) =>
-                        handleItemChange(index, "product_id", value)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select product" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {products.map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            {product.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onValueChange={(value) => handleItemChange(index, "product_id", value)}
+                      options={products.map((p) => ({ value: p.id, label: p.name }))}
+                      placeholder="Select product"
+                    />
                   </div>
                   <div className="w-28 space-y-1.5">
                     <Label className="text-xs text-gray-500">Quantity</Label>

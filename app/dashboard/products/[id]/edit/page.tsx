@@ -11,13 +11,7 @@ import { useTranslation } from "@/lib/hooks/use-translation";
 import { Button } from "@/components/saturasui/button";
 import { Input } from "@/components/saturasui/input";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/saturasui/searchable-select";
 import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import {
@@ -390,30 +384,12 @@ export default function EditProductPage() {
                       Category *
                     </Label>
                     <div className="flex gap-1.5">
-                      <Select
+                      <SearchableSelect
                         value={form.watch("category_id")}
-                        onValueChange={(value) => {
-                          if (value) {
-                            form.setValue("category_id", value);
-                            return;
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent className="border-[#F2F1ED]">
-                          {categories?.map((category) => (
-                            <SelectItem
-                              key={category.id}
-                              value={category.id}
-                              className="text-xs"
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onValueChange={(value) => { if (value) form.setValue("category_id", value); }}
+                        options={categories?.map((c) => ({ value: c.id, label: c.name })) ?? []}
+                        placeholder="Select category"
+                      />
                       <Button
                         type="button"
                         variant="outline"
@@ -558,32 +534,12 @@ export default function EditProductPage() {
                             <span className="text-red-500">*</span>
                           </Label>
                           <div className="flex gap-1.5">
-                            <Select
-                              value={form.watch(
-                                `specifications.${index}.measurement_unit_id`
-                              )}
-                              onValueChange={(val) =>
-                                form.setValue(
-                                  `specifications.${index}.measurement_unit_id`,
-                                  val
-                                )
-                              }
-                            >
-                              <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                                <SelectValue placeholder="Select unit" />
-                              </SelectTrigger>
-                              <SelectContent className="border-[#F2F1ED]">
-                                {measurementUnits?.map((unit) => (
-                                  <SelectItem
-                                    key={unit.id}
-                                    value={unit.id}
-                                    className="text-xs"
-                                  >
-                                    {unit.name} ({unit.symbol})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <SearchableSelect
+                              value={form.watch(`specifications.${index}.measurement_unit_id`) ?? ""}
+                              onValueChange={(val) => form.setValue(`specifications.${index}.measurement_unit_id`, val)}
+                              options={measurementUnits?.map((u) => ({ value: u.id, label: `${u.name} (${u.symbol})` })) ?? []}
+                              placeholder="Select unit"
+                            />
                             <Button
                               type="button"
                               variant="outline"

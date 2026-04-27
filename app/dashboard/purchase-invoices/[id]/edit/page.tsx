@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/saturasui/searchable-select";
 import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Plus, Trash2, Loader2, ArrowLeft, RefreshCw } from "lucide-react";
@@ -619,7 +620,7 @@ export default function EditPurchaseInvoicePage() {
                               name={`items.${index}.product_id`}
                               control={form.control}
                               render={({ field }) => (
-                                <Select
+                                <SearchableSelect
                                   value={field.value}
                                   onValueChange={(value) => {
                                     field.onChange(value);
@@ -629,30 +630,13 @@ export default function EditPurchaseInvoicePage() {
                                       form.setValue(`items.${index}.price`, defaultPrice);
                                     }
                                   }}
-                                >
-                                  <SelectTrigger className="w-[200px] h-7">
-                                    <SelectValue placeholder="Select product" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {products.map((product) => {
-                                      const displayPrice = getProductDisplayPrice(product);
-                                      return (
-                                        <SelectItem
-                                          key={product.id}
-                                          value={product.id}
-                                          className="text-sm"
-                                        >
-                                          <span>{product.name}</span>
-                                          {displayPrice && (
-                                            <span className="text-xs text-gray-400 ml-1.5">
-                                              {displayPrice}
-                                            </span>
-                                          )}
-                                        </SelectItem>
-                                      );
-                                    })}
-                                  </SelectContent>
-                                </Select>
+                                  options={products.map((p) => {
+                                    const displayPrice = getProductDisplayPrice(p);
+                                    return { value: p.id, label: displayPrice ? `${p.name} (${displayPrice})` : p.name };
+                                  })}
+                                  placeholder="Select product"
+                                  className="w-[200px] h-7"
+                                />
                               )}
                             />
                           </TableCell>
@@ -694,7 +678,7 @@ export default function EditPurchaseInvoicePage() {
                               name={`items.${index}.unit_id`}
                               control={form.control}
                               render={({ field }) => (
-                                <Select
+                                <SearchableSelect
                                   value={field.value || ""}
                                   onValueChange={(value) => {
                                     field.onChange(value || null);
@@ -705,34 +689,13 @@ export default function EditPurchaseInvoicePage() {
                                       }
                                     }
                                   }}
-                                >
-                                  <SelectTrigger className="w-[120px] h-7">
-                                    <SelectValue placeholder="Unit" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {item?.product_id
-                                      ? getProductUnits(item.product_id).map(
-                                          (unit) => (
-                                            <SelectItem
-                                              key={unit.id}
-                                              value={unit.id}
-                                              className="text-sm"
-                                            >
-                                              {unit.symbol || unit.name}
-                                            </SelectItem>
-                                          )
-                                        )
-                                      : measurementUnits.map((unit) => (
-                                          <SelectItem
-                                            key={unit.id}
-                                            value={unit.id}
-                                            className="text-sm"
-                                          >
-                                            {unit.symbol || unit.name}
-                                          </SelectItem>
-                                        ))}
-                                  </SelectContent>
-                                </Select>
+                                  options={(item?.product_id ? getProductUnits(item.product_id) : measurementUnits).map((u) => ({
+                                    value: u.id,
+                                    label: u.symbol || u.name,
+                                  }))}
+                                  placeholder="Unit"
+                                  className="w-[120px] h-7"
+                                />
                               )}
                             />
                           </TableCell>

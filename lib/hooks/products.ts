@@ -253,7 +253,7 @@ export const useProductOptions = () => {
   const { user } = useAuth();
   const { data, error, isValidating } = useSWR<ApiResponse<WithPagingResponse<Product>>>(
     user?.company_id
-      ? `v1/products?company_id=${user.company_id}&size=1000`
+      ? `v1/products?company_id=${user.company_id}&size=100`
       : null,
     fetcher
   );

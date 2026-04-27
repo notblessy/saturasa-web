@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/saturasui/searchable-select";
 import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { useSales, SalesRequest } from "@/lib/hooks/sales";
@@ -387,31 +388,16 @@ export default function NewSalePage() {
                               name={`items.${index}.product_id`}
                               control={form.control}
                               render={({ field }) => (
-                                <Select
-                                  value={field.value}
+                                <SearchableSelect
+                                  value={field.value || ""}
                                   onValueChange={(value) => {
                                     field.onChange(value);
-                                    form.setValue(
-                                      `items.${index}.unit_id`,
-                                      null
-                                    );
+                                    form.setValue(`items.${index}.unit_id`, null);
                                   }}
-                                >
-                                  <SelectTrigger className="w-[200px] h-7">
-                                    <SelectValue placeholder="Select product" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {products.map((product) => (
-                                      <SelectItem
-                                        key={product.id}
-                                        value={product.id}
-                                        className="text-sm"
-                                      >
-                                        {product.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                  options={products.map((p) => ({ value: p.id, label: p.name }))}
+                                  placeholder="Select product"
+                                  className="w-[200px] h-7"
+                                />
                               )}
                             />
                             {form.formState.errors.items?.[index]
@@ -457,39 +443,16 @@ export default function NewSalePage() {
                               name={`items.${index}.unit_id`}
                               control={form.control}
                               render={({ field }) => (
-                                <Select
+                                <SearchableSelect
                                   value={field.value || ""}
-                                  onValueChange={(value) =>
-                                    field.onChange(value || null)
-                                  }
-                                >
-                                  <SelectTrigger className="w-[120px] h-7">
-                                    <SelectValue placeholder="Unit" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {productId
-                                      ? getProductUnits(productId).map(
-                                          (unit) => (
-                                            <SelectItem
-                                              key={unit.id}
-                                              value={unit.id}
-                                              className="text-sm"
-                                            >
-                                              {unit.symbol || unit.name}
-                                            </SelectItem>
-                                          )
-                                        )
-                                      : measurementUnits.map((unit) => (
-                                          <SelectItem
-                                            key={unit.id}
-                                            value={unit.id}
-                                            className="text-sm"
-                                          >
-                                            {unit.symbol || unit.name}
-                                          </SelectItem>
-                                        ))}
-                                  </SelectContent>
-                                </Select>
+                                  onValueChange={(value) => field.onChange(value || null)}
+                                  options={(productId ? getProductUnits(productId) : measurementUnits).map((u) => ({
+                                    value: u.id,
+                                    label: u.symbol || u.name,
+                                  }))}
+                                  placeholder="Unit"
+                                  className="w-[120px] h-7"
+                                />
                               )}
                             />
                           </TableCell>

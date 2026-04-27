@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/saturasui/searchable-select";
 import { Label } from "@/components/saturasui/label";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/saturasui/card";
@@ -25,7 +26,7 @@ import {
   type BOM,
   type BOMWithDetailsRequest,
 } from "@/lib/hooks/bom";
-import { useProducts } from "@/lib/hooks/products";
+import { useProductOptions } from "@/lib/hooks/products";
 import { useMeasurementUnitOptions } from "@/lib/hooks/measurement_units";
 
 // Utility function to format currency in Indonesian Rupiah
@@ -59,7 +60,7 @@ export default function EditBOMPage() {
   const bomId = params.id as string;
 
   const { loading, onEdit } = useBOMs();
-  const { data: productsData } = useProducts();
+  const { data: products } = useProductOptions();
   const { data: measurementUnits } = useMeasurementUnitOptions();
 
   // Use the useBOM hook to fetch single BOM data
@@ -264,23 +265,12 @@ export default function EditBOMPage() {
                     <Label htmlFor="product_id" className="text-xs font-medium">
                       Product <span className="text-red-500">*</span>
                     </Label>
-                    <Select
+                    <SearchableSelect
                       value={form.watch("product_id")}
-                      onValueChange={(value) =>
-                        form.setValue("product_id", value)
-                      }
-                    >
-                      <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                        <SelectValue placeholder="Select Product" />
-                      </SelectTrigger>
-                      <SelectContent className="border-[#F2F1ED]">
-                        {productsData?.records?.map((product) => (
-                          <SelectItem key={product.id} value={product.id} className="text-xs">
-                            {product.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onValueChange={(value) => form.setValue("product_id", value)}
+                      options={products?.map((p) => ({ value: p.id, label: p.name })) ?? []}
+                      placeholder="Select Product"
+                    />
                     {form.formState.errors.product_id && (
                       <p className="text-xs text-red-500">
                         {form.formState.errors.product_id.message}
@@ -292,21 +282,12 @@ export default function EditBOMPage() {
                     <Label htmlFor="unit_id" className="text-xs font-medium">
                       Unit <span className="text-red-500">*</span>
                     </Label>
-                    <Select
+                    <SearchableSelect
                       value={form.watch("unit_id")}
                       onValueChange={(value) => form.setValue("unit_id", value)}
-                    >
-                      <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                        <SelectValue placeholder="Select Unit" />
-                      </SelectTrigger>
-                      <SelectContent className="border-[#F2F1ED]">
-                        {measurementUnits?.map((unit) => (
-                          <SelectItem key={unit.id} value={unit.id} className="text-xs">
-                            {unit.name} ({unit.symbol})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={measurementUnits?.map((u) => ({ value: u.id, label: `${u.name} (${u.symbol})` })) ?? []}
+                      placeholder="Select Unit"
+                    />
                     {form.formState.errors.unit_id && (
                       <p className="text-xs text-red-500">
                         {form.formState.errors.unit_id.message}
@@ -391,48 +372,23 @@ export default function EditBOMPage() {
                       <Label className="text-xs font-medium">
                         Product <span className="text-red-500">*</span>
                       </Label>
-                      <Select
+                      <SearchableSelect
                         value={form.watch(`bom_details.${index}.product_id`)}
-                        onValueChange={(value) =>
-                          form.setValue(
-                            `bom_details.${index}.product_id`,
-                            value
-                          )
-                        }
-                      >
-                        <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                          <SelectValue placeholder="Select Product" />
-                        </SelectTrigger>
-                        <SelectContent className="border-[#F2F1ED]">
-                          {productsData?.records?.map((product) => (
-                            <SelectItem key={product.id} value={product.id} className="text-xs">
-                              {product.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onValueChange={(value) => form.setValue(`bom_details.${index}.product_id`, value)}
+                        options={products?.map((p) => ({ value: p.id, label: p.name })) ?? []}
+                        placeholder="Select Product"
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-medium">
                         Unit <span className="text-red-500">*</span>
                       </Label>
-                      <Select
+                      <SearchableSelect
                         value={form.watch(`bom_details.${index}.unit_id`)}
-                        onValueChange={(value) =>
-                          form.setValue(`bom_details.${index}.unit_id`, value)
-                        }
-                      >
-                        <SelectTrigger className="h-8 text-xs border-[#F2F1ED]">
-                          <SelectValue placeholder="Select Unit" />
-                        </SelectTrigger>
-                        <SelectContent className="border-[#F2F1ED]">
-                          {measurementUnits?.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id} className="text-xs">
-                              {unit.name} ({unit.symbol})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onValueChange={(value) => form.setValue(`bom_details.${index}.unit_id`, value)}
+                        options={measurementUnits?.map((u) => ({ value: u.id, label: `${u.name} (${u.symbol})` })) ?? []}
+                        placeholder="Select Unit"
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-medium">
