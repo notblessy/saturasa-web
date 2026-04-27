@@ -209,6 +209,7 @@ export default function ProductionsPage() {
                 <TableHead>Product</TableHead>
                 <TableHead>Branch</TableHead>
                 <TableHead>Quantity</TableHead>
+                <TableHead>HPP / Unit</TableHead>
                 <TableHead>Created Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -232,6 +233,9 @@ export default function ProductionsPage() {
                         <Skeleton className="h-4 w-16" />
                       </TableCell>
                       <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+                      <TableCell>
                         <Skeleton className="h-4 w-20" />
                       </TableCell>
                       <TableCell>
@@ -245,7 +249,7 @@ export default function ProductionsPage() {
                 </>
               ) : productions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     <p className="text-xs text-gray-500">
                       No productions found
                     </p>
@@ -265,6 +269,11 @@ export default function ProductionsPage() {
                     </TableCell>
                     <TableCell className="text-xs">
                       {production.quantity}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {production.status === "completed" && production.hpp_per_unit
+                        ? Number(production.hpp_per_unit).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : <span className="text-gray-400">-</span>}
                     </TableCell>
                     <TableCell className="text-xs">
                       {formatDate(production.created_at)}

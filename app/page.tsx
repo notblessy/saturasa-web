@@ -129,7 +129,7 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-full overflow-y-auto bg-background">
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-sm border-b border-[#F2F1ED] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

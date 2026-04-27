@@ -216,6 +216,32 @@ export default function ProductionDetailPage() {
                     {formatDateTime(production.updated_at)}
                   </TableCell>
                 </TableRow>
+                {production.status === "completed" && (
+                  <>
+                    <TableRow className="border-b border-[#F2F1ED]">
+                      <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
+                        Total Production Cost
+                      </TableCell>
+                      <TableCell className="font-semibold text-gray-900 text-xs py-2 px-3">
+                        {Number(production.total_cost ?? 0).toLocaleString("id-ID", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="border-b border-[#F2F1ED]">
+                      <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">
+                        HPP / Unit
+                      </TableCell>
+                      <TableCell className="font-semibold text-primary text-xs py-2 px-3">
+                        {Number(production.hpp_per_unit ?? 0).toLocaleString("id-ID", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </TableCell>
+                    </TableRow>
+                  </>
+                )}
                 {production.notes && (
                   <TableRow>
                     <TableCell className="font-medium text-gray-700 bg-[#F7F7F4] text-xs py-2 px-3">

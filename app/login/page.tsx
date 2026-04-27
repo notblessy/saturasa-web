@@ -32,7 +32,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="h-full bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-between items-center">
           <Link

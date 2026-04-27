@@ -38,6 +38,8 @@ export interface Production {
   quantity: number;
   status: string;
   notes?: string;
+  total_cost?: number;
+  hpp_per_unit?: number;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;

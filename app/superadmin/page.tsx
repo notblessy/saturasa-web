@@ -79,7 +79,7 @@ export default function SuperAdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="h-full overflow-y-auto bg-background p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
